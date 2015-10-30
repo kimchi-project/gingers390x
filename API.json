@@ -1,0 +1,8 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "title": "Ginger S390x API",
+    "description": "Json schema for Gigner S390x API",
+    "type": "object",
+    "properties": {
+    }
+}
