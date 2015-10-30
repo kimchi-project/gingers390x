@@ -1,0 +1,46 @@
+Name:		gingers390x
+Version:	@PACKAGE_VERSION@
+Release:	@PACKAGE_RELEASE@%{?dist}
+Summary:	Ginger S390x plugin
+BuildRoot:	%{_topdir}/BUILD/%{name}-%{version}-%{release}
+BuildArch:	noarch
+Group:		System Environment/Base
+License:	LGPL/ASL2
+Source0:	%{name}-%{version}.tar.gz
+Requires:	wok
+Requires:       python-mock
+BuildRequires:	libxslt
+BuildRequires:	python-lxml
+
+
+%description
+Ginger S390x is a KVM for IBM z Systems IO management tool that provides an intuitive web panel with
+common tools for configuring and managing the Linux systems.
+
+
+%prep
+%setup
+
+%build
+%configure
+make
+
+
+%install
+rm -rf %{buildroot}
+make DESTDIR=%{buildroot} install
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
+%files
+%attr(-,root,root)
+%{python_sitelib}/wok/plugins/gingers390x/
+%{_datadir}/gingers390x/doc/API.md
+%{_datadir}/gingers390x/doc/README.md
+%{_datadir}/wok/plugins/gingers390x/
+%{_sysconfdir}/wok/plugins.d/gingers390x.conf
+
+%changelog
