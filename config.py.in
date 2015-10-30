@@ -1,0 +1,61 @@
+#
+# Project Ginger S390x
+#
+# Copyright IBM, Corp. 2015
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+#
+
+import os
+import threading
+
+from wok.config import CACHEEXPIRES, PluginConfig, PluginPaths
+
+
+def get_object_store():
+    return os.path.join(PluginPaths('gingers390x').state_dir,
+                        'objectstore' + '_gingers390x')
+
+
+gingerS390xLock = threading.Lock()
+
+
+class GingerS390xPaths(PluginPaths):
+
+    def __init__(self):
+        super(GingerS390xPaths, self).__init__('gingers390x')
+
+
+gingerS390xPaths = GingerS390xPaths()
+
+
+class GingerS390xConfig(PluginConfig):
+    def __init__(self):
+        super(GingerS390xConfig, self).__init__('gingers390x')
+
+        custom_config = {}
+        for dirname in ('css', 'js', 'images'):
+            custom_config['/' + dirname] = {
+                'tools.staticdir.on': True,
+                'tools.staticdir.dir': os.path.join(gingerS390xPaths.ui_dir,
+                                                    dirname),
+                'tools.wokauth.on': False,
+                'tools.nocache.on': False}
+            if dirname != 'images':
+                custom_config['/' + dirname].update({
+                    'tools.expires.on': True,
+                    'tools.expires.secs': CACHEEXPIRES})
+
+        self.update(custom_config)
