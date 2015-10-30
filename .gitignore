@@ -33,3 +33,4 @@ po/gen-pot
 *.orig
 *.rej
 *.pem
+rpm

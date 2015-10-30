@@ -1,0 +1,27 @@
+CHANGELOG
+=========
+
+#### [1.0.0] ####
+ * [bd0963f] Ginger S390x: Added AUTHORS and CONTRIBUTE.md files                            (Archana Singh)
+ * [e0e3e27] Ginger S390x: Added autogen and configure.ac file                              (Archana Singh)
+ * [33ef799] Ginger S390x: Added about-nls file                                             (Archana Singh)
+ * [214dd74] Ginger S390x: Added install and version file                                   (Archana Singh)
+ * [f1f6664] Ginger S390x: Added gingers390x init file                                      (Archana Singh)
+ * [dd5880d] Ginger S390x: Added gingers390x conf and py file                               (Archana Singh)
+ * [c981d07] Ginger S390x: Added mockmodel.py                                               (Archana Singh)
+ * [9d9c02e] Ginger S390x: Added config files                                               (Archana Singh)
+ * [1beaeab] Ginger S390x: Added model.py file                                              (Archana Singh)
+ * [6b0756f] Ginger S390x: Added i18n.py file                                               (Archana Singh)
+ * [58002d2] Ginger S390x: Added contrib directory and files                                (Archana Singh)
+ * [a1c2f16] Ginger S390x: Added build-aux directory and files                              (Archana Singh)
+ * [8ad92c6] Ginger S390x: Added ui directory and its files                                 (Archana Singh)
+ * [9012f8e] Ginger S390x: Added m4 directory and files                                     (Archana Singh)
+ * [a10fbaf] Ginger S390x: Added tests dir with its files                                   (Archana Singh)
+ * [4a609ba] Ginger S390x: makefile.am and control files                                    (Archana Singh)
+ * [b90cc42] Ginger S390x: model init and makefile.am                                       (Archana Singh)
+ * [27cb838] Ginger S390x: docs MakeFile.am                                                 (Archana Singh)
+ * [2cab9c6] Ginger S390x: API.json file                                                    (Archana Singh)
+ * [5c75030] Ginger S390x: API.md file                                                      (Archana Singh)
+ * [628f1d6]  Ginger S390x: .gitignore file                                                 (Archana Singh)
+ * [60606f0] Ginger S390x: README files                                                     (Archana Singh)
+ * [b9b77d4] Ginger S390x: License files                                                    (Archana Singh)
