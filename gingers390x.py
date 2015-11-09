@@ -30,6 +30,13 @@ from wok.plugins.gingers390x.model import model as gingerS390xModel
 
 class GingerS390x(WokRoot):
     def __init__(self, wok_options):
+        make_dirs = [
+            os.path.dirname(os.path.abspath(config.get_object_store())),
+        ]
+        for directory in make_dirs:
+            if not os.path.isdir(directory):
+                os.makedirs(directory)
+
         if hasattr(wok_options, "model"):
             self.model = wok_options.model
         elif wok_options.test:
@@ -48,13 +55,6 @@ class GingerS390x(WokRoot):
         self.paths = config.gingerS390xPaths
         self.domain = 'gingers390x'
         self.messages = messages
-
-        make_dirs = [
-            os.path.dirname(os.path.abspath(config.get_object_store())),
-        ]
-        for directory in make_dirs:
-            if not os.path.isdir(directory):
-                os.makedirs(directory)
 
     def get_custom_conf(self):
         return config.GingerS390xConfig()

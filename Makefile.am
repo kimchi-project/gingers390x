@@ -116,7 +116,6 @@ install-data-local:
 
 uninstall-local:
 	$(RM) $(DESTDIR)$(gingers390xdir)/API.json
-	$(RM) -rf $(DESTDIR)/$(localstatedir)/lib/gingers390x/
 
 VERSION:
 	@if test -d .git; then                                \

@@ -26,7 +26,7 @@ from wok.config import CACHEEXPIRES, PluginConfig, PluginPaths
 
 def get_object_store():
     return os.path.join(PluginPaths('gingers390x').state_dir,
-                        'objectstore' + '_gingers390x')
+                        'objectstore')
 
 
 gingerS390xLock = threading.Lock()
