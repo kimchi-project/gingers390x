@@ -60,8 +60,9 @@ class Model(BaseModel):
             if mod_name.startswith("_") or mod_name == this_mod:
                 continue
 
-            instances = get_instances('wok.plugins.gingers390x.model.'
-                                      + mod_name)
+            instances = get_instances(
+                'wok.plugins.gingers390x.model.' + mod_name
+            )
             for instance in instances:
                 models.append(instance(**kargs))
 
