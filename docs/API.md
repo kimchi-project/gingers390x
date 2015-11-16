@@ -34,3 +34,56 @@ the following general conventions:
 * URIs begin with '/plugins/gingers390x' to indicate the root of gingers390x plugin.
     * Variable segments in the URI begin with a ':' and should replaced with the
       appropriate resource identifier.
+
+
+### Collection: Tasks
+
+**URI:** /plugins/gingers390x/tasks
+
+**Methods:**
+
+* **GET**: Retrieve a summarized list of current Ginger s390x specific Tasks (stored
+in Gingers390x's object store)
+
+### Resource: Task
+
+**URI:** /plugins/gingers390x/tasks/*:id*
+
+A task represents an asynchronous operation that is being performed by the
+server.
+
+**Methods:**
+
+* **GET**: Retrieve the full description of the Task
+    * id: The Task ID is used to identify this Task in the API.
+    * status: The current status of the Task
+        * running: The task is running
+        * finished: The task has finished successfully
+        * failed: The task failed
+    * message: Human-readable details about the Task status
+    * target_uri: Resource URI related to the Task
+* **POST**: *See Task Actions*
+
+**Actions (POST):**
+
+*No actions defined*
+
+### Resource: CIO Ignore List(Blacklist)
+
+**URI:** /plugins/gingers390x/cio_ignore
+
+Contains information about black listed i/o devices.
+
+**Methods:**
+
+* **GET**: Retrieve cio ignore list
+    * ignored_devices: List of device ids in ignore list
+
+* **POST**: *See CIO Ignore list Actions*
+
+**Actions (POST):**
+
+* remove: Remove devices from ignore list in background and return
+          a task resource * See Resource: Task *
+    * devices: list of device ids(can be combination of individual device id or
+               range of device ids) to be removed from ignore list
