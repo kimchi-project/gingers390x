@@ -17,15 +17,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import gettext
+from wok.control.base import Resource
+from wok.control.utils import UrlSubNode
 
-_ = gettext.gettext
 
+@UrlSubNode("cio_ignore")
+class CIOIgnore(Resource):
+    def __init__(self, model):
+        super(CIOIgnore, self).__init__(model)
+        self.admin_methods = ['GET', 'POST']
+        self.role_key = "administration"
+        self.uri_fmt = "/cio_ignore/%s"
+        self.params = ['devices']
+        self.remove = self.generate_action_handler_task('remove', self.params)
 
-messages = {
-    "GS390INVINPUT": _("Invalid input. Reason =  %(reason)s"),
-
-    "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
-    "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
-                        "Failed Devices = %(failed_devices)s")
-}
+    @property
+    def data(self):
+        return self.info
