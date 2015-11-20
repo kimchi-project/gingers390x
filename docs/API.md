@@ -87,3 +87,38 @@ Contains information about black listed i/o devices.
           a task resource * See Resource: Task *
     * devices: list of device ids(can be combination of individual device id or
                range of device ids) to be removed from ignore list
+
+### Collection: Storage I/O devices
+
+**URI:** /plugins/gingers390x/storagedevices
+
+**Methods:**
+
+* **GET**: Retrieve summarized list of defined IO storage devices of type dasd-eckd and zfcp
+    * Parameters:
+        * _type: Filter device list with given type, currently support
+                        'dasd-eckd' and 'zfcp'.
+
+### Resource: Storage I/O device
+
+**URI:** /plugins/gingers390x/storagedevices/*:device*
+
+**Methods:**
+
+* **GET**: Retrieve information of the specified IO storage device.
+    * device: Device ID of the device
+    * status: status of the device
+             * online:  The device is online.
+             * offline: The device is offline.
+    * cu_type: Control unit type and model of the device.
+    * sub_channel: Sub channel bus id of the device.
+    * device_type:  Device type and model of the device.
+    * installed_chipids: installed CHIPIDs for the device
+    * enabled_chipids: currently available CHIPIDs for the device
+
+* **POST**: *See Storage I/O device Actions*
+
+**Actions (POST):**
+
+* online: Bring device online
+* offline: Bring device offline
