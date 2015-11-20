@@ -23,7 +23,11 @@ _ = gettext.gettext
 
 
 messages = {
-    "GS390INVINPUT": _("Invalid input. Reason =  %(reason)s"),
+    "GS390XINVTYPE": _("Only supported type: '%(supported_type)s'."),
+    "GS390XINVINPUT": _("Invalid input. Reason =  %(reason)s"),
+    "GS390XCMD0001E": _("Command failed. Command = %(command)s, RC = %(rc)s, "
+                        "REASON = %(reason)s'."),
+    "GS390XREG0001E": _("Issue with regex. Reason =  %(reason)s"),
 
     "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
     "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
