@@ -61,12 +61,12 @@ class CIOIgnoreModel(object):
         # Check the type of devices.
         if not (isinstance(devices, list)):
             wok_log.error('Input is not of type list. Input: %s' % devices)
-            raise InvalidParameter('GS390INVINPUT', {'reason': 'input must '
-                                                               'be of type'
-                                                               ' list'})
+            raise InvalidParameter('GS390XINVINPUT', {'reason': 'input must '
+                                                                'be of type'
+                                                                ' list'})
 
         wok_log.info('Removing devices %s from ignore list' % devices)
-        taskid = add_task('/plugins/gingers390/cioignore/remove',
+        taskid = add_task('/plugins/gingers390x/cioignore/remove',
                           _remove_devices, self.objstore, devices)
         return self.task.lookup(taskid)
 
