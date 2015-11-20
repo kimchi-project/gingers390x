@@ -122,3 +122,38 @@ Contains information about black listed i/o devices.
 
 * online: Bring device online
 * offline: Bring device offline
+
+### Collection: Network I/O devices
+
+**URI:** /plugins/gingers390x/nwdevices
+
+**Methods:**
+
+* **GET**: Retrieve summarized list of defined Network I/O devices of type OSA
+    * Parameters:
+        * _configured: Filter device list with configured or un-configured devices,
+                       currently support 'True' and 'False'.
+
+### Resource: Network I/O device
+
+**URI:** /plugins/gingers390x/nwdevices/*:name*
+
+**Methods:**
+
+* **GET**: Retrieve information of the specified network i/o device.
+    * name: Interface name of the device
+    * state: Specifies current state of the interface
+    * driver: Specifies device driver for the interface
+    * device_ids: List of sub channels(network triplets) of the interface
+    * type:  Device type and model of the interface.
+    * card_tpe: Specifies type of the network adapter
+    * chpid: CHPID of the interface
+
+* **POST**: *See Network I/O device Actions*
+
+**Actions (POST):**
+
+* configure: Configure network device in background and return
+             a task resource * See Resource: Task *
+* unconfigure: Un-configure network device in background and return
+               a task resource * See Resource: Task *
