@@ -29,6 +29,10 @@ messages = {
                         "REASON = %(reason)s'."),
     "GS390XREG0001E": _("Issue with regex. Reason =  %(reason)s"),
 
+    "GS390XIOST001E": _("Failed to bring device online. Error = %(error)s"),
+    "GS390XIOST002E": _("Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"),
+    "GS390XIOST003E": _("Failed to remove device from dasd.conf file. Device = %(device)s"),
+
     "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
     "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
                         "Failed Devices = %(failed_devices)s")

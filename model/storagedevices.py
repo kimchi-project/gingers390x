@@ -18,10 +18,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 import binascii
+import os
 import re
 
 import model_utils as utils
 from wok.exception import InvalidParameter, OperationFailed
+from wok.rollbackcontext import RollbackContext
 from wok.utils import run_command, wok_log
 
 
@@ -154,6 +156,22 @@ class StorageDeviceModel(object):
     def lookup(self, device):
         device_info = self.get_storagedevice(device)
         return device_info
+
+    def online(self, device):
+        """
+        Bring the device online.
+        :param device: device id
+        """
+        device = _validate_device(device)
+        _device_online(device)
+
+    def offline(self, device):
+        """
+        Bring the device offline.
+        :param device: device id
+        """
+        device = _validate_device(device)
+        _device_offline(device)
 
 
 def _format_lscss(device):
@@ -305,6 +323,42 @@ def _validate_device(device):
     return device
 
 
+def _device_online(device):
+    """
+    Bring device online, if it is not online.
+    On success, if device is dasd-eckd and if it is not present in DASD_CONF
+    then add it in DASD_CONF file.
+    And if failed to add it, then bring the device in previous state.
+    :param device: device id
+    """
+    with RollbackContext() as rollback:
+        if not _is_online(device):
+            _bring_online(device)
+            rollback.prependDefer(_bring_offline, device)
+        if _is_dasdeckd_device(device):
+            if not _is_dasdeckd_persisted(device):
+                _persist_dasdeckd_device(device)
+        rollback.commitAll()
+
+
+def _device_offline(device):
+    """
+    Bring device offline, if it is not offline.
+    On success, if device is dasd-eckd and if it is present in DASD_CONF then
+    remove it from DASD_CONF file.
+    And if failed to remove it, then bring the device in previous state.
+    :param device: device id
+    """
+    with RollbackContext() as rollback:
+        if _is_online(device):
+            _bring_offline(device)
+            rollback.prependDefer(_bring_online, device)
+        if _is_dasdeckd_device(device):
+            if _is_dasdeckd_persisted(device):
+                _unpersist_dasdeckd_device(device)
+        rollback.commitAll()
+
+
 def _get_dasdeckd_devices():
     """
     Return list of dasd-eckd devices
@@ -329,6 +383,101 @@ def _get_zfcp_devices():
         if device:
             zfcp_devices.append(device)
     return zfcp_devices
+
+
+def _is_online(device):
+    """
+    Return True if device is online, else return False
+    :param device: device id
+    """
+    if os.access('/sys/bus/ccw/devices/%s/online' % device, os.R_OK):
+        online_file = None
+        try:
+            online_file = open('/sys/bus/ccw/devices/%s/online' % device)
+            value = online_file.readline()
+            if value and value.strip() == '1':
+                return True
+        finally:
+            if online_file:
+                online_file.close()
+    return False
+
+
+def _is_dasdeckd_persisted(device):
+    """
+    Return True if device persent in DASD_CONF, else return False
+    :param device: dasd-eckd device id
+    """
+    if os.access(DASD_CONF, os.R_OK):
+        dasd_conf = None
+        try:
+            dasd_conf = open(DASD_CONF)
+            dasd_conf.seek(0, 0)
+            conf_content = dasd_conf.read()
+            if re.search(br'(?i)%s' % device, conf_content):
+                return True
+        finally:
+            if dasd_conf:
+                dasd_conf.close()
+    return False
+
+
+def _bring_online(device):
+    """
+    Bring the device online
+    :param device: device id
+    """
+    command_online = [chccwdev, '-e', device]
+    out, err, rc = run_command(command_online)
+    if rc:
+        err = ','.join(line.strip() for line in err.splitlines())
+        wok_log.error("Failed to bring device %s online. Error: %s"
+                      % (device, err))
+        raise OperationFailed("GS390XIOST001E", {'error': err})
+
+
+def _bring_offline(device):
+    """
+    Bring the device offline
+    :param device: device id
+    """
+    command_offline = [chccwdev, '-d', device]
+    out, err, rc = run_command(command_offline)
+    if rc:
+        err = ','.join(line.strip() for line in err.splitlines())
+        wok_log.error("Failed to bring device %s offline. Error: %s"
+                      % (device, err))
+        raise OperationFailed("GS390IOST004E", {'error': err})
+
+
+def _persist_dasdeckd_device(device):
+    """
+    Add the dasd-eckd device id into DASD_CONF
+    :param device: device id
+    """
+    command_persist_dasdeckd = 'flock -w 1 %s -c \"echo %s >> %s\"' \
+                               % (DASD_CONF, device, DASD_CONF)
+    if os.access(DASD_CONF, os.W_OK):
+        retcode = os.system(command_persist_dasdeckd)
+        if not retcode:
+            return
+    wok_log.error("Failed to persist dasd-eckd device: %s" % device)
+    raise OperationFailed("GS390XIOST002E", {'device': device})
+
+
+def _unpersist_dasdeckd_device(device):
+    """
+    Remove the dasd-eckd device id from DASD_CONF
+    :param device: device id
+    """
+    command_unpersist_dasdeckd = 'flock -w 1 %s -c \"sed -i \'/%s/Id\' %s\"'\
+                                 % (DASD_CONF, device, DASD_CONF)
+    if os.access(DASD_CONF, os.W_OK):
+        retcode = os.system(command_unpersist_dasdeckd)
+        if not retcode:
+            return
+    wok_log.error("Failed to unpersist dasd-eckd device: %s" % device)
+    raise OperationFailed("GS390XIOST003E", {'device': device})
 
 
 def _is_dasdeckd_device(device):

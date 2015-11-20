@@ -63,9 +63,11 @@ class StorageDevice(Resource):
     def __init__(self, model, ident):
         super(StorageDevice, self).__init__(model, ident)
         self.role_key = 'administration'
-        self.admin_methods = ['GET']
+        self.admin_methods = ['GET', 'POST']
         self.uri_fmt = "/storagedevices/%s"
         self.info = {}
+        self.online = self.generate_action_handler('online')
+        self.offline = self.generate_action_handler('offline')
 
     @property
     def data(self):
