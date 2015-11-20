@@ -51,8 +51,10 @@ class NetworkDevice(Resource):
     def __init__(self, model, ident):
         super(NetworkDevice, self).__init__(model, ident)
         self.role_key = "administration"
-        self.admin_methods = ['GET']
+        self.admin_methods = ['GET', 'POST']
         self.uri_fmt = '/nwdevices/%s'
+        self.configure = self.generate_action_handler_task('configure')
+        self.unconfigure = self.generate_action_handler_task('unconfigure')
 
     @property
     def data(self):

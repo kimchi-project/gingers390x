@@ -33,6 +33,15 @@ messages = {
     "GS390XIOST002E": _("Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"),
     "GS390XIOST003E": _("Failed to remove device from dasd.conf file. Device = %(device)s"),
 
+    "GS390XIONW001E": _("Failed to bring network device %(device)s online. Error = %(error)s"),
+    "GS390XIONW002E": _("Failed to persist network device %(device)s in "
+                        "ifcfg file %(ifcfg_file_path)s. Error = %(error)s"),
+    "GS390XIONW003E": _("Failed to bring network device %(device)s offline. Error = %(error)s"),
+    "GS390XIONW004E": _("Failed to remove ifcfg file %(ifcfg_file_path)s of network "
+                        "device %(device)s. Error = %(error)s"),
+    "GS390XIONW005E": _("Failed to create ifcfg file %(ifcfg_file_path)s for "
+                        "network device %(device)s. Error = %(error)s"),
+
     "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
     "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
                         "Failed Devices = %(failed_devices)s")

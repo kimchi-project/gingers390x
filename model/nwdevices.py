@@ -17,12 +17,16 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+import atexit
+import augeas
+import os
 import re
 
 import model_utils as utils
 from wok.exception import InvalidParameter, OperationFailed
 from wok.model.tasks import TaskModel
-from wok.utils import run_command, wok_log
+from wok.rollbackcontext import RollbackContext
+from wok.utils import add_task, run_command, wok_log
 
 
 ZNETCONF_CMD = "znetconf"
@@ -40,6 +44,8 @@ SUBCHANNELS = 'SUBCHANNELS'
 NETTYPE = 'NETTYPE'
 ENCCW = 'enccw'
 
+ifcfg_path = 'etc/sysconfig/network-scripts/ifcfg-enccw<deviceid>'
+
 UNCONF_HDR_PATTERN = r'('+re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
                      r'('+re.escape(ZNETCONF_TYPE) + r')\s+' \
                      r'('+re.escape(ZNETCONF_CARDTYPE) + r')\s+' \
@@ -53,6 +59,14 @@ CONF_HDR_PATTERN = r'('+re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
                    r'('+re.escape(ZNETCONF_DRV) + r')\.\s+' \
                    r'('+re.escape(ZNETCONF_DEV_NAME) + r')\s+' \
                    r'('+re.escape(ZNETCONF_STATE) + r')\s+$'
+
+parser = augeas.Augeas('/')
+
+
+@atexit.register
+def augeas_cleanup():
+    global parser
+    del parser
 
 
 class NetworkDevicesModel(object):
@@ -120,6 +134,40 @@ class NetworkDeviceModel(object):
                                               'OSA. Device: %s' % name})
         wok_log.info('Attributes of network devices %s: %s' % (name, device))
         return device
+
+    def configure(self, interface):
+        """
+        method to configure network device - bring the network
+        device online and persist it
+        :param interface: name of the network interface
+         :return: returns task json
+        """
+        wok_log.info('Configuring network device %s' % interface)
+        device = str(interface).strip()
+        if ENCCW in device:
+            # filtering out device id from interface
+            device = device.replace(ENCCW, '')
+        taskid = add_task('/plugins/gingers390x/nwdevices/%s/configure'
+                          % interface, _configure_interface,
+                          self.objstore, device)
+        return self.task.lookup(taskid)
+
+    def unconfigure(self, interface):
+        """
+        method to un-configure network device - remove or bring the network
+        device offline and unpersist it
+        :param interface: name of the network interface
+        :return: returns task json
+        """
+        wok_log.info('Un-configuring network device %s' % interface)
+        device = str(interface).strip()
+        if ENCCW in device:
+            # filtering out device id from interface
+            device = device.replace(ENCCW, '')
+        taskid = add_task('/plugins/gingers390x/nwdevices/%s/unconfigure'
+                          % interface, _unconfigure_interface,
+                          self.objstore, device)
+        return self.task.lookup(taskid)
 
 
 def _get_configured_devices(key=None):
@@ -250,6 +298,49 @@ def _format_znetconf(device):
     return device
 
 
+def _configure_interface(cb, interface):
+    """
+    method to configure and persist network device.
+    Rollback is performed if it fails to persist.
+
+    :param interface: network device id
+    :return: None
+    """
+    cb('')  # reset messages
+    try:
+        with RollbackContext() as rollback:
+            if not _is_interface_online(interface):
+                _bring_online(interface)
+                rollback.prependDefer(_bring_offline, interface)
+                _create_ifcfg_file(interface)
+            _persist_interface(interface)
+            rollback.commitAll()
+        cb('Successfully configured network device %s' % interface, True)
+    except Exception as e:
+        cb(e.__str__(), False)
+
+
+def _unconfigure_interface(cb, interface):
+    """
+    method to un-configure/remove and unpersist network device.
+    Rollback is performed if it fails to unpersist.
+
+    :param interface: network device id
+    :return: None
+    """
+    cb('')  # reset messages
+    try:
+        with RollbackContext() as rollback:
+            if _is_interface_online(interface):
+                _bring_offline(interface)
+                rollback.prependDefer(_bring_online, interface)
+            _unpersist_interface(interface)
+            rollback.commitAll()
+        cb('Successfully un-configured network device %s' % interface, True)
+    except Exception as e:
+        cb(e.__str__(), False)
+
+
 def _validate_device(interface):
     """
     validate the device id. Valid device Ids should have
@@ -275,3 +366,180 @@ def _validate_device(interface):
         raise InvalidParameter("GS390XINVINPUT",
                                {'reason': 'device id is required. '
                                           'device id: %s' % interface})
+
+
+def _create_ifcfg_file(interface):
+    """
+    method to create ifcfg-enccw<device_id> file in
+    /etc/sysconfig/network-scripts/ folder and change
+    persmission of that file to 644 to be in sync with
+    other files in directory
+
+    :param interface: network device id
+    :return: None
+    """
+    wok_log.info('creating ifcfg file for %s', interface)
+    ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    try:
+        ifcfg_file = open(ifcfg_file_path, 'w+')
+        ifcfg_file.close()
+        os.system('chmod 644 ' + ifcfg_file_path)
+        wok_log.info('created file %s for network device %s'
+                     % (ifcfg_file_path, interface))
+    except Exception as e:
+        wok_log.error('failed to create file %s for network device %s. '
+                      'Error: %s' % (ifcfg_file_path, interface, e.__str__()))
+        raise OperationFailed("GS390XIONW005E",
+                              {'ifcfg_file_path': ifcfg_file_path,
+                               'device': interface,
+                               'error': e.__str__()})
+
+
+def _bring_online(interface):
+    """
+    method to configure network device
+
+    :param interface: network device id
+    :return: None
+    """
+    wok_log.info('Configuring network device %s' % interface)
+    command = [ZNETCONF_CMD, '-a', interface]
+    out, err, rc = run_command(command)
+    if rc:
+        err = ','.join(line.strip() for line in err.splitlines())
+        wok_log.error('failed to configure network device %s. '
+                      'Error: %s' % (interface, err))
+        raise OperationFailed('GS390XIONW001E', {'device': interface,
+                                                 'error': err})
+    else:
+        wok_log.info("Configured network device %s "
+                     "successfully" % interface)
+
+
+def _bring_offline(interface):
+    """
+    method to remove/un-configure network device
+
+    :param interface: network device id
+    :return: None
+    """
+    wok_log.info('Un-configuring network device %s' % interface)
+    command = [ZNETCONF_CMD, '-r', interface, '-n']
+    out, err, rc = run_command(command)
+    if rc:
+        err = ','.join(line.strip() for line in err.splitlines())
+        wok_log.error('failed to un-configure network device. '
+                      'Device: %s, Error: %s' % (interface, err))
+        raise OperationFailed('GS390XIONW003E', {'device': interface,
+                                                 'error': err})
+    wok_log.info('successfully removed network device %s' % interface)
+
+
+def _persist_interface(interface):
+    """
+    method to persist network device in by creating
+    ifcfg file in /etc/sysconfig/network-scripts/ directory
+    and updating required attributes in file
+
+    :param interface: network device id
+    :return: None
+    """
+    wok_log.info('persisting network device %s in ifcfg file' % interface)
+    ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    if os.path.isfile(ifcfg_file_path):
+        _write_ifcfg_params(interface)
+    else:
+        _create_ifcfg_file(interface)
+        _write_ifcfg_params(interface)
+    wok_log.info('successfully persisted network device %s '
+                 'in %s file' % (interface, ifcfg_file_path))
+
+
+def _unpersist_interface(interface):
+    """
+    method to unpersist network device by removing
+    ifcfg file of corresponding network device from
+    /etc/sysconfig/network-scripts/ directory
+
+    :param interface: network device id
+    :return: None
+    """
+    wok_log.info('un persisting network device %s' % interface)
+    ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    try:
+        if os.path.isfile(ifcfg_file_path):
+            os.remove(ifcfg_file_path)
+    except Exception as e:
+        wok_log.error('Failed to remove file %s. Error: %s'
+                      % (ifcfg_file_path, e.__str__()))
+        raise OperationFailed('GS390XIONW004E',
+                              {'ifcfg_file_path': ifcfg_file_path,
+                               'device': interface,
+                               'error': e.__str__()})
+    wok_log.info('successfully removed ifcfg file %s to unpersist '
+                 'network device %s' % (ifcfg_file_path, interface))
+
+
+def _write_ifcfg_params(interface):
+    """
+    method to write mandatory attributes to ifcfg file
+    of corresponding network device using augeas module
+    to persist it
+
+    :param interface: network device id
+    :return: None
+    """
+    wok_log.info('updating mandatory params to ifcfg file of '
+                 'network device %s to persist it' % interface)
+    configured_devices = _get_configured_devices(key=UNIQUE_COL_NAME)
+    device_info = configured_devices[ENCCW + interface]
+    sub_channels = ','.join(device_info['device_ids'])
+    device_name = device_info['name']
+    cfgmap = {DEVICE: device_name,
+              ONBOOT: 'yes',
+              SUBCHANNELS: sub_channels,
+              NETTYPE: 'qeth'}
+    ifcfg_file_pattern = ifcfg_path.replace('<deviceid>', interface) + '/'
+    ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    try:
+        parser.load()
+        for key, value in cfgmap.iteritems():
+            path = ifcfg_file_pattern+key
+            parser.set(path, value)
+        parser.save()
+    except Exception as e:
+        wok_log.error('Failedd to write device attributes to ifcfg file '
+                      'using augeas tool. Error: %s' % e.__str__())
+        raise OperationFailed('GS390XIONW002E',
+                              {'device': interface,
+                               'ifcfg_file_path': ifcfg_file_path,
+                               'error': e.__str__()})
+    wok_log.info('successfully updated mandatory params in ifcfg '
+                 'file of network device %s' % interface)
+
+
+def _is_interface_online(interface):
+    """
+    method to check if the network device is online
+
+    :param interface: network device id
+    :return: True or False
+    """
+    wok_log.info('checking if the network device %s is configured' % interface)
+    online_file_path = '/sys/bus/ccwgroup/devices/' + interface + '/online'
+    if os.path.isfile(online_file_path):
+        online_file = None
+        try:
+            online_file = open(online_file_path)
+            value = online_file.readline()
+            if value and value.strip() == '1':
+                wok_log.info('network device %s is '
+                             'configured' % interface)
+                return True
+        except:
+            return False
+        finally:
+            if online_file:
+                online_file.close()
+    wok_log.info('network device %s is not configured' % interface)
+    return False
