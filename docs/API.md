@@ -157,3 +157,38 @@ Contains information about black listed i/o devices.
              a task resource * See Resource: Task *
 * unconfigure: Un-configure network device in background and return
                a task resource * See Resource: Task *
+
+
+### Collection: Fiber Channel LUNs
+
+URI: /plugins/gingers390x/fcluns
+
+**Methods:**
+
+* **GET**: Retrieve a summarized list of all FC LUNs
+
+* **POST**: Add a LUN
+       * hbaId : ID of the HBA
+       * remoteWwpn : Remote port WWPN
+       * lunId : ID of the LUN
+
+### Resource: Fiber Channel LUN
+
+URI: /plugins/gingers390x/fcluns/*:lun_path*
+
+*Methods:**
+
+* **GET**: Retrieve the full description of the FC LUN
+
+       * status%: Online or offline
+       * product: Product type
+       * vendor:  Vendor of the storage controller
+       * configured: True if added to system, otherwise False
+       * hbaId : ID of the HBA
+       * sgDev : If LUN is configured, corresponding sg_device
+       * remoteWwpn : Remote ports WWPN
+       * controllerSN : Serial Number of the Storage Controller
+       * lunId : ID of the LUN
+       * type : Could be 'disk', 'tape' etc.
+
+* **DELETE**: Remove a LUN
