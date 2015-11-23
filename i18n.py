@@ -44,5 +44,18 @@ messages = {
 
     "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
     "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
-                        "Failed Devices = %(failed_devices)s")
+                        "Failed Devices = %(failed_devices)s"),
+    "GS390XSTG00001": _("Failed to remove sg device, %(err)s"),
+    "GS390XSTG00002": _("Failed to remove LUN, %(err)s"),
+    "GS390XSTG00003": _("Failed to add LUN, %(err)s"),
+    "GS390XSTG00004": _("Failed to validate input, %(err)s"),
+    "GS390XSTG00005": _("Failed to HBA ID, %(err)s"),
+    "GS390XSTG00006": _("Failed to remoteWwpn or LUN ID, %(err)s"),
+    "GS390XSTG00007": _("Failed to get list of LUNs, %(err)s"),
+    "GS390XSTG00008": _("Failed to LUN info, %(path)s"),
+    "GS390XSTG00009": _("Lun scan is enabled. Cannot add/remote LUNs manually."),
+    "GS390XSTG00010": _("hbaId is required for adding a LUN"),
+    "GS390XSTG00011": _("wwpn is required for adding a LUN"),
+    "GS390XSTG00012": _("lunId is required for adding a LUN"),
+    "GS390XSTG00013": _("Unable to parse '/etc/zipl.conf, %(err)s")
 }
