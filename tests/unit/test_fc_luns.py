@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 import mock
+import re
 import unittest
 
 import model.fc_luns as fc_luns
@@ -145,3 +146,20 @@ Report luns [select_report=0x0]:
             utils.validate_wwpn_or_lun,
             invalid_id
         )
+
+    def test_lun_scan(self):
+        self.assertRaises(Exception, utils.enable_lun_scan, "2")
+
+    def test_modify_boot_param(self):
+        boot_params_str = """elevator=deadline crashkernel=196M \
+zfcp.no_auto_port_rescan=1 zfcp.allow_lun_scan=0 cmma=on pci=on \
+root=/dev/disk/by-path/ccw-0.0.5184-part1 rd_DASD=0.0.5184"""
+
+        boot_param = "zfcp.allow_lun_scan"
+        param_value = "1"
+
+        boot_params_str = utils.modify_boot_param(
+            boot_params_str, boot_param, param_value)
+        pattern = r'.+zfcp\.allow_lun_scan=(\d)'
+        m = re.search(pattern, boot_params_str)
+        self.assertTrue(int(m.group(1)))
