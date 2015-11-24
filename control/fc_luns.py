@@ -21,11 +21,32 @@ from wok.control.base import Collection, Resource
 from wok.control.utils import UrlSubNode
 
 
+@UrlSubNode("lunscan")
+class LUNScan(Resource):
+    """
+    Resource representing the status of LUN scanning
+    """
+
+    def __init__(self, model):
+        super(LUNScan, self).__init__(model)
+        self.admin_methods = ['GET', 'POST']
+        self.role_key = "administration"
+        self.uri_fmt = "/lunscan/%s"
+        self.enable = self.generate_action_handler_task('enable')
+        self.disable = self.generate_action_handler_task('disable')
+        self.trigger = self.generate_action_handler_task('trigger')
+
+    @property
+    def data(self):
+        return self.info
+
+
 @UrlSubNode("fcluns")
 class FCLUNs(Collection):
     """
     Collections representing the FC LUNs on the system
     """
+
     def __init__(self, model):
         super(FCLUNs, self).__init__(model)
         self.role_key = 'host'
@@ -37,6 +58,7 @@ class FCLUN(Resource):
     """
     Resource representing a single LUN
     """
+
     def __init__(self, model, ident):
         super(FCLUN, self).__init__(model, ident)
         self.role_key = 'host'

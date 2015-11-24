@@ -25,7 +25,49 @@ from wok.exception import (InvalidOperation,
                            NotFoundError,
                            OperationFailed
                            )
-from wok.utils import wok_log
+from wok.model.tasks import TaskModel
+from wok.utils import add_task, wok_log
+
+
+class LUNScanModel(object):
+    """
+    model class for ignore list
+    """
+
+    def __init__(self, **kargs):
+        self.objstore = kargs.get('objstore')
+        self.task = TaskModel(**kargs)
+
+    def lookup(self, name):
+        """
+        Get the status of LUN scanning
+        :return: returns dictionary with key as 'lunscan'
+                and value as boolean
+        """
+        return utils.is_lun_scan_enabled()
+
+    def enable(self, name):
+        """
+        Enable LUN scanning
+        """
+        utils.enable_lun_scan("1")
+        return utils.is_lun_scan_enabled()
+
+    def disable(self, name):
+        """
+        Disable LUN scanning
+        """
+        utils.enable_lun_scan("0")
+        return utils.is_lun_scan_enabled()
+
+    def trigger(self, name):
+        """
+        Trigger LUN scanning
+        """
+        taskid = add_task('/plugins/gingers390/lunscan/trigger',
+                          utils.trigger_lun_scan, self.objstore, {})
+
+        return self.task.lookup(taskid)
 
 
 class FCLUNsModel(object):

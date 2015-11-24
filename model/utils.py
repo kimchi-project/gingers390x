@@ -614,9 +614,12 @@ def validate_wwpn_or_lun(input_id):
 def is_lun_scan_enabled():
     """
     Detect if automatic LUN scanning is enabled or disabled
-    :return : True if enabled, False otherwise
+    :return : Dictionary containing LUN Scanning status
+              on bootloader as well as on running system
     """
     try:
+        lun_scan_status = {}
+
         config = ConfigParser.ConfigParser()
         config.read("/etc/zipl.conf")
         default_boot = config.get('defaultboot', 'default')
@@ -626,8 +629,105 @@ def is_lun_scan_enabled():
 
         m = re.search(pattern, boot_parameters)
         enabled = bool(int(m.group(1)))
-        return enabled
+        lun_scan_status['boot'] = enabled
+
+        run_time = open('/sys/module/zfcp/parameters/allow_lun_scan')\
+            .readline().rstrip()
+        run_time = True if run_time == "Y" else False
+        lun_scan_status['current'] = run_time
+
+        return lun_scan_status
 
     except Exception as e:
         wok_log.error("Unable to parse /etc/zipl.conf")
         raise OperationFailed("GS390XSTG00013", {'err': e.message})
+
+
+def enable_lun_scan(enable):
+    """
+    Set automatic LUN scanning enabled or disabled
+    :param enable: "0" to disable, "1" to enable
+    """
+
+    if enable not in ["1", "0"]:
+        raise Exception("argument has to '0' or '1'")
+
+    try:
+        zipl_file = "/etc/zipl.conf"
+        boot_param = "zfcp.allow_lun_scan"
+        config = ConfigParser.ConfigParser()
+        config.read(zipl_file)
+        default_boot = config.get('defaultboot', 'default')
+        boot_parameters = config.get(default_boot, 'parameters')
+
+        # Modify boot parameter, zfcp.allow_lun_scan
+        boot_parameters = modify_boot_param(
+            boot_parameters, boot_param, enable)
+        config.set(default_boot, 'parameters', boot_parameters)
+
+        with open(zipl_file, "wb") as config_file:
+            config.write(config_file)
+
+        # Update the bootloader
+        run_zipl_cmd()
+
+        # Enable/Disable LUN Scanning on a running system
+        wrt_msg = "Y" if enable == "1" else "N"
+        with open('/sys/module/zfcp/parameters/allow_lun_scan', "w")\
+                as txt_file:
+            txt_file.write(wrt_msg)
+
+    except Exception as e:
+        wok_log.error("Unable to parse /etc/zipl.conf")
+        raise OperationFailed("GS390XSTG00013", {'err': e.message})
+
+
+def modify_boot_param(boot_params_string, boot_param, param_value):
+    """
+    Modify given boot parameters in /etc/zipl.conf
+    :param boot_params_string: boot parameters string from /etc/zipl.conf
+    :param boot_param : parameter to be modified
+    :param param_value : new value of the parameter
+    :return : Modified boot parameters string
+    """
+
+    boot_params_string = re.sub(
+        boot_param + "=\S",
+        boot_param + "=" + param_value,
+        boot_params_string)
+
+    if not boot_params_string:
+        wok_log.error("Unable to find +" + boot_param + " in /etc/zipl.conf")
+        raise OperationFailed("GS390XSTG00014", {'param': boot_param})
+
+    return boot_params_string
+
+
+def run_zipl_cmd():
+    """
+    Run zipl command to update the bootloader
+    """
+
+    wok_log.info('Running zipl command to update bootloader')
+    out, err, rc = run_command(['zipl'])
+    if rc:
+        wok_log.error('failed to execute zipl,  %s', err)
+        raise OperationFailed("GS390XSTG00015", {'err': err})
+
+
+def trigger_lun_scan(cb, params):
+    """
+    Trigger LUN scanning
+    """
+
+    cb('')  # reset messages
+    try:
+        wok_log.info('Triggering LUN scan using rescan-ssci-bus.sh')
+        out, err, rc = run_command(['/usr/bin/rescan-scsi-bus.sh', '-a'])
+        if rc:
+            wok_log.error('failed to trigger LUN scan,  %s', err)
+            cb(err, False)
+
+        cb('OK', True)
+    except Exception as e:
+        cb(e.__str__(), False)
