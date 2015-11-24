@@ -192,3 +192,20 @@ URI: /plugins/gingers390x/fcluns/*:lun_path*
        * type : Could be 'disk', 'tape' etc.
 
 * **DELETE**: Remove a LUN
+
+
+### Resource: FC LUN Scanning Status
+
+**URI:** /plugins/gingers390x/lunscan
+
+**Methods:**
+
+* **GET**: Retrieve a dictionary with the FC LUN scanning status:
+    * boot: Status of the LUN Scanning in zipl.conf. Can be 'true' or 'false'.
+    * current: Status of the LUN Scanning in running system. Can be 'true' or 'false'.
+
+*Actions (POST):**
+
+* enable: Enable FC LUN Scanning.
+* disable: Disable FC LUN Scanning.
+* trigger: Trigger a FC LUN Scan.
