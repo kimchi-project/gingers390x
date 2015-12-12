@@ -304,6 +304,7 @@ def get_lun_info(adapter, port, lun_id):
 
     # Get rid of the LUN if it's not configured
     if not lun_info['configured']:
+        lun_info['configured'] = "false"
         try:
             wok_log.info("Removing sg_device , %s", lun_info['sgDev'])
             with open(sg_dir + lun_info['sgDev'] + '/device/delete', "w")\
@@ -332,6 +333,8 @@ def get_lun_info(adapter, port, lun_id):
                 wok_log.error(
                     "Removing LUN failed , %s",
                     port_dir + ":" + wlun)
+    else:
+        lun_info['configured'] = "true"
 
     return lun_info
 
