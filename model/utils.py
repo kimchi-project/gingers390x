@@ -188,6 +188,19 @@ def remove_lun(adapter, port, lun_id):
             try:
                 with open(port_dir + 'unit_remove', "w") as txt_file:
                     txt_file.write(lun_id)
+
+                fo = open("/etc/zfcp.conf", "r")
+                lines = fo.readlines()
+                output = []
+                fo.close()
+                fo = open("/etc/zfcp.conf", "w")
+                for line in lines:
+                    if [adapter, port, lun_id] == line.split():
+                        continue
+                    else:
+                        output.append(line)
+                fo.writelines(output)
+                fo.close()
             except Exception as e:
                 wok_log.error("Unable to remove LUN, %s", lun_dir)
                 raise OperationFailed("GS390XSTG00002", {'err': e.message})
@@ -219,7 +232,18 @@ def add_lun(adapter, port, lun_id):
                 # Wait for the relavant entry for this LUN is created in sysfs
                 run_command([udevadm, "settle", "--exit-if-exists=" + lun_dir])
                 if os.path.exists(lun_dir):
+                    entry_exists = False
+                    fo = open("/etc/zfcp.conf", "r")
+                    lines = fo.readlines()
+                    for line in lines:
+                        if [adapter, port, lun_id] == line.split():
+                            entry_exists = True
+                    fo.close()
+                    if not entry_exists:
+                        with open("/etc/zfcp.conf", "a") as zfcp:
+                            zfcp.write(adapter+" "+port+" "+lun_id+"\n")
                     break
+
         except Exception as e:
             wok_log.error("Unable to add LUN, %s", lun_dir)
             raise OperationFailed("GS390XSTG00003", {'err': e.message})
