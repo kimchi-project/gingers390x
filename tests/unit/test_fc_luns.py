@@ -34,7 +34,7 @@ class FCLUNsTests(unittest.TestCase):
     @mock.patch('model.fc_luns.wok_log', autospec=True)
     @mock.patch('model.fc_luns.utils.is_lun_scan_enabled', autospec=True)
     def test_create_lun_scan_enabled(self, mock_scan_enabled, mock_wok_log):
-        mock_scan_enabled.return_value = True
+        mock_scan_enabled.return_value = {'current': True}
 
         params = {}
         params['hbaId'] = "0.0.2222"
@@ -56,7 +56,7 @@ class FCLUNsTests(unittest.TestCase):
     ):
 
         mock_add_lun.return_value = None
-        mock_scan_enabled.return_value = False
+        mock_scan_enabled.return_value = {'current': False}
 
         params = {}
         params['remoteWwpn'] = "0x1111111111111111"

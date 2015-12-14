@@ -79,7 +79,7 @@ class FCLUNsModel(object):
         pass
 
     def create(self, params):
-        if utils.is_lun_scan_enabled():
+        if utils.is_lun_scan_enabled()['current']:
             wok_log.error(
                 "Lun scan is enabled. Cannot add/remove LUNs manually.")
             raise InvalidOperation("GS390XSTG00009")
@@ -135,7 +135,7 @@ class FCLUNModel(object):
             raise NotFoundError("GS390XSTG00008", {'path': path})
 
     def delete(self, path):
-        if utils.is_lun_scan_enabled():
+        if utils.is_lun_scan_enabled()['current']:
             wok_log.error(
                 "Lun scan is enabled. Cannot add/remote LUNs manually.")
             raise InvalidOperation("GS390XSTG00009")
