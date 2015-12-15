@@ -209,3 +209,13 @@ URI: /plugins/gingers390x/fcluns/*:lun_path*
 * enable: Enable FC LUN Scanning.
 * disable: Disable FC LUN Scanning.
 * trigger: Trigger a FC LUN Scan.
+
+
+### SimpleCollection: List of Tape devices
+ 
+**URI:** /plugins/ginger/lstapes
+ 
+**Methods:**
+ 
+* **GET**: Retrieve a summarized list of Tape devices
+
