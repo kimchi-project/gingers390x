@@ -59,5 +59,8 @@ messages = {
     "GS390XSTG00012": _("lunId is required for adding a LUN"),
     "GS390XSTG00013": _("Unable to parse '/etc/zipl.conf, %(err)s"),
     "GS390XSTG00014": _("Unable to find given param in '/etc/zipl.conf, %(param)s"),
-    "GS390XSTG00015": _("Unable to execute zipl, %(err)s")
+    "GS390XSTG00015": _("Unable to execute zipl, %(err)s"),
+    "GS390XSTG00016": _("Unable to uuid for tape device, %(err)s"),
+    "GS390XSTG00017": _("Unable to parse output of lstape, %(err)s"),
+    "GS390XSTG00017": _("Unable to execute lstape, %(err)s")
 }

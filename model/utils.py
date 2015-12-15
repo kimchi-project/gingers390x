@@ -758,3 +758,69 @@ def trigger_lun_scan(cb, params):
         cb('OK', True)
     except Exception as e:
         cb(e.__str__(), False)
+
+
+def get_final_tape_list():
+    """
+    Get the final list of all tape devices
+    """
+    out = run_lstape_scsi_cmd()
+    return parse_tape_list(out)
+
+
+def get_tape_uuid(device_name):
+    """
+    Get the UUID for the given tape device
+    :param device_name : Name of the tape device
+    :return uuid of the tape device
+    """
+    try:
+        ids = os.listdir('/dev/tape/by-id/')
+        for tape_id in ids:
+            tape_dev = os.readlink('/dev/tape/by-id/' + tape_id).split("/")[-1]
+            if tape_dev == device_name:
+                return tape_id
+    except Exception as e:
+        wok_log.error("Unable to uuid for tape device: " + device_name)
+        raise OperationFailed("GS390XSTG00016", {'err': e.message})
+
+
+def parse_tape_list(lstape_out):
+    """
+    Parse the output of the command lstape
+    :param lstape_out : Output obtained by 'lstape' command
+    """
+    try:
+        final_list = []
+        input_list = lstape_out.splitlines()
+        scsi_keys = input_list[0].split()
+
+        for input_device in input_list[1:]:
+            device_params = {}
+            device_params_list = input_device.split()
+            for scsi_key, device_param in zip(scsi_keys, device_params_list):
+                if scsi_key == 'Device':
+                    device_params['uuid'] = get_tape_uuid(
+                        device_params_list[1])
+                device_params[scsi_key] = device_param
+            final_list.append(device_params)
+
+    except Exception as e:
+        wok_log.error("Unable to parse output of lstape")
+        raise OperationFailed("GS390XSTG00017", {'err': e.message})
+
+    return final_list
+
+
+def run_lstape_scsi_cmd():
+    """
+    Run 'lstape --scsi-only' command
+    """
+
+    wok_log.info('Running lstape command')
+    out, err, rc = run_command(['lstape', '--scsi-only'])
+    if rc:
+        wok_log.error('failed to execute lstape,  %s', err)
+        raise OperationFailed("GS390XSTG00018", {'err': err})
+
+    return out
