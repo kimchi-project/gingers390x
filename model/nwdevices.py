@@ -17,7 +17,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import atexit
 import augeas
 import os
 import re
@@ -59,14 +58,6 @@ CONF_HDR_PATTERN = r'('+re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
                    r'('+re.escape(ZNETCONF_DRV) + r')\.\s+' \
                    r'('+re.escape(ZNETCONF_DEV_NAME) + r')\s+' \
                    r'('+re.escape(ZNETCONF_STATE) + r')\s+$'
-
-parser = augeas.Augeas('/')
-
-
-@atexit.register
-def augeas_cleanup():
-    global parser
-    del parser
 
 
 class NetworkDevicesModel(object):
@@ -501,7 +492,9 @@ def _write_ifcfg_params(interface):
               NETTYPE: 'qeth'}
     ifcfg_file_pattern = ifcfg_path.replace('<deviceid>', interface) + '/'
     ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    parser = None
     try:
+        parser = augeas.Augeas('/')
         parser.load()
         for key, value in cfgmap.iteritems():
             path = ifcfg_file_pattern+key
@@ -514,6 +507,9 @@ def _write_ifcfg_params(interface):
                               {'device': interface,
                                'ifcfg_file_path': ifcfg_file_path,
                                'error': e.__str__()})
+    finally:
+        if parser:
+            del parser
     wok_log.info('successfully updated mandatory params in ifcfg '
                  'file of network device %s' % interface)
 

@@ -622,15 +622,15 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
     unit tests for _write_ifcfg_params() method using  mock module
     """
     @mock.patch('model.nwdevices._get_configured_devices', autospec=True)
-    @mock.patch('model.nwdevices.parser', autospec=True)
+    @mock.patch('model.nwdevices.augeas', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    def test_wirte_success(self, mock_wok_log, mock_parser,
+    def test_wirte_success(self, mock_wok_log, mock_augeas,
                            mock_get_configured_devices):
         """
         unit test to validate _write_ifcfg_params() method success scenario
         (ie., augeas will not throw any exception)
         mock_wok_log: mock of wok_log in model.nwdevices
-        mock_parser: mock of parser(uses augeas) in model.nwdevices
+        mock_augeas: mock of augeas module imported in model.nwdevices
         mock_get_configured_devices: mock of _get_configured_devices()
                                      method in model.nwdevices
         expected behaviour: on success, _write_ifcfg_params() doesn't
@@ -644,29 +644,30 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
         # returning attributes which are used by _write_ifcfg_params()
 
         _write_ifcfg_params(device)
+        parser_mock = mock_augeas.Augeas('/')
         calls = [(ifcfg_file_pattern+'DEVICE', device_name,),
                  (ifcfg_file_pattern+'ONBOOT', 'yes',),
                  (ifcfg_file_pattern+'NETTYPE', 'qeth',),
                  (ifcfg_file_pattern+'SUBCHANNELS', 'dummy_ids',)]
         for i in range(0, 3):
-            x, y = mock_parser.set.call_args_list[i]
+            x, y = parser_mock.set.call_args_list[i]
             assert x == calls[i]
-        assert mock_parser.set.call_count == 4
-        mock_parser.load.assert_called_once_with()
-        mock_parser.save.assert_called_once_with()
+        assert parser_mock.set.call_count == 4
+        parser_mock.load.assert_called_once_with()
+        parser_mock.save.assert_called_once_with()
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 
     @mock.patch('model.nwdevices._get_configured_devices', autospec=True)
-    @mock.patch('model.nwdevices.parser', autospec=True)
+    @mock.patch('model.nwdevices.augeas', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    def test_wirte_exception(self, mock_wok_log, mock_parser,
+    def test_wirte_exception(self, mock_wok_log, mock_augeas,
                              mock_get_configured_devices):
         """
         unit test to validate _write_ifcfg_params() method when augeas
         raises exception
         mock_wok_log: mock of wok_log in model.nwdevices
-        mock_parser: mock of parser(uses augeas) in model.nwdevices
+        mock_augeas: mock of augeas module imported in model.nwdevices
         mock_get_configured_devices: mock of _get_configured_devices()
                                      method in model.nwdevices
         expected behaviour: _write_ifcfg_params() should raise
@@ -677,15 +678,16 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
         mock_get_configured_devices.return_value = \
             {device_name: {'name': device_name, 'device_ids': ['dummy_ids']}}
         # returning attributes which are used by _write_ifcfg_params()
-        mock_parser.load.side_effect = Exception('dummy_error')
+        parser_mock = mock_augeas.Augeas('/')
+        parser_mock.load.side_effect = Exception('dummy_error')
 
         self.assertRaises(exception.OperationFailed,
                           _write_ifcfg_params, device)
-        mock_parser.load.assert_called_once_with()
-        self.assertFalse(mock_parser.set.called, msg='Unexpected call to '
-                                                     'mock_parser.set()')
-        self.assertFalse(mock_parser.save.called, msg='Unexpected call to '
-                                                      'mock_parser.save()')
+        parser_mock.load.assert_called_once_with()
+        self.assertFalse(parser_mock.set.called, msg='Unexpected call to '
+                                                     'parser_mock.set()')
+        self.assertFalse(parser_mock.save.called, msg='Unexpected call to '
+                                                      'parser_mock.save()')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
         mock_wok_log.error.assert_called_once_with('Failedd to write device '
@@ -694,30 +696,31 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
                                                    'Error: dummy_error')
 
     @mock.patch('model.nwdevices._get_configured_devices', autospec=True)
-    @mock.patch('model.nwdevices.parser', autospec=True)
+    @mock.patch('model.nwdevices.augeas', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    def test_wirte_keyerror(self, mock_wok_log, mock_parser,
+    def test_wirte_keyerror(self, mock_wok_log, mock_augeas,
                             mock_get_configured_devices):
         """
         unit test to validate _write_ifcfg_params() method when key error
         is raised with dictionary mapping with _get_configured_devices
         mock_wok_log: mock of wok_log in model.nwdevices
-        mock_parser: mock of parser(uses augeas) in model.nwdevices
+        mock_augeas: mock of augeas module imported in model.nwdevices
         mock_get_configured_devices: mock of _get_configured_devices()
                                      method in model.nwdevices
         expected behaviour: _write_ifcfg_params() should raise
                             KeyError exception
         """
         device = '0.0.0101'
+        parser_mock = mock_augeas.Augeas('/')
         mock_get_configured_devices.return_value = {'dummy': 'dict'}
 
         self.assertRaises(KeyError, _write_ifcfg_params, device)
-        self.assertFalse(mock_parser.load.called, msg='Unexpected call to '
-                                                      'mock_parser.load()')
-        self.assertFalse(mock_parser.set.called, msg='Unexpected call to '
-                                                     'mock_parser.set()')
-        self.assertFalse(mock_parser.save.called, msg='Unexpected call to '
-                                                      'mock_parser.save()')
+        self.assertFalse(parser_mock.load.called, msg='Unexpected call to '
+                                                      'parser_mock.load()')
+        self.assertFalse(parser_mock.set.called, msg='Unexpected call to '
+                                                     'parser_mock.set()')
+        self.assertFalse(parser_mock.save.called, msg='Unexpected call to '
+                                                      'parser_mock.save()')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 
