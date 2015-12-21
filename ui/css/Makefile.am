@@ -15,4 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+EXTRA_DIST = theme-default
+
 cssdir = $(datadir)/wok/plugins/gingers390x/ui/css
+dist_css_DATA = bootgrid.css
+
+%.css: src/%.scss
+	echo "Compiling .scss file $<"
+	sassc -s expanded $< $(@:.scss=.css)
+
+CLEANFILES = bootgrid.css

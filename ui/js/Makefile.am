@@ -15,4 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+EXTRA_DIST = src
+
 jsdir = $(datadir)/wok/plugins/gingers390x/ui/js
+
+dist_js_DATA = gingers390x.min.js $(filter-out gingers390x.min.js, $(wildcard *.js))
+
+gingers390x.min.js: src/*.js
+	cat $(sort $^) > $@
+
+CLEANFILES = gingers390x.min.js
