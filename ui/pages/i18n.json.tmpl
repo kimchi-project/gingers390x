@@ -15,3 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
+ #unicode UTF-8
+ #import gettext
+ #from wok.cachebust import href
+ #silent t = gettext.translation($lang.domain, $lang.localedir, languages=$lang.lang, fallback=True)
+ #silent _ = t.gettext
+ #silent _t = t.gettext
+ {
+     "GS390XBL001E": "$_("Remove From Blacklist")",
+     "GS390XBL002E": "$_("Enter Blacklisted Device IDs")",
+     "GS390XBL003E": "$_("Remove")",
+     "GS390XBL004E": "$_("Comma seperated device ids/range in #.##.#### format, e.g 0.0.34df, 0.0.3488")",
+     "GS390XBL005E": "$_("Note * Removing the device from blacklist will add the device to offline devices")",
+     "GS390XBL006E": "$_("Removing..Please wait..")",
+     "GS390XBL007E": "$_("Please enter device id to remove from blacklist")"
+
+ }
