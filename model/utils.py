@@ -127,7 +127,7 @@ def _get_sg_inq_dict(sg_inq_output):
         m = re.search(pattern, sg_inq_output)
         sg_inq_dict['controllerSN'] = m.group(1)
     except:
-        wok_log.error("Error parsing sg_luns for sg device. %s", sg_dev)
+        wok_log.error("Error parsing sg_luns. %s", sg_inq_output)
         # Not raising any exception here. The code should
         # continue to work for other LUNs even if it fails for
         # this LUN. That way we could grab as much info as
