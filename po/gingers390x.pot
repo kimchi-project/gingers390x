@@ -1,0 +1,151 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-12-22 10:14+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#, python-format
+msgid "Only supported type: '%(supported_type)s'."
+msgstr ""
+
+#, python-format
+msgid "Invalid input. Reason =  %(reason)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Command failed. Command = %(command)s, RC = %(rc)s, REASON = %(reason)s'."
+msgstr ""
+
+#, python-format
+msgid "Issue with regex. Reason =  %(reason)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to bring device online. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to remove device from dasd.conf file. Device = %(device)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to bring network device %(device)s online. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to persist network device %(device)s in ifcfg file "
+"%(ifcfg_file_path)s. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to bring network device %(device)s offline. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to remove ifcfg file %(ifcfg_file_path)s of network device "
+"%(device)s. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create ifcfg file %(ifcfg_file_path)s for network device "
+"%(device)s. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to retrieve devices in ignored list = %(error)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to remove devices from ignore list. Failed Devices = "
+"%(failed_devices)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to remove sg device, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to remove LUN, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to add LUN, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to validate input, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to HBA ID, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to remoteWwpn or LUN ID, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to get list of LUNs, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to LUN info, %(path)s"
+msgstr ""
+
+msgid "Lun scan is enabled. Cannot add/remote LUNs manually."
+msgstr ""
+
+msgid "hbaId is required for adding a LUN"
+msgstr ""
+
+msgid "wwpn is required for adding a LUN"
+msgstr ""
+
+msgid "lunId is required for adding a LUN"
+msgstr ""
+
+#, python-format
+msgid "Unable to parse '/etc/zipl.conf, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to find given param in '/etc/zipl.conf, %(param)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to execute zipl, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to uuid for tape device, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to parse output of lstape, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to execute lstape, %(err)s"
+msgstr ""
