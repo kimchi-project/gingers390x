@@ -17,7 +17,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-SUBDIRS = contrib control docs model tests ui
+SUBDIRS = contrib control docs model po tests ui
 
 gingers390x_PYTHON = $(filter-out config.py, $(wildcard *.py))
 
@@ -64,6 +64,11 @@ check-local:
 # Link built mo files in the source tree to enable use of translations from
 # within the source tree
 all-local:
+	while read L && test -n "$$L"; do                  \
+                dir=mo/$$L/LC_MESSAGES ;                       \
+                $(MKDIR_P) $$dir ;                             \
+                ln -sf ../../../po/$$L.gmo $$dir/gingers390x.mo ;   \
+        done < po/LINGUAS
 
 do_substitution = \
 	sed -e 's,[@]prefix[@],$(prefix),g'             \

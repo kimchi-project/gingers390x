@@ -38,6 +38,8 @@ AC_PATH_PROG([PEP8], [pep8], [/usr/bin/pep8])
 AC_PYTHON_MODULE([unittest])
 AC_SUBST([HAVE_PYMOD_UNITTEST])
 AC_SUBST([PYTHON_VERSION])
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.10])
 AC_PATH_PROG([CHEETAH], [cheetah], [/usr/bin/cheetah])
 
 # Checking for pyflakes
@@ -63,6 +65,8 @@ AC_SUBST([ENABLE_SAMPLE], [False])
 fi
 
 AC_CONFIG_FILES([
+    po/Makefile.in
+    po/gen-pot
     Makefile
     docs/Makefile
     control/Makefile
@@ -88,6 +92,8 @@ AC_CONFIG_FILES([
     contrib/Makefile
     contrib/gingers390x.spec.zkvm
     tests/Makefile
+],[
+    chmod +x po/gen-pot
 ])
 
 AC_OUTPUT
