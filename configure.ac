@@ -73,7 +73,6 @@ AC_CONFIG_FILES([
     control/Makefile
     model/Makefile
     ui/Makefile
-    ui/config/Makefile
     ui/css/Makefile
     ui/images/Makefile
     ui/js/Makefile

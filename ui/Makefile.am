@@ -15,6 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SUBDIRS = config css images js pages
+SUBDIRS = css images js pages
 
 uidir = $(datadir)/wok/plugins/gingers390x/ui
