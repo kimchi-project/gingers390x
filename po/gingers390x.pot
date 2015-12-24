@@ -150,6 +150,26 @@ msgstr ""
 msgid "Unable to execute lstape, %(err)s"
 msgstr ""
 
+msgid "Add FCP Storage devices"
+msgstr ""
+
+msgid "Discovered LUNs not yet attached to the system"
+msgstr ""
+
+msgid "Finish"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Start"
+msgstr ""
+
+msgid "Stop"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
 msgid "Remove From Blacklist"
 msgstr ""
 
@@ -218,6 +238,56 @@ msgstr ""
 msgid "No Thanks"
 msgstr ""
 
+msgid "Disable LUN Scan"
+msgstr ""
+
+msgid "Luns Scan is enabled successfully"
+msgstr ""
+
+msgid "Add all / Luns Scan"
+msgstr ""
+
+msgid "Enable LUN Scan"
+msgstr ""
+
+msgid "Luns Scan is disabled successfully"
+msgstr ""
+
+msgid "Add all"
+msgstr ""
+
+msgid "LUNs scan enable/disable failed"
+msgstr ""
+
+msgid "LUNs scan status unavailable"
+msgstr ""
+
+msgid "Host Adapter"
+msgstr ""
+
+msgid "Lun Id"
+msgstr ""
+
+msgid "SAN Controller"
+msgstr ""
+
+msgid "SAN Controller Id/Serial No"
+msgstr ""
+
+msgid "Add Selected"
+msgstr ""
+
+msgid "Luns sucessfully added"
+msgstr ""
+
+msgid "Error occured while adding Luns"
+msgstr ""
+
+msgid "Searching Luns"
+msgstr ""
+
+msgid "Luns add failed"
+msgstr ""
 msgid "Add Network Adapter"
 msgstr ""
 
@@ -230,5 +300,3 @@ msgstr ""
 msgid "Remove from blacklist"
 msgstr ""
 
-msgid "Finish"
-msgstr ""
