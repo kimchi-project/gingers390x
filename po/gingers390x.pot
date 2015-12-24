@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-22 10:14+0530\n"
+"POT-Creation-Date: 2015-12-24 12:53+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -148,4 +148,87 @@ msgstr ""
 
 #, python-format
 msgid "Unable to execute lstape, %(err)s"
+msgstr ""
+
+msgid "Remove From Blacklist"
+msgstr ""
+
+msgid "Enter Blacklisted Device IDs"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid ""
+"Comma seperated device ids/range in #.##.#### format, e.g 0.0.34df, 0.0.3488"
+msgstr ""
+
+msgid ""
+"Note * Removing the device from blacklist will add the device to offline "
+"devices"
+msgstr ""
+
+msgid "Removing..Please wait.."
+msgstr ""
+
+msgid "Please enter device id to remove from blacklist"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "No Result Found"
+msgstr ""
+
+msgid "Loading...Please wait.."
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "CHIPDs"
+msgstr ""
+
+msgid "Card Type"
+msgstr ""
+
+msgid "Device IDs"
+msgstr ""
+
+msgid "Listing Devices..."
+msgstr ""
+
+msgid "Enabling...Please wait.."
+msgstr ""
+
+msgid "Please select device(s) to enable."
+msgstr ""
+
+msgid ""
+"Some devices are selected in the Offline device list.<br>Do you want to "
+"Enable them ?"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No Thanks"
+msgstr ""
+
+msgid "Add Network Adapter"
+msgstr ""
+
+msgid "Offline Network Devices"
+msgstr ""
+
+msgid "Didn't found the device your are looking for? It may be in Blacklist.."
+msgstr ""
+
+msgid "Remove from blacklist"
+msgstr ""
+
+msgid "Finish"
 msgstr ""
