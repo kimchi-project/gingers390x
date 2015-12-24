@@ -120,4 +120,35 @@ var gingers390x = {
       error: err
     });
   },
+
+  listNetworks: function(suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/nwdevices?_configured=false',
+      type: 'GET',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      error: function(data) {
+        wok.message.error(data.responseJSON.reason);
+      }
+    });
+  },
+
+  configureNetwork: function(device, configure, suc, err, progress) {
+    var device = encodeURIComponent(device);
+    var onResponse = function(data) {
+      taskID = data['id'];
+      gingers390x.trackTask(taskID, suc, err, progress);
+    };
+
+    wok.requestJSON({
+      url: "plugins/gingers390x/nwdevices/" + device +
+        '/' + (configure === true ? 'configure' : 'unconfigure'),
+      type: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      success: onResponse,
+      error: err
+    });
+  }
 };
