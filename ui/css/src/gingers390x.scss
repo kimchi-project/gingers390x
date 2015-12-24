@@ -1,5 +1,5 @@
 /*
- * Ginger Base
+ * Ginger S390x
  *
  * Copyright IBM, Corp. 2015
  *
@@ -62,6 +62,7 @@
   width: 95%;
 }
 
+#s390x-storage-content-area,
 #s390x-network-content-area,
 #s390x-blacklist-content-area {
   width: 95.6%;
@@ -70,6 +71,7 @@
   list-style-type: none;
 }
 
+#s390x-storage-content-area .header div,
 #s390x-network-content-area .header div,
 #s390x-blacklist-content-area .header div {
   padding: 6px 2px;
@@ -83,11 +85,13 @@
   border-top: 0;
 }
 
+#s390x-storage-content-area .body,
 #s390x-network-content-area .body,
 #s390x-blacklist-content-area .body {
   border-top: 1px solid #eee;
 }
 
+#s390x-storage-content-area .body > span,
 #s390x-network-content-area .body > span,
 #s390x-blacklist-content-area .body > span {
   padding: 6px 2px;
@@ -97,4 +101,9 @@
   font-size: 11pt;
   line-height: 2.42857;
   font-weight: bold;
+}
+.gingers390x {
+  div.modal-footer {
+    background-color: #008abf;
+  }
 }
