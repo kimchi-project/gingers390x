@@ -1,20 +1,20 @@
 /*
- * Project Ginger S390x
- *
- * Copyright IBM, Corp. 2015
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Project Ginger S390x
+*
+* Copyright IBM, Corp. 2015
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 gingers390x.initHeader = function(opts) {
 
   var containerId = opts['containerId'];
@@ -44,7 +44,7 @@ gingers390x.initHeader = function(opts) {
   for (var i = 0; i < fields.length; i++) {
     var columnHtml = [
       '<th data-type="', fields[i]["type"], '" data-column-id="', fields[i]["column-id"], '"', (fields[i].identifier) ? 'data-identifier="true"' : '',
-      ' data-align="left" hederAlign="center"', ("formatter" in fields[i]) ? 'data-formatter=' + fields[i]["formatter"] : '', (fields[i]["width"]) ? (' data-width="' + fields[i]["width"] + '"') : '',
+      ' data-align="left" hederAlign="center"', ("formatter" in fields[i]) ? 'data-formatter=' + fields[i]["formatter"] : '', (fields[i]["width"]) ? (' data-width="' + fields[i]["width"] + '"') : '', (fields[i].invisible) ? 'data-visible="false"' : '',
       'data-header-css-class="gridHeader">', ("title" in fields[i]) ? fields[i]["title"] : fields[i]["column-id"],
       '</th>'
     ].join('');
@@ -107,7 +107,7 @@ gingers390x.getSelectedRows = function(opts) {
 
 gingers390x.deselectAll = function(opts) {
   $('#' + opts['gridId']).bootgrid("deselect");
-  $('#'+opts['gridId']+' input.select-box').attr('checked', false);
+  $('#' + opts['gridId'] + ' input.select-box').attr('checked', false);
 };
 
 gingers390x.addBootgridActionButton = function(opts, actionButtonHtml) {
@@ -132,3 +132,18 @@ gingers390x.showBootgridLoading = function(opts) {
   $("#" + opts['gridId'] + "-loading").show();
   $("#" + opts['gridId'] + "-loading").css("zIndex", 1);
 };
+
+gingers390x.getSelectedRowsData = function(currentRows, selectedRowIds, identifier) {
+  var selectedRowDetails = [];
+  $.each(currentRows, function(i, row) {
+    var rowDetails = row;
+    if (selectedRowIds.indexOf(rowDetails[identifier]) != -1) {
+      selectedRowDetails.push(rowDetails);
+    }
+  });
+  return selectedRowDetails;
+};
+
+gingers390x.getCurrentRows = function(opts) {
+  return $('#' + opts['gridId']).bootgrid("getCurrentRows");
+}

@@ -150,5 +150,67 @@ var gingers390x = {
       success: onResponse,
       error: err
     });
+  },
+listFCPluns: function(suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/fcluns?type="disk"&configured="false"',
+      type: 'GET',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      error: function(data) {
+        wok.message.error(data.responseJSON.reason);
+      }
+    });
+  },
+  addLuns: function(settings, suc, err) {
+    wok.requestJSON({
+      url: "/plugins/gingers390x/fcluns",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(settings),
+      dataType: "json",
+      success: suc,
+      error: err
+    });
+  },
+  getLunsScanStatus: function(suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/lunscan',
+      type: 'GET',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      error: function(data) {
+        wok.message.error(data.responseJSON.reason);
+      }
+    });
+  },
+  lunsScanStatusChange: function(enabled, suc) {
+    wok.requestJSON({
+      url: "plugins/gingers390x/lunscan/" +
+        (enabled === true ? 'disable' : 'enable'),
+      type: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      success: suc,
+      error: function(data) {
+        wok.message.error(data.responseJSON.reason);
+      }
+    });
+  },
+  lunsDiscovery: function(suc, err, progress) {
+    var onResponse = function(data) {
+      taskID = data['id'];
+      gingers390x.trackTask(taskID, suc, err, progress);
+    };
+    wok.requestJSON({
+      url: "plugins/gingers390x/lunscan/trigger",
+      type: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      success: onResponse,
+      error: err
+    });
   }
 };
