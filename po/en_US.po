@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gingers390x 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-22 10:14+0530\n"
-"PO-Revision-Date: 2015-12-22 10:13+0530\n"
+"POT-Creation-Date: 2015-12-24 12:53+0530\n"
+"PO-Revision-Date: 2015-12-24 12:53+0530\n"
 "Last-Translator: Archana <archanasingh@in.ibm.com>\n"
 "Language-Team: English\n"
 "Language: en_US\n"
@@ -158,3 +158,91 @@ msgstr "Unable to parse output of lstape, %(err)s"
 #, python-format
 msgid "Unable to execute lstape, %(err)s"
 msgstr "Unable to execute lstape, %(err)s"
+
+msgid "Remove From Blacklist"
+msgstr "Remove From Blacklist"
+
+msgid "Enter Blacklisted Device IDs"
+msgstr "Enter Blacklisted Device IDs"
+
+msgid "Remove"
+msgstr "Remove"
+
+msgid ""
+"Comma seperated device ids/range in #.##.#### format, e.g 0.0.34df, 0.0.3488"
+msgstr ""
+"Comma seperated device ids/range in #.##.#### format, e.g 0.0.34df, 0.0.3488"
+
+msgid ""
+"Note * Removing the device from blacklist will add the device to offline "
+"devices"
+msgstr ""
+"Note * Removing the device from blacklist will add the device to offline "
+"devices"
+
+msgid "Removing..Please wait.."
+msgstr "Removing..Please wait.."
+
+msgid "Please enter device id to remove from blacklist"
+msgstr "Please enter device id to remove from blacklist"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "No Result Found"
+msgstr "No Result Found"
+
+msgid "Loading...Please wait.."
+msgstr "Loading...Please wait.."
+
+msgid "Enable"
+msgstr "Enable"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "CHIPDs"
+msgstr "CHIPDs"
+
+msgid "Card Type"
+msgstr "Card Type"
+
+msgid "Device IDs"
+msgstr "Device IDs"
+
+msgid "Listing Devices..."
+msgstr "Listing Devices..."
+
+msgid "Enabling...Please wait.."
+msgstr "Enabling...Please wait.."
+
+msgid "Please select device(s) to enable."
+msgstr "Please select device(s) to enable."
+
+msgid ""
+"Some devices are selected in the Offline device list.<br>Do you want to "
+"Enable them ?"
+msgstr ""
+"Some devices are selected in the Offline device list.<br>Do you want to "
+"Enable them ?"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No Thanks"
+msgstr "No Thanks"
+
+msgid "Add Network Adapter"
+msgstr "Add Network Adapter"
+
+msgid "Offline Network Devices"
+msgstr "Offline Network Devices"
+
+msgid "Didn't found the device your are looking for? It may be in Blacklist.."
+msgstr "Didn't found the device your are looking for? It may be in Blacklist.."
+
+msgid "Remove from blacklist"
+msgstr "Remove from blacklist"
+
+msgid "Finish"
+msgstr "Finish"
