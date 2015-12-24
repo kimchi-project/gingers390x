@@ -19,12 +19,12 @@ gingers390x.initHeader = function(opts) {
 
   var containerId = opts['containerId'];
   var gridId = opts['gridId'];
-  var gridMessage = ('loadingMessage' in opts && opts['loadingMessage'].trim() && opts['loadingMessage'].length > 0)?opts['loadingMessage']:'Loading...';
+  var gridMessage = ('loadingMessage' in opts && opts['loadingMessage'].trim() && opts['loadingMessage'].length > 0) ? opts['loadingMessage'] : i18n['GS390XBG003E'];
   var fields = JSON.parse(opts['headers']);
 
-  var gridloadingHtml = ['<div id="' + gridId + '-loading" class="wok-list-loader-container wok-list-loading">',
+  var gridloadingHtml = ['<div id="' + gridId + '-loading" class="wok-list-loader-container wok-list-loading" style="display: none;">',
     '<div class="wok-list-loading-icon"></div>',
-    '<div class="wok-list-loading-text">'+ gridMessage +'</div>',
+    '<div class="wok-list-loading-text">' + gridMessage + '</div>',
     '</div>'
   ].join('');
 
@@ -66,8 +66,8 @@ gingers390x.initBootgrid = function(opts) {
     columnSelection: false,
     rowSelect: true,
     labels: {
-      search: "Filter",
-      noResults: "No Result Found"
+      search: i18n['GS390XBG001E'],
+      noResults: i18n['GS390XBG002E']
     },
     css: {
       iconDown: "fa fa-sort-desc",
@@ -75,6 +75,12 @@ gingers390x.initBootgrid = function(opts) {
     }
   }).on("loaded.rs.jquery.bootgrid", function(e) {
     $('.input-group .glyphicon-search').removeClass('.glyphicon-search').addClass('fa fa-search');
+    if ($('#' + gridId).bootgrid('getTotalRowCount') > 0) {
+      // This need to be in if block to avoid showing no-record-found
+      // for a second if data is present.
+      gingers390x.hideBootgridLoading(opts);
+      gingers390x.showBootgridData(opts);
+    }
   }).on("appended.rs.jquery.bootgrid", function(e, appendedRows) {
     if ($('#' + gridId).bootgrid('getTotalRowCount') === 0 && appendedRows == 0) {
       gingers390x.deselectAll(opts);
@@ -101,6 +107,7 @@ gingers390x.getSelectedRows = function(opts) {
 
 gingers390x.deselectAll = function(opts) {
   $('#' + opts['gridId']).bootgrid("deselect");
+  $('#'+opts['gridId']+' input.select-box').attr('checked', false);
 };
 
 gingers390x.addBootgridActionButton = function(opts, actionButtonHtml) {
@@ -108,18 +115,20 @@ gingers390x.addBootgridActionButton = function(opts, actionButtonHtml) {
 };
 
 gingers390x.showBootgridData = function(opts) {
-  $("#" + opts['gridId'] + "-loading").hide();
   $("#" + opts['gridId'] + " tbody").show();
 };
 
 gingers390x.hideBootgridData = function(opts) {
-  $("#" + opts['gridId'] + "-loading").show();
   $("#" + opts['gridId'] + " tbody").hide();
 };
 
-gingers390x.showBootgridLoading = function(opts){
-  var gridMessage = ('loadingMessage' in opts && opts['loadingMessage'].trim() && opts['loadingMessage'].length > 0)?opts['loadingMessage']:'Loading...';
-  $("#"+opts['gridId']+"-loading .wok-list-loading-text").text(gridMessage);
-  $("#"+opts['gridId']+"-loading").show();
-  $("#"+opts['gridId']+"-loading").css( "zIndex", 1);
+gingers390x.hideBootgridLoading = function(opts) {
+  $("#" + opts['gridId'] + "-loading").hide();
+};
+
+gingers390x.showBootgridLoading = function(opts) {
+  var gridMessage = ('loadingMessage' in opts && opts['loadingMessage'].trim() && opts['loadingMessage'].length > 0) ? opts['loadingMessage'] : i18n['GS390XBG003E'];
+  $("#" + opts['gridId'] + "-loading .wok-list-loading-text").text(gridMessage);
+  $("#" + opts['gridId'] + "-loading").show();
+  $("#" + opts['gridId'] + "-loading").css("zIndex", 1);
 };
