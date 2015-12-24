@@ -1,0 +1,89 @@
+#*
+ * Project Ginger S390x
+ *
+ * Copyright IBM, Corp. 2015
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+
+#unicode UTF-8
+#import gettext
+#from wok.cachebust import href
+#silent t = gettext.translation($lang.domain, $lang.localedir, languages=$lang.lang, fallback=True)
+#silent _ = t.gettext
+#silent _t = t.gettext
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <link rel="stylesheet" href="plugins/gingers390x/css/bootgrid.css">
+  <link rel="stylesheet" href="plugins/gingers390x/css/gingers390x.css">
+  <script src="plugins/gingers390x/js/gingers390x.min.js"></script>
+
+</head>
+
+<body>
+
+  <div id="storage-window-modal" class="gingers390x">
+    <div id="storage-window" class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">$_("Add FCP Storage devices")</h4>
+      </div>
+      <div class="modal-body">
+        <div class="panel-group" id="storage-accordion">
+          <div class="panel panel-default">
+            <div id="s390x-storage-content-area" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <span id='alert-modal-storage-container' style='display: none;'></span>
+            </div>
+            <div id="offlineStorageDevices" class="panel-collapse collapse in">
+              <div class="panel-body">
+                <div class="col-md-12">
+                  <div class="row">
+                    <span class="pull-left">
+                      <div id="fcp-storage-actions">
+                      </div>
+                    </span>
+                    <span class="pull-right">
+                      <button id="enableLunsScan" aria-expanded="false" type="button" class="row btn btn-primary">Enable LUN Scan</button>
+                      <button id="refreshLuns" aria-expanded="false" type="button" class="row btn btn-primary"><i class="fa fa-refresh"></i>Refresh</button>
+                      <button id="addSANadapter" aria-expanded="false" type="button" class="row btn btn-primary"><i class="fa fa-plus-circle"></i>Add SAN Adapter</button>
+                    </span>
+                  </div>
+                  <div id="fcp-luns-list-container">
+                  </div>
+                  <div>
+                    <p class="text-info">$_('Discovered LUNs not yet attached to the system')</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="fcpLunsFinish" data-dismiss="modal" class="btn btn-default">$_("Finish")</button>
+    </div>
+  </div>
+  </div>
+  <div id="modalWindow" class="modal fade storage-modal" tabindex="-1" role="dialog" aria-labelledby="storageModalLabel" aria-hidden="true"> </div>
+  <script>
+    gingers390x.initFCPLunsDetails();
+  </script>
+</body>
+
+</html>
