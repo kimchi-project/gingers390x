@@ -1,0 +1,84 @@
+#*
+ * Project Ginger S390x
+ *
+ * Copyright IBM, Corp. 2015
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+
+#unicode UTF-8
+#import gettext
+#from wok.cachebust import href
+#silent t = gettext.translation($lang.domain, $lang.localedir, languages=$lang.lang, fallback=True)
+#silent _ = t.gettext
+#silent _t = t.gettext
+<!DOCTYPE html>
+
+<html>
+<head>
+  <link rel="stylesheet" href="plugins/gingers390x/css/bootgrid.css">
+  <link rel="stylesheet" href="plugins/gingers390x/css/gingers390x.css">
+  <script src="plugins/gingers390x/js/gingers390x.min.js"></script>
+</head>
+<body>
+  <div id="s390x-network-container" class="gingers390x">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">$_("Add Network Adapter")</h4>
+      </div>
+
+      <div class="modal-body">
+        <div class="panel-group" id="s390x-network-accordion" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <h3>
+              <a role="button" data-toggle="collapse" data-parent="#s390x-network-accordion" href="#s390x-network-content-area" aria-expanded="false" aria-controls="s390x-network-content-area" class="">
+                <span class="accordion-icon"></span><span class="accordion-text">$_("Offline Network Devices")</span>
+              </a>
+            </h3>
+            <div id="s390x-network-content-area" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <span id='alert-modal-nw-container' style='display: none;'></span>
+	              <div class="col-md-12">
+                  <div class="row" id="network-content-container"><!--Filled by JS--></div>
+	               </div>
+              <p>$_("Didn't found the device your are looking for? It may be in Blacklist..")</p>
+            </div>
+          </div>
+          <hr>
+          <div class="panel panel-default" id="s390x-blacklist-accordion" role="tablist" aria-multiselectable="true">
+            <h3>
+              <a role="button" data-toggle="collapse" data-parent="#s390x-network-accordion" href="#s390x-blacklist-content-area" aria-expanded="false" aria-controls="s390x-network-content-area" class="">
+                <span class="accordion-icon"></span><span class="accordion-text">$_("Remove from blacklist")</span>
+              </a>
+            </h3>
+            <div id="s390x-blacklist-content-area" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+              <span id='alert-modal-nw-container' style='display: none;'></span>
+              <div id="blacklist-content-container"><!--Filled by JS--></div>
+            </div>
+            <div id="blacklist-content-container"><!--Filled by JS--></div>
+          </div>
+          <hr>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="s390x-network-finish" class="btn btn-default">$_("Finish")</button>
+      </div>
+    </div>
+
+  <script type="text/javascript">
+    gingers390x.initNetwork()
+    </script>
+  </body>
