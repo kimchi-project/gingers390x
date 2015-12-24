@@ -18,10 +18,10 @@
 EXTRA_DIST = theme-default
 
 cssdir = $(datadir)/wok/plugins/gingers390x/ui/css
-dist_css_DATA = bootgrid.css
+dist_css_DATA = bootgrid.css gingers390x.css
 
 %.css: src/%.scss
 	echo "Compiling .scss file $<"
 	sassc -s expanded $< $(@:.scss=.css)
 
-CLEANFILES = bootgrid.css
+CLEANFILES = bootgrid.css gingers390x.css
