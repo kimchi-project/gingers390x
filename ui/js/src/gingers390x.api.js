@@ -212,5 +212,61 @@ listFCPluns: function(suc, err) {
       success: onResponse,
       error: err
     });
+  },
+  configureFcpSanAdapter: function(device, enable, suc, err, progress) {
+    var device = encodeURIComponent(device);
+
+    wok.requestJSON({
+      url: "plugins/gingers390x/storagedevices/" + device +
+        '/' + (enable === true ? 'online' : 'offline'),
+      type: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      success: suc,
+      error: err
+    });
+  },
+
+  configureEckd: function(device, enable, suc, err, progress) {
+    var device = encodeURIComponent(device);
+    var onResponse = function(data) {
+      taskID = data['id'];
+      gingers390x.trackTask(taskID, suc, err, progress);
+    };
+
+    wok.requestJSON({
+      url: "plugins/gingers390x/storagedevices/" + device +
+        '/' + (enable === true ? 'online' : 'offline'),
+      type: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      success: suc,
+      error: err
+    });
+  },
+  listFcpSanAdapter: function(suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/storagedevices?_type=zfcp&status=offline',
+      type: 'GET',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      error: function(data) {
+        gingers390x.messagecloseable.error(data.responseJSON.reason);
+      }
+    });
+  },
+  listEckd: function(suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/storagedevices?_type=dasd-eckd&status=offline',
+      type: 'GET',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      error: function(data) {
+        gingers390x.messagecloseable.error(data.responseJSON.reason);
+      }
+    });
   }
+
 };
