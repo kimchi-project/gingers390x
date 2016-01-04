@@ -212,10 +212,9 @@ URI: /plugins/gingers390x/fcluns/*:lun_path*
 
 
 ### SimpleCollection: List of Tape devices
- 
-**URI:** /plugins/ginger/lstapes
- 
-**Methods:**
- 
-* **GET**: Retrieve a summarized list of Tape devices
 
+**URI:** /plugins/ginger/lstapes
+
+**Methods:**
+
+* **GET**: Retrieve a summarized list of Tape devices
