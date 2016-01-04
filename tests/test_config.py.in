@@ -1,7 +1,7 @@
 #
 # Project Ginger S390x
 #
-# Copyright IBM, Corp. 2015
+# Copyright IBM, Corp. 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -42,28 +42,6 @@ class ConfigTests(unittest.TestCase):
                 expected = usr_local + expected
         self.assertEquals(actual, expected)
 
-    def test_installed_paths(self):
-        Paths.get_prefix = lambda self: '@datadir@/wok'
-        paths = Paths()
-        self.assertInstalledPath(paths.state_dir, '/var/lib/wok')
-        self.assertInstalledPath(paths.log_dir, '/var/log/wok')
-        self.assertInstalledPath(paths.conf_dir, '/etc/wok')
-        self.assertInstalledPath(paths.src_dir, '@wokdir@')
-        self.assertInstalledPath(paths.plugins_dir, '@wokdir@/plugins')
-        self.assertInstalledPath(paths.ui_dir, '@datadir@/wok/ui')
-        self.assertInstalledPath(paths.mo_dir, '@prefix@/share/locale')
-
-    def test_uninstalled_paths(self):
-        Paths.get_prefix = lambda self: '/home/user/wok'
-        paths = Paths()
-        self.assertEquals(paths.state_dir, '/home/user/wok/data')
-        self.assertEquals(paths.log_dir, '/home/user/wok/log')
-        self.assertEquals(paths.conf_dir, '/home/user/wok/src')
-        self.assertEquals(paths.src_dir, '/home/user/wok/src/wok')
-        self.assertEquals(paths.plugins_dir, '/home/user/wok/src/wok/plugins')
-        self.assertEquals(paths.ui_dir, '/home/user/wok/ui')
-        self.assertEquals(paths.mo_dir, '/home/user/wok/mo')
-
     def test_installed_plugin_paths(self):
         GingerS390xPaths.get_prefix = lambda self: '@datadir@/wok'
         paths = GingerS390xPaths()
@@ -74,3 +52,17 @@ class ConfigTests(unittest.TestCase):
         self.assertInstalledPath(paths.ui_dir,
                                  '@datadir@/wok/plugins/gingers390x/ui')
         self.assertInstalledPath(paths.mo_dir, '@prefix@/share/locale')
+
+    def test_uninstalled_plugin_paths(self):
+        GingerS390xPaths.get_prefix = get_prefix
+
+        paths = GingerS390xPaths()
+        prefix = paths.prefix
+        self.assertEquals(paths.conf_dir, '%s/src/wok/plugins/gingers390x' % prefix)
+        self.assertEquals(paths.conf_file,
+                          '%s/src/wok/plugins/gingers390x/gingers390x.conf' % prefix)
+        self.assertEquals(paths.src_dir, '%s/src/wok/plugins/gingers390x' % prefix)
+        self.assertEquals(paths.ui_dir,
+                          '%s/src/wok/plugins/gingers390x/ui' % prefix)
+        self.assertEquals(paths.mo_dir,
+                          '%s/src/wok/plugins/gingers390x/mo' % prefix)
