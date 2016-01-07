@@ -241,7 +241,8 @@ def add_lun(adapter, port, lun_id):
                     fo.close()
                     if not entry_exists:
                         with open("/etc/zfcp.conf", "a") as zfcp:
-                            zfcp.write(adapter+" "+port+" "+lun_id+"\n")
+                            zfcp.write(
+                                adapter + " " + port + " " + lun_id + "\n")
                     break
 
         except Exception as e:
@@ -617,11 +618,13 @@ def validate_hba_id(hba_id):
     Validate hba id which should be of form, 0.0.xxxx
     :param hba_id: HBA ID to be validated
     """
-    pattern = re.compile(r'0.0.\d{4}')
+    pattern = re.compile(r'[0-2].[0-2].[a-z0-9]{4}')
     valid = pattern.match(hba_id)
     if not valid:
         wok_log.error("Unable to validate HBA ID, %s", hba_id)
-        raise InvalidParameter("GS390XSTG00005", {'err': 'Invalid HBA ID'})
+        raise InvalidParameter(
+            "GS390XSTG00005", {
+                'err': 'Invalid HBA ID ' + hba_id})
 
 
 def validate_wwpn_or_lun(input_id):
