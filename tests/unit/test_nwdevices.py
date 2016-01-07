@@ -646,13 +646,14 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
         _write_ifcfg_params(device)
         parser_mock = mock_augeas.Augeas('/')
         calls = [(ifcfg_file_pattern+'DEVICE', device_name,),
+                 (ifcfg_file_pattern+'TYPE', 'Ethernet',),
                  (ifcfg_file_pattern+'ONBOOT', 'yes',),
                  (ifcfg_file_pattern+'NETTYPE', 'qeth',),
                  (ifcfg_file_pattern+'SUBCHANNELS', 'dummy_ids',)]
-        for i in range(0, 3):
+        for i in range(0, 4):
             x, y = parser_mock.set.call_args_list[i]
             assert x == calls[i]
-        assert parser_mock.set.call_count == 4
+        assert parser_mock.set.call_count == 5
         parser_mock.load.assert_called_once_with()
         parser_mock.save.assert_called_once_with()
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '

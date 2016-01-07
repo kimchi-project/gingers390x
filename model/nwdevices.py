@@ -41,6 +41,8 @@ DEVICE = 'DEVICE'
 ONBOOT = 'ONBOOT'
 SUBCHANNELS = 'SUBCHANNELS'
 NETTYPE = 'NETTYPE'
+TYPE = 'TYPE'
+ETHERNET = 'Ethernet'
 ENCCW = 'enccw'
 
 ifcfg_path = 'etc/sysconfig/network-scripts/ifcfg-enccw<deviceid>'
@@ -489,7 +491,8 @@ def _write_ifcfg_params(interface):
     cfgmap = {DEVICE: device_name,
               ONBOOT: 'yes',
               SUBCHANNELS: sub_channels,
-              NETTYPE: 'qeth'}
+              NETTYPE: 'qeth',
+              TYPE: ETHERNET}
     ifcfg_file_pattern = ifcfg_path.replace('<deviceid>', interface) + '/'
     ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
     parser = None
