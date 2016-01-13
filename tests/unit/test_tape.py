@@ -17,7 +17,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import mock
 import unittest
 
 from model import utils
@@ -27,9 +26,7 @@ class TapeDevTests(unittest.TestCase):
     """
     unit tests for Tape devices
     """
-    @mock.patch('model.utils.get_tape_uuid')
-    def test_lstape_parser(self, mock_uuid):
-        mock_uuid.return_value = 'sdfsdfdssfsdf'
+    def test_lstape_parser(self):
         output = """Generic Device        Target       Vendor   Model            Type     State
 sg3     st0           1:0:2:0      IBM      ULT3580-HH6      tapedrv  running
 sg3     st0           1:0:2:0      IBM      ULT3580-HH6      tapedrv  running
