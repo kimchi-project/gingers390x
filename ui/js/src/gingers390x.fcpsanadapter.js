@@ -203,6 +203,7 @@ gingers390x.initFcpSanAdapterFinish = function(opts) {
         $('#s390x-fcpsan-finish').trigger("click");
       });
     } else {
+      ginger.initSanAdaterGridData();
       $(this).attr('data-dismiss', 'modal');
       return true;
     }

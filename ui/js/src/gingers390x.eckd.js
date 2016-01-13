@@ -209,6 +209,7 @@ gingers390x.initEckdFinish = function(opts) {
         $('#s390x-eckd-finish').trigger("click");
       });
     } else {
+      ginger.initStorageDevicesGridData();
       $(this).attr('data-dismiss', 'modal');
       return true;
     }

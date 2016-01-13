@@ -178,6 +178,7 @@ gingers390x.finishAction = function(opts) {
         $('#s390x-network-finish').trigger("click");
       });
     } else {
+      ginger.initNetworkConfigGridData();
       $(this).attr('data-dismiss', 'modal');
       return true;
     }
