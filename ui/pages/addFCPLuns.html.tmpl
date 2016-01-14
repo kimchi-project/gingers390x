@@ -24,26 +24,22 @@
 #silent _t = t.gettext
 <!DOCTYPE html>
 <html>
-
 <head>
-
   <link rel="stylesheet" href="plugins/gingers390x/css/bootgrid.css">
   <link rel="stylesheet" href="plugins/gingers390x/css/gingers390x.css">
   <script src="plugins/gingers390x/js/gingers390x.min.js"></script>
-
 </head>
 
 <body>
-
   <div id="storage-window-modal" class="gingers390x">
-    <div id="storage-window" class="modal-content">
-      <div class="modal-header">
+    <div id="storage-window" class="modal-content" style="width:1050px;">
+      <div class="modal-header" style="padding-left:12px;">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
         <h4 class="modal-title">$_("Add FCP Storage devices")</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="padding:10px 10px;">
         <div class="panel-group" id="storage-accordion">
           <div class="panel panel-default">
             <div id="s390x-storage-content-area" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
@@ -74,11 +70,11 @@
           </div>
         </div>
       </div>
+
+      <div class="modal-footer">
+        <button type="button" id="fcpLunsFinish" data-dismiss="modal" class="btn btn-default">$_("Finish")</button>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" id="fcpLunsFinish" data-dismiss="modal" class="btn btn-default">$_("Finish")</button>
-    </div>
-  </div>
   </div>
   <div id="modalWindow" class="modal fade storage-modal" tabindex="-1" role="dialog" aria-labelledby="storageModalLabel" aria-hidden="true"> </div>
   <script>

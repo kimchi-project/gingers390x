@@ -1,7 +1,7 @@
 /*
  * Project Ginger S390x
  *
- * Copyright IBM, Corp. 2015
+ * Copyright IBM, Corp. 2015-2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-gingers390x.initFCPLunsDetails = function() {
+  gingers390x.initFCPLunsDetails = function() {
+  $('#storage-window-modal').parent().width(1050);
+  $('#storage-window-modal').width(1050);
+
   gingers390x.loadFCPLunsList();
 
   $('#refreshLuns').on("click", function() {
@@ -79,7 +82,11 @@ gingers390x.loadFCPLunsList = function() {
   var headers = [{
     "column-id": 'hbaId',
     'title': i18n['GS390XFCLN009E'],
-    'title': 'Remote WWPN',
+    "type": 'string',
+    "width": "11%"
+  }, {
+    "column-id": 'remoteWwpn',
+    'title': i18n['GS390XFCLN0018E'],
     "type": 'string',
     "width": "20%"
   }, {
@@ -91,12 +98,12 @@ gingers390x.loadFCPLunsList = function() {
     "column-id": 'product',
     'title': i18n['GS390XFCLN0011E'],
     "type": 'string',
-    "width": '18%'
+    "width": '16%'
   }, {
     "column-id": 'controllerSN',
     'title': i18n['GS390XFCLN0012E'],
     "type": 'string',
-    "width": '27%'
+    "width": '30%'
   }, {
     "column-id": 'Srno',
     "type": 'numeric',
