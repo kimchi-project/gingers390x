@@ -133,19 +133,18 @@ gingers390x.enableFcpSanAdapter = function(opts) {
           if (result.status == 'online') {
             var successText = result.device + " " + opts.deviceEnableSuccessMsg;
             wok.message.success(successText,
-              '#alert-modal-nw-container');
+              '#alert-modal-fcpsanadapter-container');
           } else {
             var successText = result.device + " " + opts.deviceEnableFailedMsg;
             wok.message.error(successText,
-              '#alert-modal-nw-container', true);
+              '#alert-modal-fcpsanadapter-container', true);
           }
 
           trackEnablingDevices = gingers390x.trackdevices(
             trackEnablingDevices, result.device);
 
           if (i == selectedRowIds.length && trackEnablingDevices.length == 0)
-            gingers390x.initFcpSanAdapterBootGridData(opts);
-
+		gingers390x.enableFcpSanAdapterCompleted(opts);
         },
         function(result) {
           if (result['message']) { // Error message from Async
@@ -157,18 +156,18 @@ gingers390x.enableFcpSanAdapter = function(opts) {
           }
           result
             && wok.message.error(errText,
-              '#alert-modal-nw-container', true);
+              '#alert-modal-fcpsanadapter-container', true);
 
           trackEnablingDevices = gingers390x.trackdevices(
             trackEnablingDevices, result.device);
 
           if (i == selectedRowIds.length && trackEnablingDevices.length == 0)
-            gingers390x.initFcpSanAdapterBootGridData(opts);
+            gingers390x.enableFcpSanAdapterCompleted(opts);
 
         });
     }
   } else {
-    wok.message.error(opts.deviceSelectMsg, '#alert-modal-nw-container',
+    wok.message.error(opts.deviceSelectMsg, '#alert-modal-fcpsanadapter-container',
       true);
     gingers390x.fcpsanadapter.enableActionButton();
     gingers390x.showBootgridData(opts);
@@ -176,6 +175,13 @@ gingers390x.enableFcpSanAdapter = function(opts) {
 
   }
 };
+
+//Function triggers when all devices enable is completed and refresh the parent page
+gingers390x.enableFcpSanAdapterCompleted = function(opts) {
+	gingers390x.initFcpSanAdapterBootGridData(opts);
+    ginger.initSanAdaterGridData();
+}
+
 
 gingers390x.fcpsanadapter.enableActionButton = function() {
   $('#fcpsan-enable-btn').prop("disabled", false);
@@ -203,7 +209,6 @@ gingers390x.initFcpSanAdapterFinish = function(opts) {
         $('#s390x-fcpsan-finish').trigger("click");
       });
     } else {
-      ginger.initSanAdaterGridData();
       $(this).attr('data-dismiss', 'modal');
       return true;
     }

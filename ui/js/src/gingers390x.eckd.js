@@ -142,18 +142,18 @@ gingers390x.enableEckd = function(opts) {
           if (result.status == 'online') {
             var successText = result.device + " " + opts.deviceEnableSuccessMsg;
             wok.message.success(successText,
-              '#alert-modal-nw-container');
+              '#alert-modal-eckd-container');
           } else {
             var successText = result.device + " " + opts.deviceEnableFailedMsg;
             wok.message.error(successText,
-              '#alert-modal-nw-container', true);
+              '#alert-modal-eckd-container', true);
           }
 
           trackEnablingDevices = gingers390x.trackdevices(
             trackEnablingDevices, result.device);
 
           if (i == selectedRowIds.length && trackEnablingDevices.length == 0)
-            gingers390x.initEckdBootGridData(opts); //Reload The list
+            gingers390x.enableEckdCompleted(opts);
         },
         function(result) {
           if (result['message']) { // Error message from Async Task status TODO
@@ -163,24 +163,31 @@ gingers390x.enableEckd = function(opts) {
           }
           result
             && wok.message.error(errText,
-              '#alert-modal-nw-container', true);
+              '#alert-modal-eckd-container', true);
 
           trackEnablingDevices = gingers390x.trackdevices(
             trackEnablingDevices, result.device);
 
           if (i == selectedRowIds.length && trackEnablingDevices.length == 0)
-            gingers390x.initEckdBootGridData(opts); //Reload The list
+            gingers390x.enableEckdCompleted(opts);
 
         });
     }
   } else {
-    wok.message.error(opts.deviceSelectMsg, '#alert-modal-nw-container',
+    wok.message.error(opts.deviceSelectMsg, '#alert-modal-eckd-container',
       true);
     gingers390x.eckd.enableActionButton();
     gingers390x.showBootgridData(opts);
     gingers390x.hideBootgridLoading(opts);
   }
 };
+
+//Function triggers when all devices enable is completed and refresh the parent page
+gingers390x.enableEckdCompleted = function(opts) {
+	gingers390x.initEckdBootGridData(opts); //Reload The list
+    ginger.initStorageDevicesGridData();
+}
+
 
 gingers390x.eckd.enableActionButton = function() {
   $('#eckd-enable-btn').prop("disabled", false);
@@ -209,7 +216,6 @@ gingers390x.initEckdFinish = function(opts) {
         $('#s390x-eckd-finish').trigger("click");
       });
     } else {
-      ginger.initStorageDevicesGridData();
       $(this).attr('data-dismiss', 'modal');
       return true;
     }

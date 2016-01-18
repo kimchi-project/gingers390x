@@ -134,9 +134,8 @@ gingers390x.enableNetworks = function(opts) {
         var successText = result['message'];
         wok.message.success(successText, '#alert-modal-nw-container');
         totalRowsSelected = totalRowsSelected - 1;
-        if (totalRowsSelected == 0) {
-          gingers390x.initNetworkBootGridData(opts);
-        }
+        if (totalRowsSelected == 0)
+		gingers390x.enableNetworksCompleted(opts);
       }, function(result) {
         if (result['message']) {
           var errText = result['message'];
@@ -146,9 +145,8 @@ gingers390x.enableNetworks = function(opts) {
         result && wok.message.error(errText, '#alert-modal-nw-container', true);
         taskAccepted;
         totalRowsSelected = totalRowsSelected - 1;
-        if (totalRowsSelected == 0) {
-          gingers390x.initNetworkBootGridData(opts);
-        }
+        if (totalRowsSelected == 0)
+          gingers390x.enableNetworksCompleted(opts);
       }, onTaskAccepted);
     }
   } else {
@@ -159,6 +157,12 @@ gingers390x.enableNetworks = function(opts) {
   }
 
 };
+
+//Function triggers when all devices enable is completed and refresh the parent page
+gingers390x.enableNetworksCompleted = function(opts) {
+	gingers390x.initNetworkBootGridData(opts);
+    ginger.initNetworkConfigGridData();
+}
 
 gingers390x.finishAction = function(opts) {
   $("#s390x-network-finish").on('click', function(event) {
@@ -178,7 +182,6 @@ gingers390x.finishAction = function(opts) {
         $('#s390x-network-finish').trigger("click");
       });
     } else {
-      ginger.initNetworkConfigGridData();
       $(this).attr('data-dismiss', 'modal');
       return true;
     }
