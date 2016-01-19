@@ -136,6 +136,64 @@ def _get_sg_inq_dict(sg_inq_output):
     return sg_inq_dict
 
 
+def clear_multipath(dm_long_name):
+    """
+    Clear a multipath device entry
+    @param dm_long_name : name of multipath device
+    """
+    out, err, rc = run_command(['multipath', '-f', dm_long_name])
+    if rc != 0:
+        wok_log.error("Unable to remove multipath device, %s", dm_long_name)
+        raise OperationFailed("GS390XSTG0018E", {'err': err})
+
+
+def find_other_paths(sg_device):
+    """
+    Find the other paths of to the same disk
+    @param sg_device: sg device to find paths from.
+    @return : list of tuples represeting each path
+    """
+    other_paths = []
+    sg_dev_path = sg_dir + "/" + sg_device
+    dm_slaves = []
+    try:
+        block_dev = os.listdir(sg_dev_path + "/device/block/")[0]
+        dm_dev = os.listdir(
+            sg_dev_path +
+            "/device/block/" +
+            block_dev +
+            "/holders/")[0]
+        dm_slaves_path = sg_dev_path + "/device/block/" + \
+            block_dev + "/holders/" + dm_dev + "/slaves"
+        dm_slaves = os.listdir(dm_slaves_path)
+        dm_slaves.remove(block_dev)
+    except:
+        # Either the dm device associated with this device
+        # is removed or some other thread issued 'multipath -f device'
+        # It's alright to continue normally in that case.
+        pass
+
+    for dm_slave in dm_slaves:
+        try:
+            dm_slave_device_path = dm_slaves_path + "/" + dm_slave + "/device"
+
+            wwpn = open(dm_slave_device_path + "/wwpn").readline().rstrip()
+            fcp_lun = open(
+                dm_slave_device_path +
+                "/fcp_lun").readline().rstrip()
+            hba_id = open(
+                dm_slave_device_path +
+                "/hba_id").readline().rstrip()
+            other_paths.append((hba_id, wwpn, fcp_lun))
+        except:
+            # Some other thread might have deleted the path
+            # that we are trying to delete. Just move on with
+            # normal flow from here.
+            pass
+
+    return other_paths
+
+
 def remove_lun(adapter, port, lun_id):
     """
     Remove a LUN from system
@@ -143,67 +201,97 @@ def remove_lun(adapter, port, lun_id):
     :param port: Remote port wwpn
     :param lun_id: Id of the given LUN
     """
-
-    port_dir = '/sys/bus/ccw/drivers/zfcp/' + adapter + '/' + port + '/'
-    lun_dir = port_dir + lun_id
-
-    wok_log.info("Removing LUN, %s", lun_dir)
-
+    luns = []
+    luns.append((adapter, port, lun_id))
     # Let's look for the sg_device associated with this LUN
     sg_device = ''
     sg_devices = get_sg_devices()
     for sg_dev in sg_devices:
-        wwpn = open(sg_dir + "/" + sg_dev + "/device/wwpn").readline().rstrip()
-        fcp_lun = open(
-            sg_dir +
-            "/" +
-            sg_dev +
-            "/device/fcp_lun").readline().rstrip()
-        hba_id = open(
-            sg_dir +
-            "/" +
-            sg_dev +
-            "/device/hba_id").readline().rstrip()
+        try:
+            wwpn = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/wwpn").readline().rstrip()
+            fcp_lun = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/fcp_lun").readline().rstrip()
+            hba_id = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/hba_id").readline().rstrip()
 
-        if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
-            sg_device = sg_dev
+            if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
+                sg_device = sg_dev
+                sg_dev_path = sg_dir + "/" + sg_device
+                other_paths = find_other_paths(sg_device)
+                for op in other_paths:
+                    hba_id = op[0]
+                    wwpn = op[1]
+                    fcp_lun = op[2]
+                    luns.append((hba_id, wwpn, fcp_lun))
 
-            break
+                try:
+                    block_dev = os.listdir(sg_dev_path + "/device/block/")[0]
+                    dm_dev = os.listdir(
+                        sg_dev_path +
+                        "/device/block/" +
+                        block_dev +
+                        "/holders/")[0]
+                    dm_long_name = open(
+                        sg_dev_path +
+                        "/device/block/" +
+                        block_dev +
+                        "/holders/" +
+                        dm_dev +
+                        "/dm/name").readline().rstrip()
+                    clear_multipath(dm_long_name)
+                except:
+                    # It may happen that the given device may not have
+                    # a corresponding dm device. In that case just
+                    # move on without doing anything.
+                    pass
 
-    if not os.path.exists(lun_dir):
-        return
-    else:
-        # If there is any sg_device, remove it
-        # If there is no sg_device, then the LUN was only discovered
-        # and not configured, so we don't have to do anything
-        if sg_device:
-            try:
-                with open(sg_dir + sg_device + '/device/delete', "w")\
-                        as txt_file:
-                    txt_file.write("1")
-            except Exception as e:
-                wok_log.error("Unable to remove sg_dev, %s", sg_device)
-                raise OperationFailed("GS390XSTG00001", {'err': e.message})
+                break
+        except:
+            # While looking for relavent sg_device in an multithreaded
+            # environment it may happen that the directory we are looking
+            # into might get deleted by another thread. In this was just
+            # just skip this current directory and look for the sg_device
+            # somewhere else. This is why we should just pass this
+            # exception.
+            pass
 
-            try:
-                with open(port_dir + 'unit_remove', "w") as txt_file:
-                    txt_file.write(lun_id)
+    for lun in luns:
+        port_dir = '/sys/bus/ccw/drivers/zfcp/' + lun[0] + '/' + lun[1] + '/'
+        lun_dir = port_dir + lun[2]
+        wok_log.info("Removing LUN, %s", lun_dir)
 
-                fo = open("/etc/zfcp.conf", "r")
-                lines = fo.readlines()
-                output = []
-                fo.close()
-                fo = open("/etc/zfcp.conf", "w")
-                for line in lines:
-                    if [adapter, port, lun_id] == line.split():
-                        continue
-                    else:
-                        output.append(line)
-                fo.writelines(output)
-                fo.close()
-            except Exception as e:
-                wok_log.error("Unable to remove LUN, %s", lun_dir)
-                raise OperationFailed("GS390XSTG00002", {'err': e.message})
+        if not os.path.exists(lun_dir):
+            continue  # move on... some other thread removed this LUN already
+
+        try:
+            with open(port_dir + 'unit_remove', "w") as txt_file:
+                txt_file.write(lun[2])
+
+            fo = open("/etc/zfcp.conf", "r")
+            lines = fo.readlines()
+            output = []
+            fo.close()
+            fo = open("/etc/zfcp.conf", "w")
+            for line in lines:
+                if [lun[0], lun[1], lun[2]] == line.split():
+                    continue
+                else:
+                    output.append(line)
+            fo.writelines(output)
+            fo.close()
+        except Exception as e:
+            wok_log.error("Unable to remove LUN, %s", lun_dir)
+            raise OperationFailed("GS390XSTG00002", {'err': e.message})
 
 
 def add_lun(adapter, port, lun_id):
