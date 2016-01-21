@@ -1,7 +1,7 @@
 #
 # Project Ginger S390x
 #
-# Copyright IBM, Corp. 2015
+# Copyright IBM, Corp. 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -392,28 +392,42 @@ def get_lun_info(adapter, port, lun_id):
     # of temporary LUNs as well.
     sg_devices = get_sg_devices()
     for sg_dev in sg_devices:
-        wwpn = open(sg_dir + "/" + sg_dev + "/device/wwpn").readline().rstrip()
-        fcp_lun = open(
-            sg_dir +
-            "/" +
-            sg_dev +
-            "/device/fcp_lun").readline().rstrip()
-        hba_id = open(
-            sg_dir +
-            "/" +
-            sg_dev +
-            "/device/hba_id").readline().rstrip()
+        try:
+            wwpn = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/wwpn").readline().rstrip()
+            fcp_lun = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/fcp_lun").readline().rstrip()
+            hba_id = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/hba_id").readline().rstrip()
 
-        if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
-            lun_info['hbaId'] = hba_id
-            lun_info['remoteWwpn'] = port
-            lun_info['lunId'] = lun_id
+            if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
+                lun_info['hbaId'] = hba_id
+                lun_info['remoteWwpn'] = port
+                lun_info['lunId'] = lun_id
 
-            lun_info['sgDev'] = sg_dev
-            out, err, rc = run_command(["sg_inq", "/dev/" + sg_dev])
-            if rc == 0:
-                lun_info.update(_get_sg_inq_dict(out))
-            break
+                lun_info['sgDev'] = sg_dev
+                out, err, rc = run_command(["sg_inq", "/dev/" + sg_dev])
+                if rc == 0:
+                    lun_info.update(_get_sg_inq_dict(out))
+                break
+
+        except:
+            # While looking for relavent sg_device in an multithreaded
+            # environment it may happen that the directory we are looking
+            # into might get deleted by another thread. In this was just
+            # just skip this current directory and look for the sg_device
+            # somewhere else. This is why we should just pass this
+            # exception.
+            pass
 
     # Get rid of the LUN if it's not configured
     if not lun_info['configured']:
