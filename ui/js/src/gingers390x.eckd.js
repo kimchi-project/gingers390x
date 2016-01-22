@@ -36,7 +36,7 @@ gingers390x.initEckd = function() {
     finishCancel: i18n['GS390XED012E']
   };
 
-  gingers390x.initBlacklist();
+  gingers390x.initBlacklist(gingers390x.RefreshEckdBootGridData);
   gingers390x.initEckdBootgrid(opts);
 };
 
@@ -220,4 +220,13 @@ gingers390x.initEckdFinish = function(opts) {
       return true;
     }
   });
+};
+
+// function to refresh eckd boot gird data which can be called from blacklist.js
+gingers390x.RefreshEckdBootGridData = function(){
+  var opts = {
+    gridId: 'eckd-table-grid',
+    bootGridListMsg: i18n["GS390XBG003E"]
+  };
+  gingers390x.initEckdBootGridData(opts);
 };

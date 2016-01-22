@@ -35,7 +35,7 @@ gingers390x.initFcpSanAdapter = function() {
     finishCancel: i18n['GS390XFS011E']
   };
 
-  gingers390x.initBlacklist();
+  gingers390x.initBlacklist(gingers390x.RefreshFcpSanAdapterBootGridData);
   gingers390x.initFcpSanAdapterBootgrid(opts);
 };
 
@@ -213,4 +213,13 @@ gingers390x.initFcpSanAdapterFinish = function(opts) {
       return true;
     }
   });
+};
+
+// function to refresh fcp boot gird data which can be called from blacklist.js
+gingers390x.RefreshFcpSanAdapterBootGridData = function(){
+  var opts = {
+    gridId: 'fcpsan-table-grid',
+    bootGridListMsg: i18n["GS390XBG003E"]
+  };
+  gingers390x.initFcpSanAdapterBootGridData(opts);
 };

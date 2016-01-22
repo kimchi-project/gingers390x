@@ -18,7 +18,7 @@
 gingers390x.network = {};
 
 gingers390x.initNetwork = function() {
-  gingers390x.initBlacklist();
+  gingers390x.initBlacklist(gingers390x.RefreshNetworkBootGridData);
   gingers390x.initNetworkBootgrid(i18n['GS390XNW001E']);
 
 };
@@ -81,7 +81,7 @@ gingers390x.initNetworkBootGridData = function(opts) {
   var result = [];
   gingers390x.disableActionButton();
   gingers390x.clearBootgridData(opts);
-  gingers390x.hideBootgridData(opts); //This will hide  No reaord found till data is not appended.
+  gingers390x.hideBootgridData(opts); //This will hide  No record found till data is not appended.
   opts['loadingMessage'] = i18n['GS390XNW006E'];
   gingers390x.showBootgridLoading(opts);
 
@@ -194,4 +194,13 @@ gingers390x.enableActionButton = function() {
 
 gingers390x.disableActionButton = function() {
   $('#network-enable-btn').prop("disabled", true);
+};
+
+// function to refresh network boot gird data which can be called from blacklist.js
+gingers390x.RefreshNetworkBootGridData = function(){
+  var opts = {
+    gridId: 'network-table-grid',
+    loadingMessage: i18n['GS390XBG003E']
+  };
+  gingers390x.initNetworkBootGridData(opts);
 };

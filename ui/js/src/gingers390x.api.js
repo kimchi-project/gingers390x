@@ -250,9 +250,10 @@ listFCPluns: function(suc, err) {
       type: 'GET',
       contentType: 'application/json',
       dataType: 'json',
+      resend : true,
       success: suc,
       error: function(data) {
-        gingers390x.messagecloseable.error(data.responseJSON.reason);
+        wok.message.error(data.responseJSON.reason);
       }
     });
   },
@@ -262,9 +263,10 @@ listFCPluns: function(suc, err) {
       type: 'GET',
       contentType: 'application/json',
       dataType: 'json',
+      resend : true,
       success: suc,
       error: function(data) {
-        gingers390x.messagecloseable.error(data.responseJSON.reason);
+        wok.message.error(data.responseJSON.reason);
       }
     });
   }

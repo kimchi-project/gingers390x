@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-gingers390x.initBlacklist = function() {
+gingers390x.initBlacklist = function(refreshcallfunc) {
+  gingers390x.RefreshParentList = refreshcallfunc;
   var opts = {
     inputLabel: i18n['GS390XBL001E'],
     inputPlaceholder: i18n['GS390XBL002E'],
@@ -106,6 +107,7 @@ gingers390x.removeFromBlackList = function(event) {
       $('#devices').val('');
       gingers390x.hideLoading();
       wok.topic('gingers390x/removeBlacklistDevice').publish();
+      gingers390x.RefreshParentList();
     }, function(result) {
       // Error message from Async Task status
       if (result['message']) {
@@ -119,7 +121,7 @@ gingers390x.removeFromBlackList = function(event) {
       gingers390x.enableBlActionButton();
       taskAccepted;
       gingers390x.hideLoading();
-
+      gingers390x.RefreshParentList();
     }, onTaskAccepted);
 
   } else {
