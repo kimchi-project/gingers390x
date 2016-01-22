@@ -690,7 +690,7 @@ def parse_sg_luns(sg_luns_output):
     """
 
     # Take out LUN IDs of all discovered LUNs
-    pattern = re.compile(r'(\d{16})')
+    pattern = re.compile(r'([a-zA-Z0-9]{16})')
     match = pattern.findall(sg_luns_output)
     match = ['0x' + i for i in match]
     # By default returns empty list if no match found
