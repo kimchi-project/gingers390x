@@ -22,6 +22,7 @@ import glob
 import re
 import os
 
+from ConfigParser import ParsingError
 from wok.exception import OperationFailed, InvalidParameter
 from os import listdir
 from wok.utils import run_command, wok_log
@@ -770,9 +771,31 @@ def is_lun_scan_enabled():
 
         return lun_scan_status
 
+    except ParsingError:
+        check_zipl_file()
+        is_lun_scan_enabled()
     except Exception as e:
         wok_log.error("Unable to parse /etc/zipl.conf")
         raise OperationFailed("GS390XSTG00013", {'err': e.message})
+
+
+def check_zipl_file():
+    """
+    Look for indented text in /etc/zipl.conf file and remove spaces if found
+    :return:
+    """
+    f = open('/etc/zipl.conf', 'r')
+    lines = f.readlines()
+    f.close()
+
+    # rewrite the file removing the spaces if any
+    f = open('/etc/zipl.conf', 'w')
+    for line in lines:
+        p = re.match('^\s+\S', line)
+        if p:
+            line = line.lstrip()
+        f.write(line)
+    f.close()
 
 
 def enable_lun_scan(enable):
