@@ -353,7 +353,7 @@ def get_lun_info(adapter, port, lun_id):
 
     lun_info = {}
 
-    if os.path.exists(lun_dir):
+    if os.path.exists(lun_dir) or is_lun_scan_enabled()['current']:
         lun_info['configured'] = True
     else:
         lun_info['configured'] = False
@@ -542,10 +542,13 @@ def get_luns():
     Get the list of all the LUNs including unconfigured ones
     :return: List of all the LUN paths
     """
+    luns = []
+    if is_lun_scan_enabled()['current']:
+        return luns
+
     host_fcp_dict = _get_host_fcp_dict()
     global lun_dict
     lun_dict = _get_lun_dict()
-    luns = []
 
     # Loop over all HBA adapters
     for adapter in host_fcp_dict:
