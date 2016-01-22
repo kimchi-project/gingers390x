@@ -137,17 +137,26 @@ gingers390x.addFCPActions = function() {
       var successLuns = [];
       var isConfigured = null;
       var lunsDetails = '';
+      var TrackNum = selectedRows.length;
       $.each(selectedRowDetails, function(i, row) {
         var lunAddDetails = {
           'hbaId': row['hbaId'],
           'remoteWwpn': row['remoteWwpn'],
           'lunId': row['lunId']
-        }
+       }
         gingers390x.addLuns(lunAddDetails, function(result) {
-          wok.message.success(i18n['GS390XFCLN0014E'], '#alert-modal-storage-container', true);
+          wok.message.success(lunAddDetails.hbaId+':'+lunAddDetails.remoteWwpn+':'+lunAddDetails.lunId+' '+i18n['GS390XFCLN0014E'], '#alert-modal-storage-container');
+        TrackNum = TrackNum - 1;
+        if (TrackNum == 0){
+          ginger.initStorageDevicesGridData();
+        }
 
         }, function(result) {
           wok.message.error(i18n["GS390XFCLN0015E"], '#alert-modal-storage-container');
+          TrackNum = TrackNum - 1;
+        if (TrackNum == 0){
+          ginger.initStorageDevicesGridData();
+        }
         });
       });
       gingers390x.retrieveLunsList();
@@ -247,11 +256,13 @@ gingers390x.addAllhandler = function() {
   var opts = {};
   opts['gridId'] = 'fcp-luns-table-grid';
   var selectedRowDetails = gingers390x.getCurrentRows(opts);
+  alert(selectedRowDetails.length);
   var rowIndex = 0;
   var failedlLuns = [];
   var successLuns = [];
   var isConfigured = null;
   var lunsDetails = '';
+  var TrackNum = selectedRowDetails.length;
 
   $.each(selectedRowDetails, function(i, row) {
     var lunAddDetails = {
@@ -260,9 +271,17 @@ gingers390x.addAllhandler = function() {
       'lunId': row['lunId']
     }
     gingers390x.addLuns(lunAddDetails, function(result) {
-      wok.message.success(i18n["GS390XFCLN0014E"], '#alert-modal-storage-container', true);
+      wok.message.success(lunAddDetails.hbaId+':'+lunAddDetails.remoteWwpn+':'+lunAddDetails.lunId+' '+i18n["GS390XFCLN0014E"], '#alert-modal-storage-container');
+      TrackNum = TrackNum - 1;
+      if(TrackNum == 0){
+        ginger.initStorageDevicesGridData();
+      }
     }, function(result) {
-      wok.message.error(i18n['GS390XFCLN0017E'], '#alert-modal-storage-container', true);
+      wok.message.error(i18n['GS390XFCLN0017E'], '#alert-modal-storage-container');
+      TrackNum = TrackNum - 1;
+      if(TrackNum == 0){
+        ginger.initStorageDevicesGridData();
+      }
     });
   });
   gingers390x.retrieveLunsList();
