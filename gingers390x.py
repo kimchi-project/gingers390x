@@ -1,7 +1,7 @@
 #
 # Project Ginger S390x
 #
-# Copyright IBM, Corp. 2015
+# Copyright IBM, Corp. 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@ from wok.plugins.gingers390x.control import sub_nodes
 from wok.plugins.gingers390x.model import model as gingerS390xModel
 
 
-class GingerS390x(WokRoot):
+class Gingers390x(WokRoot):
     def __init__(self, wok_options):
         make_dirs = [
             os.path.dirname(os.path.abspath(config.get_object_store())),
@@ -45,7 +45,7 @@ class GingerS390x(WokRoot):
             self.model = gingerS390xModel.Model()
 
         dev_env = wok_options.environment != 'production'
-        super(GingerS390x, self).__init__(self.model, dev_env)
+        super(Gingers390x, self).__init__(self.model, dev_env)
 
         for ident, node in sub_nodes.items():
             setattr(self, ident, node(self.model))
