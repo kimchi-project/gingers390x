@@ -29,9 +29,10 @@ messages = {
                         "REASON = %(reason)s'."),
     "GS390XREG0001E": _("Issue with regex. Reason =  %(reason)s"),
 
-    "GS390XIOST001E": _("Failed to bring device online. Error = %(error)s"),
+    "GS390XIOST001E": _("Failed to bring device %(device)s online. Error = %(error)s"),
     "GS390XIOST002E": _("Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"),
     "GS390XIOST003E": _("Failed to remove device from dasd.conf file. Device = %(device)s"),
+    "GS390XIOST004E": _("Failed to bring device %(device)s offline. Error = %(error)s"),
 
     "GS390XIONW001E": _("Failed to bring network device %(device)s online. Error = %(error)s"),
     "GS390XIONW002E": _("Failed to persist network device %(device)s in "

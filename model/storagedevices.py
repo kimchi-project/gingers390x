@@ -433,7 +433,8 @@ def _bring_online(device):
         err = ','.join(line.strip() for line in err.splitlines())
         wok_log.error("Failed to bring device %s online. Error: %s"
                       % (device, err))
-        raise OperationFailed("GS390XIOST001E", {'error': err})
+        raise OperationFailed("GS390XIOST001E",
+                              {'device': device, 'error': err})
 
 
 def _bring_offline(device):
@@ -447,7 +448,8 @@ def _bring_offline(device):
         err = ','.join(line.strip() for line in err.splitlines())
         wok_log.error("Failed to bring device %s offline. Error: %s"
                       % (device, err))
-        raise OperationFailed("GS390IOST004E", {'error': err})
+        raise OperationFailed("GS390XIOST004E",
+                              {'device': device, 'error': err})
 
 
 def _persist_dasdeckd_device(device):
