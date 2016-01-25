@@ -576,7 +576,18 @@ def get_luns():
 
             # If no LUNs are associated with this port, try adding LUN 0
             # to initiate LUN discovery on this port later
+            add_discovery_lun = False
             if adapter not in lun_dict or port not in lun_dict[adapter]:
+                add_discovery_lun = True
+
+            if port in lun_dict[adapter]:
+                port_luns_keys = lun_dict[adapter][port]
+                add_discovery_lun = True
+                for lun_key in port_luns_keys:
+                    if lun_key == lun0 or lun_key == wlun:
+                        add_discovery_lun = False
+
+            if add_discovery_lun:
                 try:
                     with open(port_dir + 'unit_add', "w") as txt_file:
                         txt_file.write(lun0)
