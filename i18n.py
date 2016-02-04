@@ -33,6 +33,8 @@ messages = {
     "GS390XIOST002E": _("Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"),
     "GS390XIOST003E": _("Failed to remove device from dasd.conf file. Device = %(device)s"),
     "GS390XIOST004E": _("Failed to bring device %(device)s offline. Error = %(error)s"),
+    "GS390XIOST005E": _("Failed to add zfcp device in zfcp.conf file. Device = %(device)s"),
+    "GS390XIOST006E": _("Failed to remove device from zfcp.conf file. Device = %(device)s"),
 
     "GS390XIONW001E": _("Failed to bring network device %(device)s online. Error = %(error)s"),
     "GS390XIONW002E": _("Failed to persist network device %(device)s in "

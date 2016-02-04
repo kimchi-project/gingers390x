@@ -1,7 +1,7 @@
 #
 # Project Ginger S390x
 #
-# Copyright IBM, Corp. 2015
+# Copyright IBM, Corp. 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -338,6 +338,8 @@ def _device_online(device):
         if _is_dasdeckd_device(device):
             if not _is_dasdeckd_persisted(device):
                 _persist_dasdeckd_device(device)
+        if _is_zfcp_device(device):
+            _persist_zfcp_device(device)
         rollback.commitAll()
 
 
@@ -356,6 +358,8 @@ def _device_offline(device):
         if _is_dasdeckd_device(device):
             if _is_dasdeckd_persisted(device):
                 _unpersist_dasdeckd_device(device)
+        if _is_zfcp_device(device):
+            _unpersist_zfcp_device(device)
         rollback.commitAll()
 
 
@@ -502,3 +506,35 @@ def _is_zfcp_device(device):
     if device in zfcp_devices:
         return True
     return False
+
+
+def _persist_zfcp_device(device):
+    """
+    Add the zfcp device id and dummy lun info into ZFCP_CONF
+    :param device: device id
+    """
+    dummy_lun_info = '0x0000000000000000 0x0000000000000000'
+    persist_data = device + ' ' + dummy_lun_info
+    command_persist_zfcp = 'flock -w 1 %s -c \"echo %s >> %s\"' \
+                           % (ZFCP_CONF, persist_data, ZFCP_CONF)
+    if os.access(ZFCP_CONF, os.W_OK):
+        retcode = os.system(command_persist_zfcp)
+        if not retcode:
+            return
+    wok_log.error("Failed to persist zfcp device: %s" % device)
+    raise OperationFailed("GS390XIOST005E", {'device': device})
+
+
+def _unpersist_zfcp_device(device):
+    """
+    Remove the zfcp device entry from ZFCP_CONF
+    :param device: device id
+    """
+    command_unpersist_zfcp = 'flock -w 1 %s -c \"sed -i \'/%s/Id\' %s\"'\
+                             % (ZFCP_CONF, device, ZFCP_CONF)
+    if os.access(ZFCP_CONF, os.W_OK):
+        retcode = os.system(command_unpersist_zfcp)
+        if not retcode:
+            return
+    wok_log.error("Failed to unpersist zfcp device: %s" % device)
+    raise OperationFailed("GS390XIOST006E", {'device': device})

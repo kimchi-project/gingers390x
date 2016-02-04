@@ -1,7 +1,7 @@
 #
 # Project Ginger S390x
 #
-# Copyright IBM, Corp. 2015
+# Copyright IBM, Corp. 2015-2016
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -30,13 +30,16 @@ from model.storagedevices import _hex_to_binary, _is_dasdeckd_device
 from model.storagedevices import _is_dasdeckd_persisted, _is_online
 from model.storagedevices import _is_zfcp_device, _list_devicesinfo
 from model.storagedevices import _persist_dasdeckd_device
+from model.storagedevices import _persist_zfcp_device
 from model.storagedevices import StorageDeviceModel, StorageDevicesModel
-from model.storagedevices import _unpersist_dasdeckd_device, _validate_device
+from model.storagedevices import _unpersist_dasdeckd_device
+from model.storagedevices import _unpersist_zfcp_device, _validate_device
 
 
 syspath_eckd = "/sys/bus/ccw/drivers/dasd-eckd/0.*/"
 syspath_zfcp = "/sys/bus/ccw/drivers/zfcp/0.*/"
 DASD_CONF = '/etc/dasd.conf'
+ZFCP_CONF = '/etc/zfcp.conf'
 
 
 class ListDevicesInfoUnitTests(unittest.TestCase):
@@ -1472,3 +1475,139 @@ class BringOfflineUnitTests(unittest.TestCase):
         mock_run_command.assert_called_once_with(command)
         mock_log.error.assert_called_with("Failed to bring device %s offline."
                                           " Error: dummy error" % device)
+
+
+class PersistZFCPDeviceUnitTests(unittest.TestCase):
+    """
+    unit tests for _persist_zfcp_device() method
+    """
+    @mock.patch('model.storagedevices.os', autospec=True)
+    def test_persist_zfcp_success(self, mock_os):
+        """
+        unit test to validate persisting zfcp device, success
+        scenario(os.system return code is 0)
+        mock_os: mock of python os module imported in storagedevices
+        on success, _persist_zfcp_device() method doesn't return anything
+        """
+        mock_os.system.return_value = 0
+        mock_os.access.return_value = True
+        device = "dummy_device"
+        persist_data = device + ' 0x0000000000000000 0x0000000000000000'
+        command = 'flock -w 1 %s -c \"echo %s >> %s\"' \
+                  % (ZFCP_CONF, persist_data, ZFCP_CONF)
+        _persist_zfcp_device(device)
+        mock_os.access.assert_called_once_with(ZFCP_CONF, mock_os.W_OK)
+        mock_os.system.assert_called_once_with(command)
+
+    @mock.patch('model.storagedevices.wok_log', autospec=True)
+    @mock.patch('model.storagedevices.os', autospec=True)
+    def test_persist_zfcp_failtowrite_tofile(self, mock_os, mock_log):
+        """
+        unit test to validate persisting zfcp device, failure
+        scenario(os.system return code is not zero)
+        mock_os: mock of python os module imported in storagedevices
+        mock_log: mock of wok_log imported in model.storagedevices
+        on failure, _persist_zfcp_device() raises OperationFailed exception
+        """
+        mock_os.system.return_value = 1
+        mock_os.access.return_value = True
+        device = "dummy_device"
+        persist_data = device + ' 0x0000000000000000 0x0000000000000000'
+        command = 'flock -w 1 %s -c \"echo %s >> %s\"' \
+                  % (ZFCP_CONF, persist_data, ZFCP_CONF)
+        self.assertRaises(exception.OperationFailed,
+                          _persist_zfcp_device, device)
+        mock_os.access.assert_called_once_with(ZFCP_CONF, mock_os.W_OK)
+        mock_os.system.assert_called_once_with(command)
+        mock_log.error.assert_called_with("Failed to persist "
+                                          "zfcp device: %s" % device)
+
+    @mock.patch('model.storagedevices.wok_log', autospec=True)
+    @mock.patch('model.storagedevices.os', autospec=True)
+    def test_persist_zfcp_failtoaccess_file(self, mock_os, mock_log):
+        """
+        unit test to validate persisting zfcp device, failure
+        scenario(os.accsess returns False, ie, failed to
+        access zfcp.conf file in write mode)
+        mock_os: mock of python os module imported in storagedevices
+        mock_log: mock of wok_log imported in model.storagedevices
+        on failure, _persist_zfcp_device() raises OperationFailed exception
+        """
+        mock_os.access.return_value = False
+        device = "dummy_device"
+        self.assertRaises(exception.OperationFailed,
+                          _persist_zfcp_device, device)
+        mock_os.access.assert_called_once_with(ZFCP_CONF, mock_os.W_OK)
+        self.assertFalse(mock_os.system.called,
+                         msg='Unexpected call to mock_os.system()')
+        mock_log.error.assert_called_with("Failed to persist "
+                                          "zfcp device: %s" % device)
+
+
+class UnPersistZFCPUnitTests(unittest.TestCase):
+    """
+    unit tests for _unpersist_zfcp_device() method
+    """
+    @mock.patch('model.storagedevices.os', autospec=True)
+    def test_unpersist_zfcp_success(self, mock_os):
+        """
+        unit test to validate un persisting zfcp
+        device(removing zfcp device id from zfcp.conf file),
+        success scenario(os.system return code is 0)
+        mock_os: mock of python os module imported in storagedevices
+        on success, _unpersist_zfcp_device()
+        method doesn't return anything
+        """
+        mock_os.system.return_value = 0
+        mock_os.access.return_value = True
+        device = "dummy_device"
+        command = 'flock -w 1 %s -c \"sed -i \'/%s/Id\' %s\"' \
+                  % (ZFCP_CONF, device, ZFCP_CONF)
+        _unpersist_zfcp_device(device)
+        mock_os.access.assert_called_once_with(ZFCP_CONF, mock_os.W_OK)
+        mock_os.system.assert_called_once_with(command)
+
+    @mock.patch('model.storagedevices.wok_log', autospec=True)
+    @mock.patch('model.storagedevices.os', autospec=True)
+    def test_unpersist_zfcp_failtowrite_tofile(self, mock_os, mock_log):
+        """
+        unit test to validate un persisting zfcp device, failure
+        scenario(os.system return code is not zero)
+        mock_os: mock of python os module imported in storagedevices
+        mock_log: mock of wok_log imported in model.storagedevices
+        on failure, _unpersist_zfcp_device()
+        raises OperationFailed exception
+        """
+        mock_os.system.return_value = 1
+        mock_os.access.return_value = True
+        device = "dummy_device"
+        command = 'flock -w 1 %s -c \"sed -i \'/%s/Id\' %s\"' \
+                  % (ZFCP_CONF, device, ZFCP_CONF)
+        self.assertRaises(exception.OperationFailed,
+                          _unpersist_zfcp_device, device)
+        mock_os.access.assert_called_once_with(ZFCP_CONF, mock_os.W_OK)
+        mock_os.system.assert_called_once_with(command)
+        mock_log.error.assert_called_with("Failed to unpersist"
+                                          " zfcp device: %s" % device)
+
+    @mock.patch('model.storagedevices.wok_log', autospec=True)
+    @mock.patch('model.storagedevices.os', autospec=True)
+    def test_unpersist_zfcp_failtoaccess_file(self, mock_os, mock_log):
+        """
+        unit test to validate un persisting zfcp device, failure
+        scenario - os.accsess returns False, ie, failed to
+        access zfcp.conf file in write mode
+        mock_os: mock of python os module imported in storagedevices
+        mock_log: mock of wok_log imported in model.storagedevices
+        on failure, _unpersist_zfcp_device()
+        raises OperationFailed exception
+        """
+        mock_os.access.return_value = False
+        device = "dummy_device"
+        self.assertRaises(exception.OperationFailed,
+                          _unpersist_zfcp_device, device)
+        mock_os.access.assert_called_once_with(ZFCP_CONF, mock_os.W_OK)
+        mock_log.error.assert_called_with("Failed to unpersist "
+                                          "zfcp device: %s" % device)
+        self.assertFalse(mock_os.system.called,
+                         msg='Unexpected call to mock_os.system()')
