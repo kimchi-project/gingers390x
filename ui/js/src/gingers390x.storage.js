@@ -37,14 +37,16 @@
           $('#luns-add-all-button').html('<i class="fa fa-search"></i>' + i18n['GS390XFCLN003E']);
           $('#luns-add-selected-button').hide();
           $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
-
+          gingers390x.disablerefreshLunsButton();
+          gingers390x.retrieveLunsList();
         } else {
           lunsStatusButtonText = i18n['GS390XFCLN004E'];
           messageText = i18n['GS390XFCLN005E'];
           $('#luns-add-all-button').html('<i class="fa fa-plus-circle"></i>' + i18n['GS390XFCLN006E']);
           $('#luns-add-selected-button').show();
           $('#luns-add-all-button').on("click", gingers390x.addAllhandler);
-
+          gingers390x.enablerefreshLunsButton();
+          gingers390x.retrieveLunsList();
         }
         wok.message.success(messageText, '#alert-modal-storage-container', true);
         $('#enableLunsScan').text(lunsStatusButtonText);
@@ -62,12 +64,13 @@
       $('#luns-add-all-button').html('<i class="fa fa-search"></i>' + i18n['GS390XFCLN003E']);
       $('#luns-add-selected-button').hide();
       $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
+      gingers390x.disablerefreshLunsButton();
     } else {
       lunsStatusButtonText = i18n['GS390XFCLN004E'];
       $('#luns-add-all-button').html('<i class="fa fa-plus-circle"></i>' + i18n['GS390XFCLN006E']);
       $('#luns-add-selected-button').show();
       $('#luns-add-all-button').on("click", gingers390x.addAllhandler);
-
+      gingers390x.enablerefreshLunsButton();
     }
     $('#enableLunsScan').text(lunsStatusButtonText);
 
@@ -195,8 +198,12 @@ gingers390x.retrieveLunsList = function() {
     gingers390x.loadBootgridData(opts, formattedResult);
     gingers390x.showBootgridData(opts);
     gingers390x.hideBootgridLoading(opts);
-  });
+    }, function(error) {
+      gingers390x.hideBootgridLoading(opts);
+      wok.message.error(error.responseJSON.reason, '#alert-modal-storage-container', true);
+    });
 };
+
 gingers390x.createActionList = function(settings) {
   var toolbarNode = null;
   var btnHTML, dropHTML = [];
@@ -237,18 +244,18 @@ gingers390x.lunsDiscoveryHandler = function() {
   };
   gingers390x.lunsDiscovery(function(result) {
     onTaskAccepted();
-    gingers390x.retrieveLunsList(); //Reload The list
-    var successText = result['message'];
+    var successText = i18n['GS390XFCLN0019E'];
     wok.message.success(successText, '#alert-modal-storage-container', true);
+    ginger.initStorageDevicesGridData(); //refresh storage devices listing
     //  wok.topic('gingers390x/enableNetworks').publish();
   }, function(result) {
-    gingers390x.retrieveLunsList(); //Reload the list
     if (result['message']) { // Error message from Async Task status TODO
       var errText = result['message'];
     } else { // Error message from standard gingers390x exception TODO
       var errText = result['responseJSON']['reason'];
     }
     result && wok.message.error(errText, '#alert-modal-storage-container');
+    ginger.initStorageDevicesGridData(); //refresh storage devices listing
     taskAccepted;
   }, onTaskAccepted);
 };
@@ -256,7 +263,6 @@ gingers390x.addAllhandler = function() {
   var opts = {};
   opts['gridId'] = 'fcp-luns-table-grid';
   var selectedRowDetails = gingers390x.getCurrentRows(opts);
-  alert(selectedRowDetails.length);
   var rowIndex = 0;
   var failedlLuns = [];
   var successLuns = [];
@@ -285,4 +291,12 @@ gingers390x.addAllhandler = function() {
     });
   });
   gingers390x.retrieveLunsList();
+}
+
+gingers390x.disablerefreshLunsButton = function(){
+  $('#refreshLuns').prop("disabled", true);
+}
+
+gingers390x.enablerefreshLunsButton = function(){
+  $('#refreshLuns').prop("disabled", false);
 }
