@@ -36,6 +36,7 @@ wlun = "0xc101000000000000"
 lun0 = "0x0000000000000000"
 sg_dir = "/sys/class/scsi_generic/"
 udevadm = "/sbin/udevadm"
+scsi_dir = '/sys/bus/scsi/devices/'
 
 
 def _get_lun_dict():
@@ -203,68 +204,75 @@ def remove_lun(adapter, port, lun_id):
     :param lun_id: Id of the given LUN
     """
     luns = []
-    luns.append((adapter, port, lun_id))
-    # Let's look for the sg_device associated with this LUN
-    sg_device = ''
-    sg_devices = get_sg_devices()
-    for sg_dev in sg_devices:
-        try:
-            wwpn = open(
-                sg_dir +
-                "/" +
-                sg_dev +
-                "/device/wwpn").readline().rstrip()
-            fcp_lun = open(
-                sg_dir +
-                "/" +
-                sg_dev +
-                "/device/fcp_lun").readline().rstrip()
-            hba_id = open(
-                sg_dir +
-                "/" +
-                sg_dev +
-                "/device/hba_id").readline().rstrip()
 
-            if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
-                sg_device = sg_dev
-                sg_dev_path = sg_dir + "/" + sg_device
-                other_paths = find_other_paths(sg_device)
-                for op in other_paths:
-                    hba_id = op[0]
-                    wwpn = op[1]
-                    fcp_lun = op[2]
-                    luns.append((hba_id, wwpn, fcp_lun))
-
+    # get lun information using lszfcp -l
+    out, err, rc = run_command(['lszfcp', '-l', lun_id])
+    if out:
+        parsed_zfcp_out = parse_lszfcp_out(out)
+        if parsed_zfcp_out and isinstance(parsed_zfcp_out, dict):
+            for path, scsi_dev in parsed_zfcp_out.iteritems():
+                dm_long_name = None
                 try:
-                    block_dev = os.listdir(sg_dev_path + "/device/block/")[0]
+                    path = path.split('/')
+                    luns.append((path[0], path[1], path[2]))
+
+                    scsi_dev_dir = scsi_dir + scsi_dev
+                    block_dev = os.listdir(scsi_dev_dir + "/block/")[0]
                     dm_dev = os.listdir(
-                        sg_dev_path +
-                        "/device/block/" +
+                        scsi_dev_dir +
+                        "/block/" +
                         block_dev +
                         "/holders/")[0]
-                    dm_long_name = open(
-                        sg_dev_path +
-                        "/device/block/" +
-                        block_dev +
-                        "/holders/" +
-                        dm_dev +
-                        "/dm/name").readline().rstrip()
-                    clear_multipath(dm_long_name)
+                    with open(scsi_dev_dir + "/block/" +
+                              block_dev + "/holders/" +
+                              dm_dev + "/dm/name", 'r') as txt_file:
+                        dm_long_name = txt_file.readline().rstrip()
+
                 except:
                     # It may happen that the given device may not have
                     # a corresponding dm device. In that case just
                     # move on without doing anything.
                     pass
+                if dm_long_name:
+                    clear_multipath(dm_long_name)
+                remove_auto_lun(scsi_dev)
 
-                break
-        except:
-            # While looking for relavent sg_device in an multithreaded
-            # environment it may happen that the directory we are looking
-            # into might get deleted by another thread. In this was just
-            # just skip this current directory and look for the sg_device
-            # somewhere else. This is why we should just pass this
-            # exception.
-            pass
+    else:
+        # try checking sg entries in scci_generic
+        # Let's look for the sg_device associated with this LUN
+        sg_dev = get_sg_dev(adapter, port, lun_id)
+        if sg_dev:
+            luns.append((adapter, port, lun_id))
+            sg_device = sg_dev
+            sg_dev_path = sg_dir + "/" + sg_device
+            other_paths = find_other_paths(sg_device)
+            for op in other_paths:
+                hba_id = op[0]
+                wwpn = op[1]
+                fcp_lun = op[2]
+                luns.append((hba_id, wwpn, fcp_lun))
+            dm_long_name = None
+            try:
+                block_dev = os.listdir(sg_dev_path + "/device/block/")[0]
+                dm_dev = os.listdir(
+                    sg_dev_path +
+                    "/device/block/" +
+                    block_dev +
+                    "/holders/")[0]
+                dm_long_name = open(
+                    sg_dev_path +
+                    "/device/block/" +
+                    block_dev +
+                    "/holders/" +
+                    dm_dev +
+                    "/dm/name").readline().rstrip()
+            except:
+                # It may happen that the given device may not have
+                # a corresponding dm device. In that case just
+                # move on without doing anything.
+                pass
+            if dm_long_name:
+                clear_multipath(dm_long_name)
 
     for lun in luns:
         port_dir = '/sys/bus/ccw/drivers/zfcp/' + lun[0] + '/' + lun[1] + '/'
@@ -353,7 +361,13 @@ def get_lun_info(adapter, port, lun_id):
 
     lun_info = {}
 
-    if os.path.exists(lun_dir) or is_lun_scan_enabled()['current']:
+    out, err, rc = run_command(['lszfcp', '-l', lun_id])
+
+    parsed_lszfcp_out = parse_lszfcp_out(out)
+    lszfcp_key = adapter + '/' + port + '/' + lun_id
+
+    if lszfcp_key in parsed_lszfcp_out.keys() or os.path.exists(lun_dir) \
+            or is_lun_scan_enabled()['current']:
         lun_info['configured'] = True
     else:
         lun_info['configured'] = False
@@ -491,25 +505,35 @@ def get_sg_dev(adapter, port, lun_id):
     :param lun_id:
     :return:
     """
-    sg_device = ''
+    sg_device = None
 
     sg_devices = get_sg_devices()
     for sg_dev in sg_devices:
-        wwpn = open(sg_dir + "/" + sg_dev + "/device/wwpn").readline().rstrip()
-        fcp_lun = open(
-            sg_dir +
-            "/" +
-            sg_dev +
-            "/device/fcp_lun").readline().rstrip()
-        hba_id = open(
-            sg_dir +
-            "/" +
-            sg_dev +
-            "/device/hba_id").readline().rstrip()
+        try:
+            wwpn = open(sg_dir + "/" + sg_dev +
+                        "/device/wwpn").readline().rstrip()
+            fcp_lun = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/fcp_lun").readline().rstrip()
+            hba_id = open(
+                sg_dir +
+                "/" +
+                sg_dev +
+                "/device/hba_id").readline().rstrip()
 
-        if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
-            sg_device = sg_dev
-            break
+            if hba_id == adapter and wwpn == port and fcp_lun == lun_id:
+                sg_device = sg_dev
+                break
+        except:
+            # While looking for relavent sg_device in an multithreaded
+            # environment it may happen that the directory we are looking
+            # into might get deleted by another thread. In this was just
+            # just skip this current directory and look for the sg_device
+            # somewhere else. This is why we should just pass this
+            # exception.
+            pass
 
     return sg_device
 
@@ -580,7 +604,7 @@ def get_luns():
             if adapter not in lun_dict or port not in lun_dict[adapter]:
                 add_discovery_lun = True
 
-            if port in lun_dict[adapter]:
+            if adapter in lun_dict and port in lun_dict[adapter]:
                 port_luns_keys = lun_dict[adapter][port]
                 add_discovery_lun = True
                 for lun_key in port_luns_keys:
@@ -597,7 +621,7 @@ def get_luns():
                             [udevadm, "settle",
                              "--exit-if-exists=" + port_dir + lun0])
                         lun_dict = _get_lun_dict()
-                        if port in lun_dict[adapter]:
+                        if adapter in lun_dict and port in lun_dict[adapter]:
                             temp_luns[lun0] = True
                             break
 
@@ -623,7 +647,8 @@ def get_luns():
                                 [udevadm, "settle",
                                  "--exit-if-exists=" + port_dir + "/" + wlun])
                             lun_dict = _get_lun_dict()
-                            if port in lun_dict[adapter]:
+                            if adapter in lun_dict and \
+                               port in lun_dict[adapter]:
                                 temp_luns[wlun] = True
                                 break
 
@@ -644,51 +669,52 @@ def get_luns():
                             wok_log.error(
                                 "Unable to remove wlun , %s", port_dir + wlun)
 
-            for lun in lun_dict[adapter][port]:
+            if adapter in lun_dict and port in lun_dict[adapter]:
+                for lun in lun_dict[adapter][port]:
 
-                lun_dict = _get_lun_dict()
-                luns.append(adapter + ":" + port + ":" + lun)
+                    lun_dict = _get_lun_dict()
+                    luns.append(adapter + ":" + port + ":" + lun)
 
-                # Get rid of the LUN if added temporarily for discovery
-                if lun in temp_luns and temp_luns[lun] is True:
-                    sg_dev = ''
-                    if port in lun_dict[
-                            adapter] and lun in lun_dict[adapter][port]:
-                        sg_dev = lun_dict[adapter][port][lun]
+                    # Get rid of the LUN if added temporarily for discovery
+                    if lun in temp_luns and temp_luns[lun] is True:
+                        sg_dev = ''
+                        if port in lun_dict[
+                                adapter] and lun in lun_dict[adapter][port]:
+                            sg_dev = lun_dict[adapter][port][lun]
 
-                    if sg_dev:
-                        try:
-                            wok_log.info("Removing sg_device , %s", sg_dev)
-                            with open(sg_dir + sg_dev + '/device/delete', "w")\
-                                    as txt_file:
-                                txt_file.write("1")
-
-                        except Exception as e:
-                            wok_log.error(
-                                "Unable to remove sg_device , %s", sg_dev)
-                            raise OperationFailed(
-                                "GS390XSTG00001", {'err': e.message})
-
-                        try:
-                            wok_log.info("Removing LUN 0, %s", port_dir)
-                            with open(port_dir + 'unit_remove', "w")\
-                                    as txt_file:
-                                txt_file.write(lun0)
-                        except:
-                            wok_log.error(
-                                "unable to remove LUN 0, %s", port_dir)
-                            wok_log.info("Removing wlun,  %s", wlun)
+                        if sg_dev:
                             try:
+                                wok_log.info("Removing sg_device , %s", sg_dev)
+                                with open(sg_dir + sg_dev +
+                                          '/device/delete', "w") as txt_file:
+                                    txt_file.write("1")
+
+                            except Exception as e:
+                                wok_log.error(
+                                    "Unable to remove sg_device , %s", sg_dev)
+                                raise OperationFailed(
+                                    "GS390XSTG00001", {'err': e.message})
+
+                            try:
+                                wok_log.info("Removing LUN 0, %s", port_dir)
                                 with open(port_dir + 'unit_remove', "w")\
                                         as txt_file:
-                                    txt_file.write(wlun)
+                                    txt_file.write(lun0)
                             except:
-                                # Can be safely ingored, so not raising
-                                # exception
                                 wok_log.error(
-                                    "unable to remove wlun, %s", port_dir)
+                                    "unable to remove LUN 0, %s", port_dir)
+                                wok_log.info("Removing wlun,  %s", wlun)
+                                try:
+                                    with open(port_dir + 'unit_remove', "w")\
+                                            as txt_file:
+                                        txt_file.write(wlun)
+                                except:
+                                    # Can be safely ingored, so not raising
+                                    # exception
+                                    wok_log.error(
+                                        "unable to remove wlun, %s", port_dir)
 
-                    temp_luns[lun] = False
+                        temp_luns[lun] = False
 
     return luns
 
@@ -946,3 +972,34 @@ def run_lstape_scsi_cmd():
         raise OperationFailed("GS390XSTG00017", {'err': err})
 
     return out
+
+
+def parse_lszfcp_out(output):
+    """
+    This method is used to parse 'lszfcp -l lunid'
+    sample output of 'lszfcp -l lunid':
+    lszfcp -l 0x00c6000000000000
+    0.0.3090/0x5005076802160417/0x00c6000000000000 0:0:0:198
+    0.0.3090/0x5005076802260417/0x00c6000000000000 0:0:1:198
+    :param output: output of lszfcp -l command
+    :return:
+    """
+    output = output.strip().splitlines()
+    scsi_dev_info = {}
+    for line in output:
+        line = line.strip().split()
+        scsi_dev_info[line[0]] = line[-1]
+    return scsi_dev_info
+
+
+def remove_auto_lun(scsi_dev):
+    """
+    this method is to remove luns which were configured with lun scan enabled
+    """
+    delete_file = scsi_dir + scsi_dev + '/delete'
+    try:
+        with open(delete_file, 'w') as txt_file:
+            txt_file.write("1")
+    except:
+        # some other thread might have removed the lun
+        pass

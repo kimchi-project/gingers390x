@@ -56,7 +56,7 @@ messages = {
     "GS390XSTG00006": _("Failed to remoteWwpn or LUN ID, %(err)s"),
     "GS390XSTG00007": _("Failed to get list of LUNs, %(err)s"),
     "GS390XSTG00008": _("Failed to LUN info, %(path)s"),
-    "GS390XSTG00009": _("Lun scan is enabled. Cannot add/remote LUNs manually."),
+    "GS390XSTG00009": _("LUN scan is enabled. Cannot add/remove LUNs manually."),
     "GS390XSTG00010": _("hbaId is required for adding a LUN"),
     "GS390XSTG00011": _("wwpn is required for adding a LUN"),
     "GS390XSTG00012": _("lunId is required for adding a LUN"),
