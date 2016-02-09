@@ -59,11 +59,16 @@
                       <button id="addSANadapter" aria-expanded="false" type="button" class="row btn btn-primary"><i class="fa fa-plus-circle"></i>Add SAN Adapter</button>
                     </span>
                   </div>
-                  <div id="fcp-luns-list-container">
+                  <div id="lunscan-enabled-msg-text" class="hide" style="padding-top:20px;">
+                      <p class="text">$_('Lun Scan is enabled. Please use "Actions-> Add all/Lun Scan" to add available Luns')</p>
                   </div>
-                  <div>
-                    <p class="text-info">$_('Discovered LUNs not yet attached to the system')</p>
-                  </div>
+                  <span id="fcp-table-container-span">
+                    <div id="fcp-luns-list-container">
+                    </div>
+                    <div>
+                      <p class="text-info">$_('Discovered LUNs not yet attached to the system')</p>
+                    </div>
+                  </span>
                 </div>
               </div>
             </div>

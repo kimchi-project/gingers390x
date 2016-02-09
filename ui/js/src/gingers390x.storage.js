@@ -36,17 +36,21 @@
           messageText = i18n['GS390XFCLN002E'];
           $('#luns-add-all-button').html('<i class="fa fa-search"></i>' + i18n['GS390XFCLN003E']);
           $('#luns-add-selected-button').hide();
+          $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
           $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
           gingers390x.disablerefreshLunsButton();
           gingers390x.retrieveLunsList();
+          gingers390x.showLunEnabledmessage();
         } else {
           lunsStatusButtonText = i18n['GS390XFCLN004E'];
           messageText = i18n['GS390XFCLN005E'];
           $('#luns-add-all-button').html('<i class="fa fa-plus-circle"></i>' + i18n['GS390XFCLN006E']);
           $('#luns-add-selected-button').show();
+          $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
           $('#luns-add-all-button').on("click", gingers390x.addAllhandler);
           gingers390x.enablerefreshLunsButton();
           gingers390x.retrieveLunsList();
+          gingers390x.hideLunEnabledmessage();
         }
         wok.message.success(messageText, '#alert-modal-storage-container', true);
         $('#enableLunsScan').text(lunsStatusButtonText);
@@ -63,14 +67,18 @@
       lunsStatusButtonText = i18n['GS390XFCLN001E'];
       $('#luns-add-all-button').html('<i class="fa fa-search"></i>' + i18n['GS390XFCLN003E']);
       $('#luns-add-selected-button').hide();
+      $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
       $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
       gingers390x.disablerefreshLunsButton();
+      gingers390x.showLunEnabledmessage();
     } else {
       lunsStatusButtonText = i18n['GS390XFCLN004E'];
       $('#luns-add-all-button').html('<i class="fa fa-plus-circle"></i>' + i18n['GS390XFCLN006E']);
       $('#luns-add-selected-button').show();
+      $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
       $('#luns-add-all-button').on("click", gingers390x.addAllhandler);
       gingers390x.enablerefreshLunsButton();
+      gingers390x.hideLunEnabledmessage();
     }
     $('#enableLunsScan').text(lunsStatusButtonText);
 
@@ -299,4 +307,14 @@ gingers390x.disablerefreshLunsButton = function(){
 
 gingers390x.enablerefreshLunsButton = function(){
   $('#refreshLuns').prop("disabled", false);
+}
+
+gingers390x.showLunEnabledmessage = function() {
+  $('#fcp-table-container-span').css('visibility', 'hidden');
+  $('#lunscan-enabled-msg-text').removeClass('hide');
+}
+
+gingers390x.hideLunEnabledmessage = function(){
+  $('#lunscan-enabled-msg-text').addClass('hide');
+  $('#fcp-table-container-span').css('visibility', 'visible');
 }
