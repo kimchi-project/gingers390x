@@ -790,8 +790,8 @@ def is_lun_scan_enabled():
     :return : Dictionary containing LUN Scanning status
               on bootloader as well as on running system
     """
+    lun_scan_status = {}
     try:
-        lun_scan_status = {}
 
         config = ConfigParser.ConfigParser()
         config.read("/etc/zipl.conf")
@@ -804,19 +804,24 @@ def is_lun_scan_enabled():
         enabled = bool(int(m.group(1)))
         lun_scan_status['boot'] = enabled
 
-        run_time = open('/sys/module/zfcp/parameters/allow_lun_scan')\
-            .readline().rstrip()
-        run_time = True if run_time == "Y" else False
-        lun_scan_status['current'] = run_time
-
-        return lun_scan_status
-
     except ParsingError:
         check_zipl_file()
         is_lun_scan_enabled()
     except Exception as e:
         wok_log.error("Unable to parse /etc/zipl.conf")
         raise OperationFailed("GS390XSTG00013", {'err': e.message})
+
+    try:
+        run_time = open('/sys/module/zfcp/parameters/allow_lun_scan')\
+            .readline().rstrip()
+        run_time = True if run_time == "Y" else False
+        lun_scan_status['current'] = run_time
+
+    except Exception as e:
+        wok_log.error("Error reading the file")
+        lun_scan_status['current'] = False
+
+    return lun_scan_status
 
 
 def check_zipl_file():
@@ -866,6 +871,11 @@ def enable_lun_scan(enable):
         # Update the bootloader
         run_zipl_cmd()
 
+    except Exception as e:
+        wok_log.error("Unable to parse /etc/zipl.conf")
+        raise OperationFailed("GS390XSTG00013", {'err': e.message})
+
+    try:
         # Enable/Disable LUN Scanning on a running system
         wrt_msg = "Y" if enable == "1" else "N"
         with open('/sys/module/zfcp/parameters/allow_lun_scan', "w")\
@@ -873,8 +883,8 @@ def enable_lun_scan(enable):
             txt_file.write(wrt_msg)
 
     except Exception as e:
-        wok_log.error("Unable to parse /etc/zipl.conf")
-        raise OperationFailed("GS390XSTG00013", {'err': e.message})
+        wok_log.error("Failed to enable lunscanning in current zfcp module")
+        raise OperationFailed("GS390XSTG00019", {'err': e.message})
 
 
 def modify_boot_param(boot_params_string, boot_param, param_value):
