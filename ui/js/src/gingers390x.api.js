@@ -195,7 +195,7 @@ listFCPluns: function(suc, err) {
       dataType: "json",
       success: suc,
       error: function(data) {
-        wok.message.error(data.responseJSON.reason);
+        wok.message.error(data.responseJSON.reason, '#alert-modal-storage-container');
       }
     });
   },
