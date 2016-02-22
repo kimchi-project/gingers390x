@@ -346,7 +346,7 @@ def _validate_device(interface):
     if interface and not str(interface).isspace():
         interface = str(interface).strip()
         if ENCCW in interface:
-            interface = interface.strip(ENCCW)
+            interface = interface.replace(ENCCW, '')
         out = re.search(pattern_with_dot, interface)
         if out is None:
             wok_log.error("Invalid interface id. interface: %s" % interface)
