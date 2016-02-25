@@ -22,7 +22,7 @@
   text-align: left;
 }
 .bootgrid-table {
-  height: 300px;
+  height: 253px;
   width: 100%;
 }
 .bootgrid-table th > .column-header-anchor > .icon {
@@ -34,7 +34,7 @@
   padding: 0 1.7% 0 0;
 }
 .bootgrid-table tbody {
-  height: 250px;
+  height: 225px;
   overflow-y: scroll;
   position: absolute;
   width: 100%;
@@ -42,4 +42,10 @@
 .bootgrid-table tr {
   width: 100%;
   display: inline-table;
+}
+.bootgrid-footer .search, .bootgrid-header .search {
+    margin: 0;
+}
+.bootgrid-footer{
+    margin: 0;
 }

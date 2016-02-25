@@ -65,7 +65,7 @@ gingers390x.initEckdBootgrid = function(opts) {
   opts['loadingMessage'] = opts.bootGridListMsg;
   gingers390x.initHeader(opts);
   gingers390x.initBootgrid(opts);
-  gingers390x.hideBootgridData(opts); //This will hide  No reaord found till data is not appended.
+  gingers390x.hideBootgridData(opts); //This will hide  No record found till data is not appended.
 
   $('#eckd-enable-btn').on('click', function(event) {
     gingers390x.eckd.disableActionButton();

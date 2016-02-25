@@ -22,13 +22,15 @@
   gingers390x.loadFCPLunsList();
 
   $('#refreshLuns').on("click", function() {
+    gingers390x.disableAllFCPStorageDevicesButtons();
     gingers390x.retrieveLunsList();
   });
   $('#addSANadapter').on("click", function() {
     wok.window.open("plugins/gingers390x/fcpsanadapter.html");
   });
   $("#enableLunsScan").on("click", function() {
-    gingers390x.getLunsScanStatus(function(result) {
+      gingers390x.disableAllFCPStorageDevicesButtons();
+      gingers390x.getLunsScanStatus(function(result) {
       gingers390x.lunsScanStatusChange(result.current, function(response) {
         var lunsStatusButtonText, messageText = "";
         if (response.current) {
@@ -38,7 +40,6 @@
           $('#luns-add-selected-button').hide();
           $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
           $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
-          gingers390x.disablerefreshLunsButton();
           gingers390x.retrieveLunsList();
           gingers390x.showLunEnabledmessage();
         } else {
@@ -48,7 +49,6 @@
           $('#luns-add-selected-button').show();
           $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
           $('#luns-add-all-button').on("click", gingers390x.addAllhandler);
-          gingers390x.enablerefreshLunsButton();
           gingers390x.retrieveLunsList();
           gingers390x.hideLunEnabledmessage();
         }
@@ -59,6 +59,7 @@
       });
     }, function(result) {
       wok.message.error(i18n['GS390XFCLN008E'], '#alert-modal-storage-container');
+      gingers390x.enableAllFCPStorageDevicesButtons();
     });
   });
   gingers390x.getLunsScanStatus(function(result) {
@@ -69,7 +70,6 @@
       $('#luns-add-selected-button').hide();
       $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
       $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
-      gingers390x.disablerefreshLunsButton();
       gingers390x.showLunEnabledmessage();
     } else {
       lunsStatusButtonText = i18n['GS390XFCLN004E'];
@@ -77,7 +77,6 @@
       $('#luns-add-selected-button').show();
       $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
       $('#luns-add-all-button').on("click", gingers390x.addAllhandler);
-      gingers390x.enablerefreshLunsButton();
       gingers390x.hideLunEnabledmessage();
     }
     $('#enableLunsScan').text(lunsStatusButtonText);
@@ -138,6 +137,7 @@ gingers390x.addFCPActions = function() {
     class: 'fa fa-plus-circle',
     label: i18n['GS390XFCLN0013E'],
     onClick: function(event) {
+      gingers390x.disableAllFCPStorageDevicesButtons()
       var selectedRows = gingers390x.getSelectedRows(opts);
       var currentRows = gingers390x.getCurrentRows(opts);
       var identifier = 'Srno';
@@ -195,6 +195,7 @@ gingers390x.retrieveLunsList = function() {
   gingers390x.hideBootgridData(opts);
   gingers390x.showBootgridLoading(opts);
   gingers390x.clearFilterData();
+  gingers390x.disableAllFCPStorageDevicesButtons();
 
   gingers390x.listFCPluns(function(result) {
     var formattedResult = [];
@@ -207,8 +208,10 @@ gingers390x.retrieveLunsList = function() {
     gingers390x.loadBootgridData(opts, formattedResult);
     gingers390x.showBootgridData(opts);
     gingers390x.hideBootgridLoading(opts);
+    gingers390x.enableAllFCPStorageDevicesButtons();
     }, function(error) {
       gingers390x.hideBootgridLoading(opts);
+      gingers390x.enableAllFCPStorageDevicesButtons();
       wok.message.error(error.responseJSON.reason, '#alert-modal-storage-container', true);
     });
 };
@@ -308,6 +311,44 @@ gingers390x.disablerefreshLunsButton = function(){
 
 gingers390x.enablerefreshLunsButton = function(){
   $('#refreshLuns').prop("disabled", false);
+}
+
+gingers390x.disableLunScanButton = function(){
+  $('#enableLunsScan').prop("disabled", true);
+}
+
+gingers390x.enableLunScanButton = function(){
+  $('#enableLunsScan').prop("disabled", false);
+}
+
+gingers390x.disablefcpStorageActionsButton = function(){
+  $('#action-dropdown-button-fcp-storage-actions').prop("disabled", true);
+}
+
+gingers390x.enablefcpStorageActionsButton = function(){
+  $('#action-dropdown-button-fcp-storage-actions').prop("disabled", false);
+}
+
+gingers390x.disableAddSANAdapterButton = function(){
+  $('#addSANadapter').prop("disabled", true);
+}
+
+gingers390x.enableAddSANAdapterButton = function(){
+  $('#addSANadapter').prop("disabled", false);
+}
+
+gingers390x.disableAllFCPStorageDevicesButtons = function(){
+	gingers390x.disablerefreshLunsButton();
+	gingers390x.disableLunScanButton();
+	gingers390x.disablefcpStorageActionsButton();
+	//gingers390x.disableAddSANAdapterButton();
+}
+
+gingers390x.enableAllFCPStorageDevicesButtons = function(){
+	gingers390x.enablerefreshLunsButton();
+	gingers390x.enableLunScanButton();
+	gingers390x.enablefcpStorageActionsButton();
+	//gingers390x.enableAddSANAdapterButton();
 }
 
 gingers390x.showLunEnabledmessage = function() {
