@@ -194,6 +194,7 @@ gingers390x.retrieveLunsList = function() {
   opts['gridId'] = "fcp-luns-table-grid";
   gingers390x.hideBootgridData(opts);
   gingers390x.showBootgridLoading(opts);
+  gingers390x.clearFilterData();
 
   gingers390x.listFCPluns(function(result) {
     var formattedResult = [];

@@ -97,6 +97,12 @@ gingers390x.clearBootgridData = function(opts) {
   $('#' + opts['gridId']).bootgrid("clear");
 };
 
+gingers390x.clearFilterData = function(){
+  //this is for clearing Filter option
+  $('.search-field.form-control').val('');
+  $('.search-field.form-control').trigger('keyup');
+};
+
 gingers390x.appendBootgridData = function(opts, data) {
   $('#' + opts['gridId']).bootgrid("append", data);
 };
