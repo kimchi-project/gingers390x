@@ -33,7 +33,7 @@
 <body>
   <div id="s390x-network-container" class="gingers390x">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header" style="padding: 20px 14px 0px 30px;">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -51,6 +51,10 @@
             <div id="s390x-network-content-area" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
               <span id='alert-modal-nw-container' style='display: none;'></span>
 	              <div class="col-md-12">
+	              <div class="row">
+                    <button aria-expanded="false" id="network-enable-btn" type="submit" class="row btn btn-primary">Enable</button>
+                    <button id="network-refresh-btn" aria-expanded="false" type="button" class="row btn btn-primary pull-right"><i class="fa fa-refresh"></i> Refresh</button>
+                   </div>
                   <div class="row" id="network-content-container"><!--Filled by JS--></div>
 	               </div>
               <p>$_("Didn't find the device your are looking for? It may be in Blacklist..")</p>

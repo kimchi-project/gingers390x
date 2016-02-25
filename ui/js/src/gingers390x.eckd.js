@@ -43,7 +43,6 @@ gingers390x.initEckd = function() {
 gingers390x.initEckdBootgrid = function(opts) {
 
   actionButtonText = opts.actionButtonText;
-
   var headers = [{
     "column-id": 'device',
     'title': opts.bootGridHeaderC1,
@@ -68,14 +67,15 @@ gingers390x.initEckdBootgrid = function(opts) {
   gingers390x.initBootgrid(opts);
   gingers390x.hideBootgridData(opts); //This will hide  No reaord found till data is not appended.
 
-  var actionButtonHtml = '<div class="col-sm-1 grid-control">' + '<button class="row btn btn-primary" type="submit" id="eckd-enable-btn" aria-expanded="false" disabled="true">' + actionButtonText + '</button>' + '</div>';
-
-  gingers390x.addBootgridActionButton(opts, actionButtonHtml);
-
   $('#eckd-enable-btn').on('click', function(event) {
     gingers390x.eckd.disableActionButton();
     gingers390x.enableEckd(opts);
     event.preventDefault();
+  });
+
+  $('#eckd-refresh-btn').on('click', function(event) {
+    gingers390x.eckd.disableActionButton();
+    gingers390x.initEckdBootGridData(opts);
   });
 
   gingers390x.initEckdBootGridData(opts);
@@ -88,6 +88,7 @@ gingers390x.initEckdBootGridData = function(opts) {
   var result = [];
   gingers390x.eckd.disableActionButton();
   gingers390x.clearBootgridData(opts);
+  gingers390x.clearFilterData();
   opts['loadingMessage'] = opts.bootGridListMsg;
   gingers390x.showBootgridLoading(opts);
 
@@ -191,10 +192,12 @@ gingers390x.enableEckdCompleted = function(opts) {
 
 gingers390x.eckd.enableActionButton = function() {
   $('#eckd-enable-btn').prop("disabled", false);
+  $('#eckd-refresh-btn').prop("disabled", false);
 };
 
 gingers390x.eckd.disableActionButton = function() {
   $('#eckd-enable-btn').prop("disabled", true);
+  $('#eckd-refresh-btn').prop("disabled", true);
 };
 
 gingers390x.initEckdFinish = function(opts) {

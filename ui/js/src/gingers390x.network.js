@@ -58,11 +58,6 @@ gingers390x.initNetworkBootgrid = function(actionButtonText) {
   gingers390x.initBootgrid(opts);
   gingers390x.hideBootgridData(opts); //This will hide  No reaord found till data is not appended.
 
-  var actionButtonHtml = '<div class="col-sm-1 grid-control">' +
-    '<button class="row btn btn-primary" type="submit" id="network-enable-btn" aria-expanded="false" disabled="true">' + actionButtonText + '</button>' +
-    '</div>';
-  gingers390x.addBootgridActionButton(opts, actionButtonHtml);
-
   //Add on click event
   $('#network-enable-btn').on('click', function(event) {
     gingers390x.disableActionButton();
@@ -73,6 +68,11 @@ gingers390x.initNetworkBootgrid = function(actionButtonText) {
   gingers390x.initNetworkBootGridData(opts);
   gingers390x.finishAction(opts);
 
+  $('#network-refresh-btn').on('click', function(event) {
+    gingers390x.disableActionButton();
+    gingers390x.initNetworkBootGridData(opts);
+    event.preventDefault();
+  });
 
 };
 
@@ -81,6 +81,7 @@ gingers390x.initNetworkBootGridData = function(opts) {
   var result = [];
   gingers390x.disableActionButton();
   gingers390x.clearBootgridData(opts);
+  gingers390x.clearFilterData();
   gingers390x.hideBootgridData(opts); //This will hide  No record found till data is not appended.
   opts['loadingMessage'] = i18n['GS390XNW006E'];
   gingers390x.showBootgridLoading(opts);
@@ -190,10 +191,12 @@ gingers390x.finishAction = function(opts) {
 
 gingers390x.enableActionButton = function() {
   $('#network-enable-btn').prop("disabled", false);
+  $('#network-refresh-btn').prop("disabled", false);
 };
 
 gingers390x.disableActionButton = function() {
   $('#network-enable-btn').prop("disabled", true);
+  $('#network-refresh-btn').prop("disabled", true);
 };
 
 // function to refresh network boot gird data which can be called from blacklist.js

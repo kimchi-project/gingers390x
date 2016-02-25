@@ -61,14 +61,15 @@ gingers390x.initFcpSanAdapterBootgrid = function(opts) {
   gingers390x.initBootgrid(opts);
   gingers390x.hideBootgridData(opts);
 
-  var actionButtonHtml = '<div class="col-sm-1 grid-control">' + '<button class="row btn btn-primary" type="submit" id="fcpsan-enable-btn" aria-expanded="false" disabled="true">' + actionButtonText + '</button>' + '</div>';
-
-  gingers390x.addBootgridActionButton(opts, actionButtonHtml);
-
   $('#fcpsan-enable-btn').on('click', function(event) {
     gingers390x.fcpsanadapter.disableActionButton();
     gingers390x.enableFcpSanAdapter(opts);
     event.preventDefault();
+  });
+
+  $('#fcpsan-refresh-btn').on('click', function(event) {
+    gingers390x.fcpsanadapter.disableActionButton();
+    gingers390x.initFcpSanAdapterBootGridData(opts);
   });
 
   gingers390x.initFcpSanAdapterBootGridData(opts);
@@ -81,6 +82,7 @@ gingers390x.initFcpSanAdapterBootGridData = function(opts) {
   var result = [];
   gingers390x.fcpsanadapter.disableActionButton();
   gingers390x.clearBootgridData(opts);
+  gingers390x.clearFilterData();
   opts['loadingMessage'] = opts.bootGridListMsg;
   gingers390x.showBootgridLoading(opts);
 
@@ -185,10 +187,12 @@ gingers390x.enableFcpSanAdapterCompleted = function(opts) {
 
 gingers390x.fcpsanadapter.enableActionButton = function() {
   $('#fcpsan-enable-btn').prop("disabled", false);
+  $('#fcpsan-refresh-btn').prop("disabled", false);
 };
 
 gingers390x.fcpsanadapter.disableActionButton = function() {
   $('#fcpsan-enable-btn').prop("disabled", true);
+  $('#fcpsan-refresh-btn').prop("disabled", true);
 };
 
 gingers390x.initFcpSanAdapterFinish = function(opts) {
