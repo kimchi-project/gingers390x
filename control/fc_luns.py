@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 from wok.control.base import Collection, Resource
-from wok.control.utils import UrlSubNode
+from wok.control.utils import model_fn, UrlSubNode
 
 
 @UrlSubNode("lunscan")
@@ -52,6 +52,28 @@ class FCLUNs(Collection):
         self.role_key = 'host'
         self.admin_methods = ['GET', 'POST', 'DELETE']
         self.resource = FCLUN
+
+    def _get_resources(self, flag_filter):
+        """
+        Overriden this method, here get_list should return list dict
+        which will be set to the resource, this way we avoid calling lookup
+        again for each device.
+        :param flag_filter:
+        :return: list of resources.
+        """
+        try:
+            get_list = getattr(self.model, model_fn(self, 'get_list'))
+            idents = get_list(*self.model_args, **flag_filter)
+            res_list = []
+            for ident in idents:
+                # internal text, get_list changes ident to unicode for sorted
+                args = self.resource_args + [ident]
+                res = self.resource(self.model, *args)
+                res.info = ident
+                res_list.append(res)
+            return res_list
+        except AttributeError:
+            return []
 
 
 class FCLUN(Resource):

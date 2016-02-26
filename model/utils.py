@@ -39,6 +39,28 @@ udevadm = "/sbin/udevadm"
 scsi_dir = '/sys/bus/scsi/devices/'
 
 
+def update_lun_dict(lun_dict, adapter, port, fcp_lun):
+    sg_dev = get_sg_dev(adapter, port, fcp_lun)
+    if adapter not in lun_dict:
+        lun_dict[adapter] = {}
+    wwpn_lun_dict = {port: {}}
+    if port not in lun_dict[adapter]:
+        lun_dict[adapter].update(wwpn_lun_dict)
+    fcp_lun_dict = {fcp_lun: sg_dev}
+    out, err, rc = run_command(['sg_luns', '/dev/' + sg_dev])
+    if rc == 0:
+        luns = parse_sg_luns(out)
+        for lun in luns:
+            if lun == fcp_lun:
+                continue
+            fcp_lun_dict.update({lun: None})
+    else:
+        wok_log.error(
+            "Error getting sg_luns for sg device. %s", sg_dev)
+    lun_dict[adapter][port].update(fcp_lun_dict)
+    return lun_dict
+
+
 def _get_lun_dict():
     """
     Get the dictionary of LUNs configured on the system.
@@ -92,9 +114,6 @@ def _get_lun_dict():
         if fcp_lun not in lun_dict[hba_id][wwpn]:
             lun_dict[hba_id][wwpn].update(fcp_lun_dict)
 
-    # Dumping the LUNs info in logs. This could be very helpful
-    # in dealing with issues where we won't have access to live system
-    wok_log.info("Available LUNs on the system, %s", lun_dict)
     return lun_dict
 
 
@@ -566,9 +585,16 @@ def get_luns():
     Get the list of all the LUNs including unconfigured ones
     :return: List of all the LUN paths
     """
-    luns = []
+    lun_info_list = []
     if is_lun_scan_enabled()['current']:
-        return luns
+        return lun_info_list
+
+    out, err, rc = run_command(['lszfcp', '-D'])
+
+    if rc:
+        wok_log.error('Error in lszfcp -D command,  %s', err)
+
+    parsed_lszfcp_out = parse_lszfcp_out(out)
 
     host_fcp_dict = _get_host_fcp_dict()
     global lun_dict
@@ -616,14 +642,11 @@ def get_luns():
                     with open(port_dir + 'unit_add', "w") as txt_file:
                         txt_file.write(lun0)
 
-                    for _ in range(4):
-                        run_command(
-                            [udevadm, "settle",
-                             "--exit-if-exists=" + port_dir + lun0])
-                        lun_dict = _get_lun_dict()
-                        if adapter in lun_dict and port in lun_dict[adapter]:
-                            temp_luns[lun0] = True
-                            break
+                    run_command(
+                        [udevadm, "settle",
+                         "--exit-if-exists=" + port_dir + lun0])
+                    lun_dict = update_lun_dict(lun_dict, adapter, port, lun0)
+                    temp_luns[lun0] = True
 
                 except Exception as e:
                     wok_log.error("Unable to add LUN 0 , %s", port_dir + lun0)
@@ -642,15 +665,12 @@ def get_luns():
                         with open(port_dir + 'unit_add', "w") as txt_file:
                             txt_file.write(wlun)
 
-                        for _ in range(4):
-                            run_command(
-                                [udevadm, "settle",
-                                 "--exit-if-exists=" + port_dir + "/" + wlun])
-                            lun_dict = _get_lun_dict()
-                            if adapter in lun_dict and \
-                               port in lun_dict[adapter]:
-                                temp_luns[wlun] = True
-                                break
+                        run_command(
+                            [udevadm, "settle",
+                             "--exit-if-exists=" + port_dir + "/" + wlun])
+                        lun_dict = update_lun_dict(
+                            lun_dict, adapter, port, wlun)
+                        temp_luns[wlun] = True
 
                     except Exception as e:
                         wok_log.error(
@@ -669,11 +689,44 @@ def get_luns():
                             wok_log.error(
                                 "Unable to remove wlun , %s", port_dir + wlun)
 
+            disc_sg_dev = ''
+            if lun0 in lun_dict[adapter][port]:
+                disc_sg_dev = lun_dict[adapter][port][lun0]
+            if wlun in lun_dict[adapter][port]:
+                disc_sg_dev = lun_dict[adapter][port][wlun]
+            try:
+                if disc_sg_dev:
+                    out, err, rc = run_command(
+                        ["sg_inq", "/dev/" + disc_sg_dev])
+                    if rc == 0:
+                        for lun in lun_dict[adapter][port]:
+                            if lun == wlun:
+                                continue
+                            port_dir = '/sys/bus/ccw/drivers/zfcp/' +\
+                                adapter + '/' + port + '/'
+                            lun_dir = port_dir + lun
+                            lun_info_dict = {}
+                            lun_info_dict.update(_get_sg_inq_dict(out))
+                            lun_info_dict['hbaId'] = adapter
+                            lun_info_dict['remoteWwpn'] = port
+                            lun_info_dict['lunId'] = lun
+                            lszfcp_key = adapter + '/' + port + '/' + lun
+                            if lszfcp_key in parsed_lszfcp_out.keys()\
+                               or os.path.exists(lun_dir):
+                                if lun in temp_luns and temp_luns[lun] is True:
+                                    lun_info_dict['configured'] = "false"
+                                else:
+                                    lun_info_dict['configured'] = "true"
+                            else:
+                                lun_info_dict['configured'] = "false"
+                            lun_info_list.append(lun_info_dict)
+            except Exception as e:
+                wok_log.error(
+                    "Unable to get sg dev for discovery lun, %s", lun_dir)
+                raise OperationFailed("GS390XSTG00021", {'err': e.message})
+
             if adapter in lun_dict and port in lun_dict[adapter]:
                 for lun in lun_dict[adapter][port]:
-
-                    lun_dict = _get_lun_dict()
-                    luns.append(adapter + ":" + port + ":" + lun)
 
                     # Get rid of the LUN if added temporarily for discovery
                     if lun in temp_luns and temp_luns[lun] is True:
@@ -683,18 +736,6 @@ def get_luns():
                             sg_dev = lun_dict[adapter][port][lun]
 
                         if sg_dev:
-                            try:
-                                wok_log.info("Removing sg_device , %s", sg_dev)
-                                with open(sg_dir + sg_dev +
-                                          '/device/delete', "w") as txt_file:
-                                    txt_file.write("1")
-
-                            except Exception as e:
-                                wok_log.error(
-                                    "Unable to remove sg_device , %s", sg_dev)
-                                raise OperationFailed(
-                                    "GS390XSTG00001", {'err': e.message})
-
                             try:
                                 wok_log.info("Removing LUN 0, %s", port_dir)
                                 with open(port_dir + 'unit_remove', "w")\
@@ -716,7 +757,7 @@ def get_luns():
 
                         temp_luns[lun] = False
 
-    return luns
+    return lun_info_list
 
 
 def parse_sg_luns(sg_luns_output):
