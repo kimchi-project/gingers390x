@@ -132,9 +132,14 @@ def _get_sg_inq_dict(sg_inq_output):
         sg_inq_dict['status'] = 'online'
 
     try:
-        pattern = r'Peripheral device type:\s+(\S+)'
+        pattern = r'Peripheral device type:\s+(.+)'
         m = re.search(pattern, sg_inq_output)
-        sg_inq_dict['type'] = m.group(1)
+        disk_type = m.group(1)
+        if disk_type == "storage array controller" \
+                or disk_type == 'well known logical unit':
+            sg_inq_dict['type'] = 'disk'
+        else:
+            sg_inq_dict['type'] = disk_type
 
         pattern = r'Vendor identification:\s+(\S+)'
         m = re.search(pattern, sg_inq_output)
@@ -144,9 +149,12 @@ def _get_sg_inq_dict(sg_inq_output):
         m = re.search(pattern, sg_inq_output)
         sg_inq_dict['product'] = m.group(1)
 
-        pattern = r'Unit serial number:\s+(\S+)'
+        pattern = r'Unit serial number:\s+(.+)'
         m = re.search(pattern, sg_inq_output)
-        sg_inq_dict['controllerSN'] = m.group(1)
+        if m:
+            sg_inq_dict['controllerSN'] = m.group(1)
+        else:
+            sg_inq_dict['controllerSN'] = 'N/A'
     except:
         wok_log.error("Error parsing sg_luns. %s", sg_inq_output)
         # Not raising any exception here. The code should
@@ -645,8 +653,19 @@ def get_luns():
                     run_command(
                         [udevadm, "settle",
                          "--exit-if-exists=" + port_dir + lun0])
-                    lun_dict = update_lun_dict(lun_dict, adapter, port, lun0)
+                    update_luns = True
                     temp_luns[lun0] = True
+                    if os.path.exists(port_dir + lun0):
+                        failed = open(
+                            port_dir + lun0 + '/failed').readline().rstrip()
+                        if failed == "1":
+                            update_luns = False
+                            if adapter in lun_dict and port in lun_dict[
+                                    adapter]:
+                                del lun_dict[adapter][port]
+                    if update_luns:
+                        lun_dict = update_lun_dict(
+                            lun_dict, adapter, port, lun0)
 
                 except Exception as e:
                     wok_log.error("Unable to add LUN 0 , %s", port_dir + lun0)
