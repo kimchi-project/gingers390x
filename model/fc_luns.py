@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 
+import threading
 import utils
 
 from wok.exception import (InvalidOperation,
@@ -27,6 +28,8 @@ from wok.exception import (InvalidOperation,
                            )
 from wok.model.tasks import TaskModel
 from wok.utils import add_task, wok_log
+
+fc_lock = threading.RLock()
 
 
 class LUNScanModel(object):
@@ -105,17 +108,27 @@ class FCLUNsModel(object):
         lunId = params['lunId']
         utils.validate_wwpn_or_lun(lunId)
 
-        utils.add_lun(hbaId, wwpn, lunId)
+        try:
+            fc_lock.acquire()
+            utils.add_lun(hbaId, wwpn, lunId)
+        except OperationFailed as e:
+            wok_log.error("Adding LUN failed")
+            raise OperationFailed("GS390XSTG00003", {'err': e})
+        finally:
+            fc_lock.release()
 
         lun_path = hbaId + ":" + wwpn + ":" + lunId
         return lun_path
 
     def get_list(self):
         try:
+            fc_lock.acquire()
             return utils.get_luns()
         except OperationFailed as e:
             wok_log.error("Fetching list of LUNs failed")
             raise OperationFailed("GS390XSTG00007", {'err': e})
+        finally:
+            fc_lock.release()
 
 
 class FCLUNModel(object):
@@ -141,4 +154,11 @@ class FCLUNModel(object):
             raise InvalidOperation("GS390XSTG00009")
 
         path_components = utils.validate_lun_path(path)
-        utils.remove_lun(*path_components)
+        try:
+            fc_lock.acquire()
+            utils.remove_lun(*path_components)
+        except OperationFailed as e:
+            wok_log.error("Removing LUN failed")
+            raise OperationFailed("GS390XSTG00002", {'err': e})
+        finally:
+            fc_lock.release()
