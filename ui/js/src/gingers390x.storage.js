@@ -252,6 +252,7 @@ gingers390x.lunsDiscoveryHandler = function() {
     if (taskAccepted) {
       return;
     }
+    wok.message.warn(i18n["GS390XFCLN0020E"], '#alert-modal-storage-container',true);
     taskAccepted = true;
   };
   gingers390x.lunsDiscovery(function(result) {
