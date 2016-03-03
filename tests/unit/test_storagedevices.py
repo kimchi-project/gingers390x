@@ -541,7 +541,7 @@ class GetStoragedeviceUnitTests(unittest.TestCase):
                     formatted output of lscss command
         """
         command = ['lscss', '-d', 'dummydevice']
-        mock_run_command.return_value = ["dummyout", "", 0]
+        mock_run_command.return_value = ["dummyout\n\ndummydevice", "", 0]
         mock_is_dasdeckd_device.return_value = True
         mock_is_zfcp_device.return_value = False
         mock_validate_device.return_value = "dummydevice"
@@ -549,7 +549,8 @@ class GetStoragedeviceUnitTests(unittest.TestCase):
         storagedevicemodel = StorageDeviceModel()
         return_value = storagedevicemodel.get_storagedevice('dummydevice')
         mock_run_command.assert_called_once_with(command)
-        mock_get_deviceinfo.assert_called_once_with('dummyout', "dummydevice")
+        mock_get_deviceinfo.assert_called_once_with('dummyout\n\ndummydevice',
+                                                    "dummydevice")
         mock_is_dasdeckd_device.assert_called_once_with('dummydevice')
         self.assertFalse(mock_is_zfcp_device.called,
                          msg='Unexpected call to mock_is_zfcp_device()')

@@ -155,15 +155,20 @@ def get_rows_info(cmd_output, hdr_pattern, val_pattern, unique_col=None,
 
     """
     command_out = cmd_output.strip().split("\n")
+    if unique_col is not None:
+        devices = {}
+    else:
+        devices = []
+
+    if (hdr_index > len(command_out)-1) or \
+            (val_start_index > len(command_out)-1):
+        return devices
+
     header = re.search(hdr_pattern, command_out[hdr_index], re.M | re.I)
     if header is None or not header.group():
         wok_log.error("header is empty for given pattern")
         raise OperationFailed("GS390XREG0001E",
                               {'reason': "header is empty for given pattern"})
-    if unique_col is not None:
-        devices = {}
-    else:
-        devices = []
 
     value_pattern = re.compile(val_pattern, re.M | re.I)
 

@@ -123,7 +123,7 @@ class GetRowsInfoUnitTests(unittest.TestCase):
         mock_log: mock of wok_log of model.utils
         get_rows_info() should raise exception
         """
-        out = "dummy output\n0000 output"
+        out = "dummy output\n\n0000 output"
         header_pattern = ""
         value_pattern = r'\d+\s(\w+)'
         self.assertRaises(exception.OperationFailed,

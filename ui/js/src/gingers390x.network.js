@@ -108,9 +108,11 @@ gingers390x.initNetworkBootGridData = function(opts) {
       gingers390x.hideBootgridLoading(opts);
       gingers390x.showBootgridData(opts);
     }
-
+  }, function(error){
+    gingers390x.hideBootgridLoading(opts);
+    gingers390x.showBootgridData(opts);
+    wok.message.error(error.responseJSON.reason, '#alert-modal-nw-container', true);
   });
-
 };
 
 gingers390x.enableNetworks = function(opts) {

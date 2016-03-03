@@ -128,9 +128,7 @@ var gingers390x = {
       contentType: 'application/json',
       dataType: 'json',
       success: suc,
-      error: function(data) {
-        wok.message.error(data.responseJSON.reason);
-      }
+      error: err
     });
   },
 

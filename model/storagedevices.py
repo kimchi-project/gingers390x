@@ -138,7 +138,14 @@ class StorageDeviceModel(object):
                 raise OperationFailed("GS390XCMD0001E",
                                       {'command': command,
                                        'rc': rc, 'reason': err})
-            if out.strip():
+            if out.strip().splitlines()[2:]:
+                # sample command output with '-d' option when device
+                # not found
+                # """""
+                # [root@zfwpc159 ginger]# lscss -d 1530
+                # Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
+                # -----------------------------------------------------------
+                # """""
                 device_info = _get_deviceinfo(out, device)
                 return device_info
             wok_log.error("lscss output is either blank or None")
