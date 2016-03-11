@@ -67,5 +67,6 @@ messages = {
     "GS390XSTG00017": _("Unable to execute lstape, %(err)s"),
     "GS390XSTG0018E": _("Unable to remove multipath device, %(err)s"),
     "GS390XSTG00019": _("Failed to enable lunscanning in current zfcp module, %(err)s"),
-    "GS390XSTG00021": _("Unable to get sg dev for discovery lun, %(err)s")
+    "GS390XSTG00021": _("Unable to get sg dev for discovery lun, %(err)s"),
+    "GS390XSTG00022": _("Invalid lun path provided")
 }

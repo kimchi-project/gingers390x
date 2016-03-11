@@ -427,6 +427,8 @@ def get_lun_info(adapter, port, lun_id):
                             txt_file.write(wlun)
 
         except Exception as e:
+            if 'Invalid argument' in e or 'No such file or directory' in e:
+                raise InvalidParameter("GS390XSTG00022")
             wok_log.error("Unable to add LUN temporarily, %s", lun_dir)
             raise OperationFailed("GS390XSTG00003", {'err': e.message})
 
