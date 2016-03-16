@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Project Ginger S390x
 #
@@ -64,8 +65,8 @@ class CIOIgnoreModel(object):
             raise InvalidParameter('GS390XINVINPUT', {'reason': 'input must '
                                                                 'be of type'
                                                                 ' list'})
-
-        wok_log.info('Removing devices %s from ignore list' % devices)
+        wok_log.info('Create task for removing devices \"% s\" from ignore'
+                     'list' % devices)
         taskid = add_task('/plugins/gingers390x/cioignore/remove',
                           _remove_devices, self.objstore, devices)
         return self.task.lookup(taskid)
@@ -88,8 +89,10 @@ def _remove_devices(cb, devices):
         wok_log.info('Removing devices %s from ignore list' % devices)
         failed_devices = {}
         for device in devices:
+            if isinstance(device, unicode):
+                device = device.encode('utf-8')
             device = str(device)
-            if not device.isspace():
+            if device and not device.isspace():
                 if '-' in device:
                     # if range, remove space if any before or after '-'
                     device = device.replace(' ', '')
@@ -107,16 +110,21 @@ def _remove_devices(cb, devices):
                               ' device id is empty')
 
         if failed_devices:
-            wok_log.error('failed to remove devices %s from'
-                          ' ignore list', failed_devices)
+            # to handle unicode charater
+            str_failed_devices = ', '.join('%s: %s' % (device, err)
+                                           for (device, err)
+                                           in failed_devices.items())
+            wok_log.error('failed to remove devices \"%s\" from'
+                          ' ignore list', str_failed_devices)
             raise OperationFailed('GS390XIOIG002E',
-                                  {'failed_devices': failed_devices})
-        wok_log.info('Successfully removed devices %s from'
-                     ' ignore list' % devices)
-        cb('Successfully removed devices %s from ignore'
-           ' list' % devices, True)
+                                  {'failed_devices': str_failed_devices})
+        str_devices = ', '.join(devices)
+        wok_log.info('Successfully removed devices \"%s\" from'
+                     ' ignore list' % str_devices)
+        cb('Successfully removed devices \"%s\" from ignore'
+           ' list' % str_devices, True)
     except Exception as e:
-        cb(e.__str__(), False)
+        cb(e.message, False)
 
 
 def _parse_ignore_output(cmd_out):

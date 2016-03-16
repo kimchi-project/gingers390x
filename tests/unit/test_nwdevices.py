@@ -43,19 +43,19 @@ ZNETCONF_STATE = "State"
 UNIQUE_COL_NAME = "name"
 ENCCW = 'enccw'
 
-UNCONF_HDR_PATTERN = r'('+re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
-                     r'('+re.escape(ZNETCONF_TYPE) + r')\s+' \
-                     r'('+re.escape(ZNETCONF_CARDTYPE) + r')\s+' \
-                     r'('+re.escape(ZNETCONF_CHPID) + r')\s+' \
-                     r'('+re.escape(ZNETCONF_DRV) + r')\.\s+$'
+UNCONF_HDR_PATTERN = r'(' + re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
+                     r'(' + re.escape(ZNETCONF_TYPE) + r')\s+' \
+                     r'(' + re.escape(ZNETCONF_CARDTYPE) + r')\s+' \
+                     r'(' + re.escape(ZNETCONF_CHPID) + r')\s+' \
+                     r'(' + re.escape(ZNETCONF_DRV) + r')\.\s+$'
 
-CONF_HDR_PATTERN = r'('+re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
-                   r'('+re.escape(ZNETCONF_TYPE) + r')\s+' \
-                   r'('+re.escape(ZNETCONF_CARDTYPE) + r')\s+' \
-                   r'('+re.escape(ZNETCONF_CHPID) + r')\s+' \
-                   r'('+re.escape(ZNETCONF_DRV) + r')\.\s+' \
-                   r'('+re.escape(ZNETCONF_DEV_NAME) + r')\s+' \
-                   r'('+re.escape(ZNETCONF_STATE) + r')\s+$'
+CONF_HDR_PATTERN = r'(' + re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
+                   r'(' + re.escape(ZNETCONF_TYPE) + r')\s+' \
+                   r'(' + re.escape(ZNETCONF_CARDTYPE) + r')\s+' \
+                   r'(' + re.escape(ZNETCONF_CHPID) + r')\s+' \
+                   r'(' + re.escape(ZNETCONF_DRV) + r')\.\s+' \
+                   r'(' + re.escape(ZNETCONF_DEV_NAME) + r')\s+' \
+                   r'(' + re.escape(ZNETCONF_STATE) + r')\s+$'
 
 CONF_DEVICE_PATTERN = r'(\d\.\d\.[0-9a-fA-F]{4},' \
                       r'\d\.\d\.[0-9a-fA-F]{4},' \
@@ -229,8 +229,10 @@ class NetworkDeviceLookUpUnitTests(unittest.TestCase):
         nwmodel = NetworkDeviceModel(kargs=None)
         self.assertRaises(exception.InvalidParameter, nwmodel.lookup, device)
         mock_validate_device.assert_called_once_with(device)
-        mock_get_configured_devices.assert_called_once_with(UNIQUE_COL_NAME)
-        mock_get_unconfigured_devices.assert_called_once_with(UNIQUE_COL_NAME)
+        mock_get_configured_devices.assert_called_once_with(
+            key=UNIQUE_COL_NAME)
+        mock_get_unconfigured_devices.assert_called_once_with(
+            key=UNIQUE_COL_NAME)
         mock_wok_log.error.assert_called_once_with('Given device is not '
                                                    'of type OSA. Device: '
                                                    '%s', device)
@@ -299,7 +301,8 @@ class NetworkDeviceLookUpUnitTests(unittest.TestCase):
         nwmodel = NetworkDeviceModel(kargs=None)
         actual_out = nwmodel.lookup(device)
         mock_validate_device.assert_called_once_with(device)
-        mock_get_configured_devices.assert_called_once_with(UNIQUE_COL_NAME)
+        mock_get_configured_devices.assert_called_once_with(
+            key=UNIQUE_COL_NAME)
         self.assertFalse(mock_get_unconfigured_devices.called,
                          msg='Unexpected call to '
                              'mock_get_unconfigured_devices()')
@@ -337,8 +340,10 @@ class NetworkDeviceLookUpUnitTests(unittest.TestCase):
         nwmodel = NetworkDeviceModel(kargs=None)
         actual_out = nwmodel.lookup(device)
         mock_validate_device.assert_called_once_with(device)
-        mock_get_configured_devices.assert_called_once_with(UNIQUE_COL_NAME)
-        mock_get_unconfigured_devices.assert_called_once_with(UNIQUE_COL_NAME)
+        mock_get_configured_devices.assert_called_once_with(
+            key=UNIQUE_COL_NAME)
+        mock_get_unconfigured_devices.assert_called_once_with(
+            key=UNIQUE_COL_NAME)
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
         self.assertEqual(actual_out, expected_out[device])
@@ -645,11 +650,11 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
 
         _write_ifcfg_params(device)
         parser_mock = mock_augeas.Augeas('/')
-        calls = [(ifcfg_file_pattern+'DEVICE', device_name,),
-                 (ifcfg_file_pattern+'TYPE', 'Ethernet',),
-                 (ifcfg_file_pattern+'ONBOOT', 'yes',),
-                 (ifcfg_file_pattern+'NETTYPE', 'qeth',),
-                 (ifcfg_file_pattern+'SUBCHANNELS', 'dummy_ids',)]
+        calls = [(ifcfg_file_pattern + 'DEVICE', device_name,),
+                 (ifcfg_file_pattern + 'TYPE', 'Ethernet',),
+                 (ifcfg_file_pattern + 'ONBOOT', 'yes',),
+                 (ifcfg_file_pattern + 'NETTYPE', 'qeth',),
+                 (ifcfg_file_pattern + 'SUBCHANNELS', 'dummy_ids',)]
         for i in range(0, 4):
             x, y = parser_mock.set.call_args_list[i]
             assert x == calls[i]
@@ -691,7 +696,7 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
                                                       'parser_mock.save()')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
-        mock_wok_log.error.assert_called_once_with('Failedd to write device '
+        mock_wok_log.error.assert_called_once_with('Failed to write device '
                                                    'attributes to ifcfg file'
                                                    ' using augeas tool. '
                                                    'Error: dummy_error')
@@ -1092,7 +1097,7 @@ class GetConfiguredDevicesUnitTests(unittest.TestCase):
         configured_devices = _get_configured_devices()
         mock_run_command.assert_called_once_with(cmd)
         mock_utils.get_rows_info.assert_called_once_with(
-            'dummy_output',
+            cmd_output='dummy_output',
             hdr_pattern=CONF_HDR_PATTERN,
             val_pattern=CONF_DEVICE_PATTERN,
             format_data=mock_format_znetconf,
@@ -1127,7 +1132,7 @@ class GetConfiguredDevicesUnitTests(unittest.TestCase):
         configured_devices = _get_configured_devices(key)
         mock_run_command.assert_called_once_with(cmd)
         mock_utils.get_rows_info.assert_called_once_with(
-            'dummy_output',
+            cmd_output='dummy_output',
             hdr_pattern=CONF_HDR_PATTERN,
             unique_col=key,
             val_pattern=CONF_DEVICE_PATTERN,
@@ -1190,7 +1195,7 @@ class GetUnConfiguredDevicesUnitTests(unittest.TestCase):
         unconfigured_devices = _get_unconfigured_devices()
         mock_run_command.assert_called_once_with(cmd)
         mock_utils.get_rows_info.assert_called_once_with(
-            'dummy_output',
+            cmd_output='dummy_output',
             hdr_pattern=UNCONF_HDR_PATTERN,
             val_pattern=UNCONF_DEVICE_PATTERN,
             format_data=mock_format_znetconf,
@@ -1225,7 +1230,7 @@ class GetUnConfiguredDevicesUnitTests(unittest.TestCase):
         unconfigured_devices = _get_unconfigured_devices(key)
         mock_run_command.assert_called_once_with(cmd)
         mock_utils.get_rows_info.assert_called_once_with(
-            'dummy_output',
+            cmd_output='dummy_output',
             hdr_pattern=UNCONF_HDR_PATTERN,
             unique_col=key,
             val_pattern=UNCONF_DEVICE_PATTERN,
@@ -1240,6 +1245,7 @@ class FormatZnetconfUnitTests(unittest.TestCase):
     """
     unit tests for _format_znetconf() method using mock module
     """
+
     def test_format_znetconf_noneinput(self):
         """
         unit test to validate _format_znetconf() with None input

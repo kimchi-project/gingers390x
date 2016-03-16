@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Project Ginger S390x
 #
@@ -16,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+
 
 import mock
 import unittest
@@ -45,7 +47,7 @@ class PostOperationUnitTests(unittest.TestCase):
                        in model.cioignore
         mock_wok_log: mock of wok_log of model.cioignore
         """
-        device = ['devce1']
+        device = ['devce1', 'dé']
         taskid = 1
         mock_add_task.return_value = taskid
         mock_task_model.lookup.return_value = "test_task"
@@ -71,7 +73,7 @@ class PostOperationUnitTests(unittest.TestCase):
 
         remove() action should raise InvalidParameter Exception
         """
-        device = 'device1'
+        device = 'deviceé1'
         taskid = 1
         mock_add_task.return_value = taskid
         mock_task_model.lookup.return_value = "test_task"
@@ -161,16 +163,16 @@ class RemoveDevicesUnitTests(unittest.TestCase):
         list and should throw operation failed exception and task fails
         with list of invalid devices
         """
-        devices = ['device1', 'invalid', '  ']
-        mock_run_command.side_effect = [['', '', 0],
-                                        ['', 'dummy_error', 1]]
+        devices = ['device1', 'invalidé', '  ', ]
+        mock_run_command.side_effect = iter([['', '', 0],
+                                            ['', 'dummy_error', 1]])
 
         def cb(msg, status=None):
             pass
 
         _remove_devices(cb, devices)
         calls_run_command = [([CIO_IGNORE, '-r', 'device1'],),
-                             ([CIO_IGNORE, '-r', 'invalid'],)]
+                             ([CIO_IGNORE, '-r', 'invalidé'],)]
         for i in range(0, 2):
             x, y = mock_run_command.call_args_list[i]
             assert x == calls_run_command[i]

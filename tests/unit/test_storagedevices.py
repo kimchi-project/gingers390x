@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Project Ginger S390x
 #
@@ -117,6 +118,7 @@ class FormatLscssUnitTests(unittest.TestCase):
     """
     unit tests for _format_lscss() method
     """
+
     def test_format_lscss_Noneinput(self):
         """
         unit test to validate _format_lscss() with None input
@@ -204,6 +206,7 @@ class GetPathsUnitTests(unittest.TestCase):
     """
     unit tests for _get_paths() method
     """
+
     def test_get_paths_success(self):
         """
         unit test to test for a valid scenario valid chipids
@@ -487,12 +490,14 @@ class GetListUnitTests(unittest.TestCase):
         with invalid flag filter
         """
         storagedevicesmodel = StorageDevicesModel()
-        mock_utils.get_directories.return_value = ["abc"]
         mock_run_command.return_value = ["", "", 0]
         self.assertRaises(exception.InvalidParameter,
-                          storagedevicesmodel.get_list, 'abc')
-        mock_utils.get_directories.assert_not_called()
-        mock_log.error.assert_called_with("Invalid _type given. _type: abc")
+                          storagedevicesmodel.get_list, 'abcé')
+        mock_utils.get_directories(
+            "/sys/bus/ccw/drivers/dasd-eckd/0.*/").assert_not_called()
+        mock_utils.get_directories(
+            "/sys/bus/ccw/drivers/zfcp/0.*/").assert_not_called()
+        mock_log.error.assert_called_with("Invalid _type given. _type: abcé")
 
     @mock.patch('model.storagedevices.utils', autospec=True)
     @mock.patch('model.storagedevices.run_command', autospec=True)
@@ -780,6 +785,7 @@ class ValidateDeviceUnitTests(unittest.TestCase):
     """
     Unit tests for _validate_device() method
     """
+
     def test_validate_device_withdot(self):
         """
         unit test to validate valid device id having dot in it
@@ -797,7 +803,7 @@ class ValidateDeviceUnitTests(unittest.TestCase):
         """
         device = "9845"
         out = _validate_device(device)
-        self.assertEqual(out, "0.0."+device)
+        self.assertEqual(out, "0.0." + device)
 
     def _test_validate_device_validdev_unicode(self):
         """

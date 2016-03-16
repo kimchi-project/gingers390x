@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Project Ginger S390x
 #
@@ -16,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+
 
 import binascii
 import os
@@ -41,15 +43,15 @@ LSCSS_PIM = "PIM"
 LSCSS_PAM = "PAM"
 LSCSS_POM = "POM"
 LSCSS_CHPID = "CHPIDs"
-HEADER_PATTERN = r'('+re.escape(LSCSS_DEV) + r')\s+' \
-                 r'('+re.escape(LSCSS_SUBCH) + r')\.\s+' \
-                 r'('+re.escape(LSCSS_DEVTYPE) + r')\s+' \
-                 r'('+re.escape(LSCSS_CUTYPE) + r')\s+' \
-                 r'('+re.escape(LSCSS_USE) + r')\s+' \
-                 r'('+re.escape(LSCSS_PIM) + r')\s+' \
-                 r'('+re.escape(LSCSS_PAM) + r')\s+' \
-                 r'('+re.escape(LSCSS_POM) + r')\s+' \
-                 r'('+re.escape(LSCSS_CHPID) + r')$'
+HEADER_PATTERN = r'(' + re.escape(LSCSS_DEV) + r')\s+' \
+                 r'(' + re.escape(LSCSS_SUBCH) + r')\.\s+' \
+                 r'(' + re.escape(LSCSS_DEVTYPE) + r')\s+' \
+                 r'(' + re.escape(LSCSS_CUTYPE) + r')\s+' \
+                 r'(' + re.escape(LSCSS_USE) + r')\s+' \
+                 r'(' + re.escape(LSCSS_PIM) + r')\s+' \
+                 r'(' + re.escape(LSCSS_PAM) + r')\s+' \
+                 r'(' + re.escape(LSCSS_POM) + r')\s+' \
+                 r'(' + re.escape(LSCSS_CHPID) + r')$'
 DASD_CONF = '/etc/dasd.conf'
 ZFCP_CONF = '/etc/zfcp.conf'
 
@@ -58,6 +60,7 @@ class StorageDevicesModel(object):
     """
     Model class for Storage Devices
     """
+
     def __init__(self, **kargs):
         pass
 
@@ -114,6 +117,7 @@ class StorageDeviceModel(object):
     """
     Model class for Storage Device
     """
+
     def __init__(self, **kargs):
         pass
 
@@ -124,19 +128,24 @@ class StorageDeviceModel(object):
         :param device: device id for which we need info to be returned
         :return: device info dict
         """
+        if device and isinstance(device, unicode):
+            device = device.encode('utf-8')
+        device = str(device)
         device = _validate_device(device)
         if _is_dasdeckd_device(device) or _is_zfcp_device(device):
             command = [lscss, '-d', device]
-            msg = 'The command is "%s" ' % command
+            # Use join to handle unicode charater in device
+            msg = 'The command is "%s" ' % ' '.join(command)
             wok_log.debug(msg)
             out, err, rc = run_command(command)
-            messge = 'The output of command "%s" is %s' % (command, out)
+            messge = 'The output of command "%s" is %s' % (' '.
+                                                           join(command), out)
             wok_log.debug(messge)
             if rc:
                 err = err.strip().replace("lscss:", '').strip()
                 wok_log.error(err)
                 raise OperationFailed("GS390XCMD0001E",
-                                      {'command': command,
+                                      {'command': ' '.join(command),
                                        'rc': rc, 'reason': err})
             if out.strip().splitlines()[2:]:
                 # sample command output with '-d' option when device
@@ -150,7 +159,7 @@ class StorageDeviceModel(object):
                 return device_info
             wok_log.error("lscss output is either blank or None")
             raise OperationFailed("GS390XCMD0001E",
-                                  {'command': command,
+                                  {'command': ' '.join(command),
                                    'rc': rc, 'reason': out})
         else:
             wok_log.error("Given device id is of type dasd-eckd or zfcp. "
@@ -247,7 +256,7 @@ def _get_paths(mask, chipid):
     :param mask: the binary value for the pam or pim.
     :return: list of available or installed paths of the chipid value.
     """
-    chipids = [chipid[i:i+2] for i in range(0, len(chipid), 2)]
+    chipids = [chipid[i:i + 2] for i in range(0, len(chipid), 2)]
     chipid_paths = []
     for index, j in enumerate(mask):
         if j == '1':
@@ -261,15 +270,15 @@ def _get_deviceinfo(lscss_out, device):
     :param device: device id for which we need info to be returned
     :return: device info dict for the device from lscss output
     """
-    device_pattern = r'('+re.escape(device) + r')\s+' \
-                                              r'(\d\.\d\.[0-9a-fA-F]{4})\s+' \
-                                              r'(\w+\/\w+)\s+' \
-                                              r'(\w+\/\w+)\s' \
-                                              r'(\s{3}|yes)\s+' \
-                                              r'([0-9a-fA-F]{2})\s+' \
-                                              r'([0-9a-fA-F]{2})\s+' \
-                                              r'([0-9a-fA-F]{2})\s+' \
-                                              r'(\w+\s\w+)'
+    device_pattern = r'(' + re.escape(device) + r')\s+' \
+        r'(\d\.\d\.[0-9a-fA-F]{4})\s+' \
+        r'(\w+\/\w+)\s+' \
+        r'(\w+\/\w+)\s' \
+        r'(\s{3}|yes)\s+' \
+        r'([0-9a-fA-F]{2})\s+' \
+        r'([0-9a-fA-F]{2})\s+' \
+        r'([0-9a-fA-F]{2})\s+' \
+        r'(\w+\s\w+)'
     if device:
         device = utils.get_row_data(lscss_out, HEADER_PATTERN, device_pattern)
         msg = 'The device is %s' % device
@@ -310,6 +319,9 @@ def _validate_device(device):
     :param device: device id
     """
     pattern_with_dot = r'^\d\.\d\.[0-9a-fA-F]{4}$'
+    if isinstance(device, unicode):
+        # str() on non ascii non encoded cannot be done
+        device = device.encode('utf-8')
     if device and not str(device).isspace():
         device = str(device).strip()
         if "." in device:
@@ -405,7 +417,7 @@ def _is_online(device):
         online_file = None
         try:
             online_file = open('/sys/bus/ccw/devices/%s/online' % device)
-            value = online_file.readline()
+            value = online_file.read()
             if value and value.strip() == '1':
                 return True
         finally:
@@ -425,6 +437,11 @@ def _is_dasdeckd_persisted(device):
             dasd_conf = open(DASD_CONF)
             dasd_conf.seek(0, 0)
             conf_content = dasd_conf.read()
+            if isinstance(conf_content, unicode):
+                conf_content = conf_content.encode('utf-8')
+            if isinstance(device, unicode):
+                device = device.encode('utf-8')
+            # both need to be in same format to search non ascii character
             if re.search(br'(?i)%s' % device, conf_content):
                 return True
         finally:
@@ -470,6 +487,10 @@ def _persist_dasdeckd_device(device):
     """
     command_persist_dasdeckd = 'flock -w 1 %s -c \"echo %s >> %s\"' \
                                % (DASD_CONF, device, DASD_CONF)
+    if isinstance(command_persist_dasdeckd, unicode):
+        # this is done as os.system only do ascii encoding
+        # so encode it in case any character other than ascii is present.
+        command_persist_dasdeckd = command_persist_dasdeckd.encode('utf-8')
     if os.access(DASD_CONF, os.W_OK):
         retcode = os.system(command_persist_dasdeckd)
         if not retcode:
@@ -485,6 +506,10 @@ def _unpersist_dasdeckd_device(device):
     """
     command_unpersist_dasdeckd = 'flock -w 1 %s -c \"sed -i \'/%s/Id\' %s\"'\
                                  % (DASD_CONF, device, DASD_CONF)
+    if isinstance(command_unpersist_dasdeckd, unicode):
+        # this is done as os.system only do ascii encoding
+        # so encode it in case any character other than ascii is present.
+        command_unpersist_dasdeckd = command_unpersist_dasdeckd.encode('utf-8')
     if os.access(DASD_CONF, os.W_OK):
         retcode = os.system(command_unpersist_dasdeckd)
         if not retcode:
@@ -524,6 +549,10 @@ def _persist_zfcp_device(device):
     persist_data = device + ' ' + dummy_lun_info
     command_persist_zfcp = 'flock -w 1 %s -c \"echo %s >> %s\"' \
                            % (ZFCP_CONF, persist_data, ZFCP_CONF)
+    if isinstance(command_persist_zfcp, unicode):
+        # this is done as os.system only do ascii encoding
+        # so encode it in case any character other than ascii is present.
+        command_persist_zfcp = command_persist_zfcp.encode('utf-8')
     if os.access(ZFCP_CONF, os.W_OK):
         retcode = os.system(command_persist_zfcp)
         if not retcode:
@@ -539,6 +568,10 @@ def _unpersist_zfcp_device(device):
     """
     command_unpersist_zfcp = 'flock -w 1 %s -c \"sed -i \'/%s/Id\' %s\"'\
                              % (ZFCP_CONF, device, ZFCP_CONF)
+    if isinstance(command_unpersist_zfcp, unicode):
+        # this is done as os.system only do ascii encoding
+        # so encode it in case any character other than ascii is present.
+        command_unpersist_zfcp = command_unpersist_zfcp.encode('utf-8')
     if os.access(ZFCP_CONF, os.W_OK):
         retcode = os.system(command_unpersist_zfcp)
         if not retcode:

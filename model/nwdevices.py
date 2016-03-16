@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Project Ginger S390x
 #
@@ -136,6 +137,10 @@ class NetworkDeviceModel(object):
          :return: returns task json
         """
         wok_log.info('Configuring network device %s' % interface)
+        if isinstance(interface, unicode):
+            # as str() cannot be done on non ascii unicode
+            # it needs encoded value
+            interface = interface.encode('utf-8')
         device = str(interface).strip()
         if ENCCW in device:
             # filtering out device id from interface
@@ -153,6 +158,10 @@ class NetworkDeviceModel(object):
         :return: returns task json
         """
         wok_log.info('Un-configuring network device %s' % interface)
+        if isinstance(interface, unicode):
+            # as str() cannot be done on non ascii unicode
+            # it needs encoded value
+            interface = interface.encode('utf-8')
         device = str(interface).strip()
         if ENCCW in device:
             # filtering out device id from interface
@@ -310,7 +319,7 @@ def _configure_interface(cb, interface):
             rollback.commitAll()
         cb('Successfully configured network device %s' % interface, True)
     except Exception as e:
-        cb(e.__str__(), False)
+        cb(e.message, False)
 
 
 def _unconfigure_interface(cb, interface):
@@ -331,7 +340,7 @@ def _unconfigure_interface(cb, interface):
             rollback.commitAll()
         cb('Successfully un-configured network device %s' % interface, True)
     except Exception as e:
-        cb(e.__str__(), False)
+        cb(e.message, False)
 
 
 def _validate_device(interface):
@@ -343,6 +352,8 @@ def _validate_device(interface):
     """
     wok_log.info('Validating network interface %s' % interface)
     pattern_with_dot = r'^\d\.\d\.[0-9a-fA-F]{4}$'
+    if isinstance(interface, unicode):
+        interface = interface.encode('utf-8')
     if interface and not str(interface).isspace():
         interface = str(interface).strip()
         if ENCCW in interface:
@@ -376,16 +387,19 @@ def _create_ifcfg_file(interface):
     try:
         ifcfg_file = open(ifcfg_file_path, 'w+')
         ifcfg_file.close()
+        if isinstance(ifcfg_file_path, unicode):
+            # as os.system default encoding is ascii and not utf8
+            ifcfg_file_path.encode('utf-8')
         os.system('chmod 644 ' + ifcfg_file_path)
         wok_log.info('created file %s for network device %s'
                      % (ifcfg_file_path, interface))
     except Exception as e:
         wok_log.error('failed to create file %s for network device %s. '
-                      'Error: %s' % (ifcfg_file_path, interface, e.__str__()))
+                      'Error: %s' % (ifcfg_file_path, interface, e.message))
         raise OperationFailed("GS390XIONW005E",
                               {'ifcfg_file_path': ifcfg_file_path,
                                'device': interface,
-                               'error': e.__str__()})
+                               'error': e.message})
 
 
 def _bring_online(interface):
@@ -439,6 +453,8 @@ def _persist_interface(interface):
     """
     wok_log.info('persisting network device %s in ifcfg file' % interface)
     ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    if isinstance(ifcfg_file_path, unicode):
+        ifcfg_file_path = ifcfg_file_path.encode('utf-8')
     if os.path.isfile(ifcfg_file_path):
         _write_ifcfg_params(interface)
     else:
@@ -459,16 +475,18 @@ def _unpersist_interface(interface):
     """
     wok_log.info('un persisting network device %s' % interface)
     ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', interface)
+    if isinstance(ifcfg_file_path, unicode):
+        ifcfg_file_path = ifcfg_file_path.encode('utf-8')
     try:
         if os.path.isfile(ifcfg_file_path):
             os.remove(ifcfg_file_path)
     except Exception as e:
         wok_log.error('Failed to remove file %s. Error: %s'
-                      % (ifcfg_file_path, e.__str__()))
+                      % (ifcfg_file_path, e.message))
         raise OperationFailed('GS390XIONW004E',
                               {'ifcfg_file_path': ifcfg_file_path,
                                'device': interface,
-                               'error': e.__str__()})
+                               'error': e.message})
     wok_log.info('successfully removed ifcfg file %s to unpersist '
                  'network device %s' % (ifcfg_file_path, interface))
 
@@ -504,12 +522,12 @@ def _write_ifcfg_params(interface):
             parser.set(path, value)
         parser.save()
     except Exception as e:
-        wok_log.error('Failedd to write device attributes to ifcfg file '
-                      'using augeas tool. Error: %s' % e.__str__())
+        wok_log.error('Failed to write device attributes to ifcfg file '
+                      'using augeas tool. Error: %s' % e.message)
         raise OperationFailed('GS390XIONW002E',
                               {'device': interface,
                                'ifcfg_file_path': ifcfg_file_path,
-                               'error': e.__str__()})
+                               'error': e.message})
     finally:
         if parser:
             del parser
@@ -526,11 +544,13 @@ def _is_interface_online(interface):
     """
     wok_log.info('checking if the network device %s is configured' % interface)
     online_file_path = '/sys/bus/ccwgroup/devices/' + interface + '/online'
+    if isinstance(online_file_path, unicode):
+        online_file_path = online_file_path.encode('utf-8')
     if os.path.isfile(online_file_path):
         online_file = None
         try:
             online_file = open(online_file_path)
-            value = online_file.readline()
+            value = online_file.read()
             if value and value.strip() == '1':
                 wok_log.info('network device %s is '
                              'configured' % interface)
