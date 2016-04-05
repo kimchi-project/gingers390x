@@ -49,7 +49,7 @@ def update_lun_dict(lun_dict, adapter, port, fcp_lun):
     if port not in lun_dict[adapter]:
         lun_dict[adapter].update(wwpn_lun_dict)
     fcp_lun_dict = {fcp_lun: sg_dev}
-    out, err, rc = run_command(['sg_luns', '/dev/' + sg_dev])
+    out, err, rc = run_command(['sg_luns', '-m', '32768', '/dev/' + sg_dev])
     if rc == 0:
         luns = parse_sg_luns(out)
         for lun in luns:
