@@ -16,3 +16,5 @@
 # limitations under the License.
 
 imagedir = $(datadir)/wok/plugins/gingers390x/ui/images
+
+dist_image_DATA = *.svg
