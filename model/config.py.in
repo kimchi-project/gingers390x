@@ -1,7 +1,8 @@
 #
 # Project Ginger S390x
 #
-# Copyright IBM Corp, 2015-2016
+# Copyright IBM Corp, 2016
+#
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -15,27 +16,16 @@
 #
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-model_PYTHON = $(filter-out config.py, $(wildcard *.py))
 
-nodist_model_PYTHON = config.py
+__version__ = "@gingers390xversion@"
+__release__ = "@gingers390xrelease@"
 
-EXTRA_DIST = config.py.in
 
-modeldir = $(pythondir)/wok/plugins/gingers390x/model
+class ConfigModel(object):
+    def __init__(self, **kargs):
+        pass
 
-install-data-local:
-	$(MKDIR_P) $(DESTDIR)$(modeldir)
-
-do_substitution = \
-	sed -e 's,[@]gingers390xversion[@],$(PACKAGE_VERSION),g' \
-	-e 's,[@]gingers390xrelease[@],$(PACKAGE_RELEASE),g'
-
-config.py: config.py.in Makefile
-	$(do_substitution) < $(srcdir)/config.py.in > config.py
-
-BUILT_SOURCES = config.py
-CLEANFILES = config.py
-	$(models_PYTHON:%.py=%.pyc) \
-	$(NULL)
+    def lookup(self, name):
+        return {'version': "-".join([__version__, __release__])}
