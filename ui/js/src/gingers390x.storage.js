@@ -225,7 +225,7 @@ gingers390x.createActionList = function(settings) {
   toolbarNode = $('<div class="btn-group"></div>');
   toolbarNode.appendTo($("#" + container));
   dropHTML = ['<div class="dropdown menu-flat">',
-    '<button id="action-dropdown-button-', container, '" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">', (buttonType === 'action') ? '<span class="edit-alt"></span>Actions' : '<i class="fa fa-plus-circle"></i>Add ', '<span class="caret"></span>',
+    '<button id="action-dropdown-button-', container, '" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">', (buttonType === 'action') ? '<span class="edit-alt"></span>' + i18n['GS390XFCLN0022E'] : '<i class="fa fa-plus-circle"></i>' + i18n['GS390XFCLN0021E'], '<span class="caret"></span>',
     '</button>',
     '<ul class="dropdown-menu"></ul>',
     '</div>'
