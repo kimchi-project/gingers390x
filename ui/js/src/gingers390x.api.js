@@ -20,7 +20,6 @@ var gingers390x = {
   widget: {},
 
   trackingTasks: [],
-
   /**
    * Get the i18 strings.
    */
@@ -267,6 +266,56 @@ listFCPluns: function(suc, err) {
         wok.message.error(data.responseJSON.reason);
       }
     });
+  },
+  getFcpTapeDevices : function(suc , err){
+      wok.requestJSON({
+          url : 'plugins/gingers390x/lstapes',
+          type : 'GET',
+          contentType : 'application/json',
+          dataType : 'json',
+          success : suc,
+          error : function(data) {
+              wok.message.error(data.responseJSON.reason);
+          }
+      });
+  },
+  removeFCDevice : function(lunPath, settings, suc, err, progress) {
+      wok.requestJSON({
+          url : "/plugins/gingers390x/fcluns/"+ lunPath,
+          type : 'DELETE',
+          contentType : 'application/json',
+          data : JSON.stringify(settings),
+          dataType : 'json',
+          success: suc,
+          error: err
+      });
+  },
+  removeDASDDevice : function(busId, settings, suc, err, progress) {
+      wok.requestJSON({
+          url : "/plugins/gingers390x/storagedevices/"+ busId +"/offline",
+          type : 'POST',
+          contentType : 'application/json',
+          data : JSON.stringify(settings),
+          dataType : 'json',
+          success: suc,
+          error: err
+      });
+  },
+  deleteEthernetInterface : function(name, suc, err, progress) {
+    var name = encodeURIComponent(name);
+    var onResponse = function(data) {
+        taskID = data['id'];
+        gingers390x.trackTask(taskID, suc, err, progress);
+    };
+    wok.requestJSON({
+        url : 'plugins/gingers390x/nwdevices/' + name + '/unconfigure',
+        type : 'POST',
+        contentType : 'application/json',
+        dataType : 'json',
+        success : onResponse,
+        error : err || function(data) {
+            wok.message.error(data.responseJSON.reason);
+        }
+    });
   }
-
 };

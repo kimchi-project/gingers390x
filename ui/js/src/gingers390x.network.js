@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 gingers390x.network = {};
+gingers390x.selectedNWInterface = null;
 
 gingers390x.initNetwork = function() {
   gingers390x.initBlacklist(gingers390x.RefreshNetworkBootGridData);
@@ -209,3 +210,136 @@ gingers390x.RefreshNetworkBootGridData = function(){
   };
   gingers390x.initNetworkBootGridData(opts);
 };
+
+gingers390x.addNetworkAdapterButton = function() {
+    var btnHTML = [
+      '<li role="presentation" class="" >',
+      '<a role="menuitem" tabindex="-1" data-backdrop="static"  data-keyboard="false" data-dismiss="modal" id="nw-add-adapter-button"',
+      '>',
+      '<i class="fa fa-plus-circle"></i>',
+      i18n['GINNET0008M'],
+      '</a></li>'
+    ].join('');
+    var btnNode = $(btnHTML).appendTo($('.dropdown-menu', $('#nw-configuration-add')));
+    $('#nw-add-adapter-button').on('click', function() {
+      wok.window.open('plugins/gingers390x/network.html');
+    });
+    $('#nw-configuration-add').show();
+}
+
+gingers390x.removeEthernetInterface = function() {
+    // check architecture and gingers390x plugin for ethernet deletion
+    if (gingers390x.hostarch == 's390x') {
+      ginger.getPlugins(function(result) {
+        if ($.inArray("gingers390x", result) != -1) {
+          var settings = {
+            content: i18n['GINNET0032M'].replace("%1", gingers390x.selectedNWInterface),
+            confirm: i18n["GINNET0015M"]
+          };
+          // get confirmation from user
+          wok.confirm(settings, function() {
+            // remove ethernet device if user confirms
+            ginger.showBootgridLoading(ginger.opts_nw_if);
+            var taskAccepted = false;
+            var onTaskAccepted = function() {
+              if (taskAccepted) {
+                return;
+              }
+              taskAccepted = true;
+            };
+            gingers390x.deleteEthernetInterface(gingers390x.selectedNWInterface, function(result) {
+              onTaskAccepted();
+              var message = i18n['GINNET0019M'] + " " + gingers390x.selectedNWInterface + " " + i18n['GINNET0020M'];
+              wok.message.success(message, '#message-nw-container-area');
+              //Re-load the network interfaces after delete action
+              ginger.initNetworkConfigGridData();
+            }, function(error) {
+              ginger.hideBootgridLoading(ginger.opts_nw_if);
+              var message = i18n['GINNET0019M'] + " " + gingers390x.selectedNWInterface + " " + i18n['GINNET0021M'];
+              wok.message.error(message + " " + error.responseJSON.reason, '#message-nw-container-area', true);
+            }, onTaskAccepted);
+          }, function() {
+            ginger.hideBootgridLoading(ginger.opts_nw_if);
+          });
+
+        } else {
+          // display message asking user to install gingers390x plugin to avail delete Ethernet interfaces functionality
+          var settings = {
+            content: i18n["GS390XNW0010E"],
+            confirm: i18n["GINNET0015M"]
+          };
+          wok.confirm(settings, function() {});
+        }
+      }, function(error) {
+        // display error message asking user to try delete again since it
+        // failed check gingers390x plugin
+        wok.message.error(i18n['GS390XNW0011E'], '#message-nw-container-area', true);
+      });
+    } else {
+      // if not s390x architecture, display error message that deletion of ethernet
+      // devices is not supported
+      var settings = {
+        content: i18n["GS390XNW009E"],
+        confirm: i18n["GINNET0015M"]
+      };
+      wok.confirm(settings, function() {});
+    };
+};
+gingers390x.changeActionButtonsState = function() {
+    var opts = [];
+    opts['gridId'] = "nwConfigGrid";
+    opts['identifier'] = "device";
+    // Showing delete button when s390x is selected
+    var selectedIf = ginger.getSelectedRowsData(opts);
+    if (selectedIf && selectedIf.length == 1) {
+      if (selectedIf[0]["type"] == 'Ethernet') {
+        ginger.changeButtonStatus(["nw-delete-button"], true);
+      }
+    } else {
+      ginger.networkConfiguration.disableActions();
+    }
+};
+
+gingers390x.ethernetDeleteHandler = function() {
+    $('#nw-delete-button').on('click', function() {
+      var opts_nw_if = {};
+      opts_nw_if['id'] = 'nw-configuration';
+      opts_nw_if['gridId'] = "nwConfigGrid";
+      opts_nw_if['identifier'] = "device";
+      var selectedRows = ginger.getSelectedRowsData(opts_nw_if);
+      if (selectedRows && (selectedRows.length == 1)) {
+        if (selectedRows[0]["type"] == 'Ethernet') {
+          gingers390x.selectedNWInterface = selectedRows[0]["device"];
+          gingers390x.removeEthernetInterface();
+        }
+      }
+    });
+};
+
+//loading network functionality for Gingers390x plugins
+//on s390x architecture
+gingers390x.loadNetworkDetails = function() {
+    var activeTab = $('li.active', $('#tabPanel'));
+    if (activeTab.text() == 'Network') {
+      if ($.inArray("gingers390x", gingers390x.installedPlugin) != -1 && gingers390x.hostarch == 's390x') {
+        gingers390x.addNetworkAdapterButton();
+        $('#nwConfigGrid').bootgrid().on("selected.rs.jquery.bootgrid", function(e, rows) {
+          gingers390x.changeActionButtonsState();
+        }).on("deselected.rs.jquery.bootgrid", function(e, rows) {
+          gingers390x.changeActionButtonsState();
+        }).on("loaded.rs.jquery.bootgrid", function(e, rows) {
+          gingers390x.changeActionButtonsState();
+        });
+        gingers390x.ethernetDeleteHandler();
+
+      }
+    }
+};
+
+ginger.getHostDetails(function(result) {
+    gingers390x.hostarch = result["architecture"];
+    ginger.getPlugins(function(result) {
+      gingers390x.installedPlugin = result;
+      setTimeout(gingers390x.loadNetworkDetails,4000);
+    });
+});
