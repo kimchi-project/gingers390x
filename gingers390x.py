@@ -56,5 +56,10 @@ class Gingers390x(WokRoot):
         self.domain = 'gingers390x'
         self.messages = messages
 
+        self.extends = {"/plugins/ginger": {
+            "host-storage.html": "plugins/gingers390x/js/gingers390x.min.js",
+            "host-network.html": "plugins/gingers390x/js/gingers390x.min.js"}
+        }
+
     def get_custom_conf(self):
         return config.GingerS390xConfig()
