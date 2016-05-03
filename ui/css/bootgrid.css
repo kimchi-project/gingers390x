@@ -48,6 +48,12 @@
   display: inline-table;
 }
 
+.bootgrid-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
 .bootgrid-footer .search, .bootgrid-header .search {
   margin: 0;
 }
