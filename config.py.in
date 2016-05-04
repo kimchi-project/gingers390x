@@ -45,7 +45,15 @@ class GingerS390xConfig(PluginConfig):
     def __init__(self):
         super(GingerS390xConfig, self).__init__('gingers390x')
 
-        custom_config = {}
+        custom_config = {
+            '/help': {
+                'tools.staticdir.on': True,
+                'tools.staticdir.dir': os.path.join(gingerS390xPaths.ui_dir,
+                                                    'pages/help'),
+                'tools.nocache.on': True
+            }
+        }
+
         for dirname in ('css', 'js', 'images'):
             custom_config['/' + dirname] = {
                 'tools.staticdir.on': True,
