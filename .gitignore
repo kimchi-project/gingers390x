@@ -1,9 +1,9 @@
 *.pyc
 *~
 i18n/mo/*
-log
-data
-mo
+log/
+data/
+mo/
 autom4te.cache
 Makefile
 Makefile.in
@@ -17,6 +17,7 @@ build-aux/missing
 build-aux/py-compile
 configure
 config.py
+model/config.py
 config.log
 config.status
 contrib/gingers390x.spec.zkvm
@@ -33,4 +34,4 @@ po/gen-pot
 *.orig
 *.rej
 *.pem
-rpm
+rpm/
