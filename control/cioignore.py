@@ -20,6 +20,12 @@
 from wok.control.base import Resource
 from wok.control.utils import UrlSubNode
 
+CIOIGNORE_REQUESTS = {
+    'POST': {
+        'remove': "Remove i/o devices '%(devices)s' from ignore list",
+        }
+}
+
 
 @UrlSubNode("cio_ignore")
 class CIOIgnore(Resource):
@@ -30,6 +36,7 @@ class CIOIgnore(Resource):
         self.uri_fmt = "/cio_ignore/%s"
         self.params = ['devices']
         self.remove = self.generate_action_handler_task('remove', self.params)
+        self.log_map = CIOIGNORE_REQUESTS
 
     @property
     def data(self):

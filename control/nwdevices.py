@@ -20,6 +20,13 @@
 from wok.control.base import Collection, Resource
 from wok.control.utils import model_fn, UrlSubNode
 
+NWDEVICE_REQUESTS = {
+    'POST': {
+        'configure': "Configure network i/o device '%(ident)s'",
+        'unconfigure': "Un-configure network i/o device '%(ident)s'",
+    }
+}
+
 
 @UrlSubNode('nwdevices', True)
 class NetworkDevices(Collection):
@@ -55,6 +62,7 @@ class NetworkDevice(Resource):
         self.uri_fmt = '/nwdevices/%s'
         self.configure = self.generate_action_handler_task('configure')
         self.unconfigure = self.generate_action_handler_task('unconfigure')
+        self.log_map = NWDEVICE_REQUESTS
 
     @property
     def data(self):

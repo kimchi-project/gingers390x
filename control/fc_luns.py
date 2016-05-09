@@ -20,6 +20,23 @@
 from wok.control.base import Collection, Resource
 from wok.control.utils import model_fn, UrlSubNode
 
+LUNSCAN_REQUESTS = {
+    'POST': {
+        'enable': "Enable lun scan",
+        'disable': "Disable lun scan",
+        'trigger': "Trigger lun scan",
+    }
+}
+
+FCLUNS_REQUESTS = {
+    'POST': {
+        'default': "Add lun: '%(hbaId)s' : '%(remoteWwpn)s': '%(lunId)s'"},
+}
+
+FCLUN_REQUESTS = {
+    'DELETE': {'default': "Remove lun '%(ident)s'"}
+}
+
 
 @UrlSubNode("lunscan")
 class LUNScan(Resource):
@@ -35,6 +52,7 @@ class LUNScan(Resource):
         self.enable = self.generate_action_handler_task('enable')
         self.disable = self.generate_action_handler_task('disable')
         self.trigger = self.generate_action_handler_task('trigger')
+        self.log_map = LUNSCAN_REQUESTS
 
     @property
     def data(self):
@@ -52,6 +70,7 @@ class FCLUNs(Collection):
         self.role_key = 'host'
         self.admin_methods = ['GET', 'POST', 'DELETE']
         self.resource = FCLUN
+        self.log_map = FCLUNS_REQUESTS
 
     def _get_resources(self, flag_filter):
         """
@@ -86,6 +105,7 @@ class FCLUN(Resource):
         self.role_key = 'host'
         self.admin_methods = ['GET', 'POST', 'DELETE']
         self.uri_fmt = "/fcluns/%s"
+        self.log_map = FCLUN_REQUESTS
 
     @property
     def data(self):
