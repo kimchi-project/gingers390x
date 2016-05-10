@@ -19,6 +19,7 @@
   $('#storage-window-modal').parent().width(1050);
   $('#storage-window-modal').width(1050);
 
+  gingers390x.lunsScanStatus = null;
   gingers390x.loadFCPLunsList();
 
   $('#refreshLuns').on("click", function() {
@@ -33,6 +34,7 @@
       gingers390x.getLunsScanStatus(function(result) {
       gingers390x.lunsScanStatusChange(result.current, function(response) {
         var lunsStatusButtonText, messageText = "";
+        gingers390x.lunsScanStatus = response.current;
         if (response.current) {
           lunsStatusButtonText = i18n['GS390XFCLN001E'];
           messageText = i18n['GS390XFCLN002E'];
@@ -42,6 +44,7 @@
           $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
           gingers390x.retrieveLunsList();
           gingers390x.showLunEnabledmessage();
+          gingers390x.disablerefreshLunsButton();
         } else {
           lunsStatusButtonText = i18n['GS390XFCLN004E'];
           messageText = i18n['GS390XFCLN005E'];
@@ -70,6 +73,7 @@
       $('#luns-add-selected-button').hide();
       $("#luns-add-all-button" ).off(); //clear handlers before assigning new handler
       $('#luns-add-all-button').on("click", gingers390x.lunsDiscoveryHandler);
+      gingers390x.disablerefreshLunsButton();
       gingers390x.showLunEnabledmessage();
     } else {
       lunsStatusButtonText = i18n['GS390XFCLN004E'];
@@ -124,7 +128,7 @@ gingers390x.loadFCPLunsList = function() {
 
   gingers390x.initHeader(opts);
   gingers390x.initBootgrid(opts);
-
+  gingers390x.hideBootgridData(opts);
   gingers390x.retrieveLunsList();
 
 };
@@ -195,6 +199,7 @@ gingers390x.retrieveLunsList = function() {
   gingers390x.hideBootgridData(opts);
   gingers390x.showBootgridLoading(opts);
   gingers390x.clearFilterData();
+  gingers390x.clearBootgridData(opts);
   gingers390x.disableAllFCPStorageDevicesButtons();
 
   gingers390x.listFCPluns(function(result) {
@@ -206,9 +211,16 @@ gingers390x.retrieveLunsList = function() {
       formattedResult.push(lunsDetails);
     }
     gingers390x.loadBootgridData(opts, formattedResult);
-    gingers390x.showBootgridData(opts);
-    gingers390x.hideBootgridLoading(opts);
+
+    if(formattedResult.length==0){
+      gingers390x.showBootgridData(opts);
+      gingers390x.hideBootgridLoading(opts);
+    }
     gingers390x.enableAllFCPStorageDevicesButtons();
+
+    if(gingers390x.lunsScanStatus){
+      gingers390x.disablerefreshLunsButton();
+    }
     }, function(error) {
       gingers390x.hideBootgridLoading(opts);
       gingers390x.enableAllFCPStorageDevicesButtons();
@@ -342,14 +354,12 @@ gingers390x.disableAllFCPStorageDevicesButtons = function(){
 	gingers390x.disablerefreshLunsButton();
 	gingers390x.disableLunScanButton();
 	gingers390x.disablefcpStorageActionsButton();
-	//gingers390x.disableAddSANAdapterButton();
 }
 
 gingers390x.enableAllFCPStorageDevicesButtons = function(){
 	gingers390x.enablerefreshLunsButton();
 	gingers390x.enableLunScanButton();
 	gingers390x.enablefcpStorageActionsButton();
-	//gingers390x.enableAddSANAdapterButton();
 }
 
 gingers390x.showLunEnabledmessage = function() {
@@ -366,7 +376,7 @@ gingers390x.loadStorageActionButtons = function() {
     var addButton = [{
       id: 'sd-add-FCP-button',
       class: 'fa fa-plus-circle',
-      label: 'Add FCP Device',
+      label: i18n['GS390XSD007M'],
       onClick: function(event) {
         $('#sd-add-FCP-button').attr('href', 'plugins/gingers390x/addFCPLuns.html');
         $('#sd-add-FCP-button').attr('data-toggle', 'modal');
@@ -376,7 +386,7 @@ gingers390x.loadStorageActionButtons = function() {
     }, {
       id: 'sd-add-ECKD-button',
       class: 'fa fa-plus-circle',
-      label: 'Add ECKD Device',
+      label: i18n['GS390XSD008M'],
       onClick: function(event) {
         wok.window.open('plugins/gingers390x/eckd.html');
       }
@@ -384,12 +394,12 @@ gingers390x.loadStorageActionButtons = function() {
     var actionButton = [{
       id: 'sd-format-button',
       class: 'fa fa-pencil-square-o',
-      label: 'Format ECKD',
+      label: i18n['GS390XSD009M'],
       onClick: function(event) {
         var opts = [];
         opts['gridId'] = "stgDevGrid";
         opts['identifier'] = "id";
-        opts['loadingMessage'] = 'Formatting...';
+        opts['loadingMessage'] = i18n['GS390XSD001M'];
 
         var settings = [];
         if (gingers390x.selectionContainNonDasdDevices()) {
@@ -434,7 +444,7 @@ gingers390x.loadStorageActionButtons = function() {
 
               ginger.formatDASDDevice(busId, settings, function(result) {
                 trackingNums = trackingNums - 1;
-                wok.message.success(deviceId + " formatted successfully", '#alert-modal-nw-container');
+                wok.message.success(deviceId + i18n['GS390XSD002M'], '#alert-modal-nw-container');
                 if (trackingNums == 0) {
                   $("#action-dropdown-button-file-systems-actions").show();
                   $("#storage-device-refresh-btn").show();
@@ -469,7 +479,7 @@ gingers390x.loadStorageActionButtons = function() {
     }, {
       id: 'sd-remove-button',
       class: 'fa fa-minus-circle',
-      label: 'Remove',
+      label: i18n['GS390XSD006M'],
       critical: true,
       onClick: function(event) {
         var opts = [];
@@ -490,7 +500,8 @@ gingers390x.loadStorageActionButtons = function() {
             var rowNums = selectedRows.length;
             var selectedRowDetails = JSON.stringify(ginger.selectedrows);
             var fcpDeviceNo = 0;
-            opts['loadingMessage'] = 'Removing...';
+            var removalErrorMessage = '';
+            opts['loadingMessage'] = i18n['GS390XSD003M'];
             ginger.showBootgridLoading(opts);
             ginger.hideBootgridData(opts);
             $.each(ginger.selectedrows, function(i, row) {
@@ -503,7 +514,7 @@ gingers390x.loadStorageActionButtons = function() {
                   'blk_size': '4096'
                 };
                 gingers390x.removeDASDDevice(busId, settings, function(result) {
-                  wok.message.success(deviceId + " removed successfully", '#alert-modal-nw-container');
+                  wok.message.success(deviceId + i18n['GS390XSD004M'], '#alert-modal-nw-container');
                   rowNums = rowNums - 1;
                   if (rowNums == 0) {
                     $("#storage-device-refresh-btn").trigger('click');
@@ -544,14 +555,25 @@ gingers390x.loadStorageActionButtons = function() {
                   }, function() {});
                 } else {
                   if (fcpDeviceNo <= 1)
-                    wok.message.error('Lun scan is enabled.Cannot add/remove LUNs manually', '#alert-modal-nw-container', true);
+                    wok.message.error(i18n['GS390XSD005M'], '#alert-modal-nw-container', true);
                   rowNums = rowNums - 1;
                   if (rowNums == 0) {
                     $("#storage-device-refresh-btn").trigger('click');
                   }
                 }
+              }else{
+                 removalErrorMessage = removalErrorMessage + deviceId+"<br>";
+                 rowNums = rowNums - 1;
+
+                 if (rowNums == 0) {
+                   $("#storage-device-refresh-btn").trigger('click');
+                 }
               }
             });
+
+        if(removalErrorMessage!="")
+         wok.message.error(i18n['GS390XSD0010M']+'<br>'+removalErrorMessage, '#alert-modal-nw-container', true);
+
           });
         }, function() {});
       }
