@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-25 12:01+0530\n"
+"POT-Creation-Date: 2016-05-11 04:09-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,7 @@ msgid "Issue with regex. Reason =  %(reason)s"
 msgstr ""
 
 #, python-format
-msgid "Failed to bring device online. Error = %(error)s"
+msgid "Failed to bring device %(device)s online. Error = %(error)s"
 msgstr ""
 
 #, python-format
@@ -44,6 +44,18 @@ msgstr ""
 
 #, python-format
 msgid "Failed to remove device from dasd.conf file. Device = %(device)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to bring device %(device)s offline. Error = %(error)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to add zfcp device in zfcp.conf file. Device = %(device)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to remove device from zfcp.conf file. Device = %(device)s"
 msgstr ""
 
 #, python-format
@@ -114,7 +126,7 @@ msgstr ""
 msgid "Failed to LUN info, %(path)s"
 msgstr ""
 
-msgid "Lun scan is enabled. Cannot add/remote LUNs manually."
+msgid "LUN scan is enabled. Cannot add/remove LUNs manually."
 msgstr ""
 
 msgid "hbaId is required for adding a LUN"
@@ -139,10 +151,6 @@ msgid "Unable to execute zipl, %(err)s"
 msgstr ""
 
 #, python-format
-msgid "Unable to uuid for tape device, %(err)s"
-msgstr ""
-
-#, python-format
 msgid "Unable to parse output of lstape, %(err)s"
 msgstr ""
 
@@ -150,7 +158,36 @@ msgstr ""
 msgid "Unable to execute lstape, %(err)s"
 msgstr ""
 
+#, python-format
+msgid "Unable to remove multipath device, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Failed to enable lunscanning in current zfcp module, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to get sg dev for discovery lun, %(err)s"
+msgstr ""
+
+msgid "Invalid lun path provided"
+msgstr ""
+
 msgid "Add FCP Storage devices"
+msgstr ""
+
+msgid "Enable LUN Scan"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Add SAN Adapter"
+msgstr ""
+
+msgid ""
+"Lun Scan is enabled. Please use \"Actions-> Add all/Lun Scan\" to add "
+"available Luns"
 msgstr ""
 
 msgid "Discovered LUNs not yet attached to the system"
@@ -165,7 +202,10 @@ msgstr ""
 msgid "Offline ECKD Devices"
 msgstr ""
 
-msgid "Didn't found the device your are looking for? It may be in Blacklist.."
+msgid "Enable"
+msgstr ""
+
+msgid "Didn't find the device your are looking for? It may be in Blacklist.."
 msgstr ""
 
 msgid "Remove from blacklist"
@@ -210,9 +250,6 @@ msgstr ""
 msgid "Loading...Please wait.."
 msgstr ""
 
-msgid "Enable"
-msgstr ""
-
 msgid "Name"
 msgstr ""
 
@@ -234,6 +271,17 @@ msgstr ""
 msgid "Please select device(s) to enable."
 msgstr ""
 
+msgid "Deletion of Ethernet interfaces is not supported."
+msgstr ""
+
+msgid ""
+"Please install plugin 'Ginger s390x' to avail 'Delete' functionality for "
+"Ethernet interface."
+msgstr ""
+
+msgid "Failed to verify 'Ginger s390x' plugin installation. Please try again."
+msgstr ""
+
 msgid ""
 "Some devices are selected in the Offline device list.<br>Do you want to "
 "Enable them ?"
@@ -248,13 +296,12 @@ msgstr ""
 msgid "Disable LUN Scan"
 msgstr ""
 
-msgid "Luns Scan is enabled successfully"
+msgid ""
+"Luns Scan is enabled successfully. Please use Actions-> Add all/Lun Scan to "
+"add any residual LUNs"
 msgstr ""
 
 msgid "Add all / Luns Scan"
-msgstr ""
-
-msgid "Enable LUN Scan"
 msgstr ""
 
 msgid "Luns Scan is disabled successfully"
@@ -284,7 +331,7 @@ msgstr ""
 msgid "Add Selected"
 msgstr ""
 
-msgid "Luns sucessfully added"
+msgid "Lun sucessfully added"
 msgstr ""
 
 msgid "Error occured while adding Luns"
@@ -294,6 +341,21 @@ msgid "Searching Luns"
 msgstr ""
 
 msgid "Luns add failed"
+msgstr ""
+
+msgid "Remote WWPN"
+msgstr ""
+
+msgid "Successfully added all Luns"
+msgstr ""
+
+msgid "Adding Luns"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Actions"
 msgstr ""
 
 msgid "Device"
@@ -323,6 +385,50 @@ msgid "Installed CHPID Paths"
 msgstr ""
 
 msgid "Enabled CHPID Paths"
+msgstr ""
+
+msgid "Generic"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Model"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "State"
+msgstr ""
+
+msgid "Formatting..."
+msgstr ""
+
+msgid "formatted successfully"
+msgstr ""
+
+msgid "Removing..."
+msgstr ""
+
+msgid "removed successfully"
+msgstr ""
+
+msgid "Lun scan is enabled. Cannot add/remove LUNs manually"
+msgstr ""
+
+msgid "Add FCP Device"
+msgstr ""
+
+msgid "Add ECKD Device"
+msgstr ""
+
+msgid "Format ECKD"
+msgstr ""
+
+msgid ""
+"Following devices cannot be removed because of the missing device type."
+"Please rectify the issue by manually logging onto the system via console."
 msgstr ""
 
 msgid "Add Network Adapter"

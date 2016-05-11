@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gingers390x 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-25 12:01+0530\n"
+"POT-Creation-Date: 2016-05-11 04:09-0500\n"
 "PO-Revision-Date: 2015-12-24 12:53+0530\n"
 "Last-Translator: Archana <archanasingh@in.ibm.com>\n"
 "Language-Team: English\n"
@@ -36,8 +36,8 @@ msgid "Issue with regex. Reason =  %(reason)s"
 msgstr "Issue with regex. Reason =  %(reason)s"
 
 #, python-format
-msgid "Failed to bring device online. Error = %(error)s"
-msgstr "Failed to bring device online. Error = %(error)s"
+msgid "Failed to bring device %(device)s online. Error = %(error)s"
+msgstr "Failed to bring device %(device)s online. Error = %(error)s"
 
 #, python-format
 msgid "Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"
@@ -46,6 +46,18 @@ msgstr "Failed to add dasd-eckd device in dasd.conf file. Device = %(device)s"
 #, python-format
 msgid "Failed to remove device from dasd.conf file. Device = %(device)s"
 msgstr "Failed to remove device from dasd.conf file. Device = %(device)s"
+
+#, python-format
+msgid "Failed to bring device %(device)s offline. Error = %(error)s"
+msgstr "Failed to bring device %(device)s offline. Error = %(error)s"
+
+#, python-format
+msgid "Failed to add zfcp device in zfcp.conf file. Device = %(device)s"
+msgstr "Failed to add zfcp device in dasd.conf file. Device = %(device)s"
+
+#, python-format
+msgid "Failed to remove device from zfcp.conf file. Device = %(device)s"
+msgstr "Failed to remove device from zfcp.conf file. Device = %(device)s"
 
 #, python-format
 msgid "Failed to bring network device %(device)s online. Error = %(error)s"
@@ -123,8 +135,8 @@ msgstr "Failed to get list of LUNs, %(err)s"
 msgid "Failed to LUN info, %(path)s"
 msgstr "Failed to LUN info, %(path)s"
 
-msgid "Lun scan is enabled. Cannot add/remote LUNs manually."
-msgstr "Lun scan is enabled. Cannot add/remote LUNs manually."
+msgid "LUN scan is enabled. Cannot add/remove LUNs manually."
+msgstr "Lun scan is enabled. Cannot add/remove LUNs manually."
 
 msgid "hbaId is required for adding a LUN"
 msgstr "hbaId is required for adding a LUN"
@@ -148,10 +160,6 @@ msgid "Unable to execute zipl, %(err)s"
 msgstr "Unable to execute zipl, %(err)s"
 
 #, python-format
-msgid "Unable to uuid for tape device, %(err)s"
-msgstr "Unable to uuid for tape device, %(err)s"
-
-#, python-format
 msgid "Unable to parse output of lstape, %(err)s"
 msgstr "Unable to parse output of lstape, %(err)s"
 
@@ -159,7 +167,36 @@ msgstr "Unable to parse output of lstape, %(err)s"
 msgid "Unable to execute lstape, %(err)s"
 msgstr "Unable to execute lstape, %(err)s"
 
+#, python-format
+msgid "Unable to remove multipath device, %(err)s"
+msgstr "Unable to remove multipath device, %(err)s"
+
+#, python-format
+msgid "Failed to enable lunscanning in current zfcp module, %(err)s"
+msgstr ""
+
+#, python-format
+msgid "Unable to get sg dev for discovery lun, %(err)s"
+msgstr "Unable to get sg dev for discovery lun, %(err)s"
+
+msgid "Invalid lun path provided"
+msgstr ""
+
 msgid "Add FCP Storage devices"
+msgstr ""
+
+msgid "Enable LUN Scan"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Add SAN Adapter"
+msgstr "Add SAN Adapter"
+
+msgid ""
+"Lun Scan is enabled. Please use \"Actions-> Add all/Lun Scan\" to add "
+"available Luns"
 msgstr ""
 
 msgid "Discovered LUNs not yet attached to the system"
@@ -171,17 +208,18 @@ msgstr "Finish"
 msgid "Add ECKD Devices"
 msgstr ""
 
-#, fuzzy
 msgid "Offline ECKD Devices"
 msgstr "Offline ECKD Devices"
 
-msgid "Didn't found the device your are looking for? It may be in Blacklist.."
+msgid "Enable"
+msgstr "Enable"
+
+msgid "Didn't find the device your are looking for? It may be in Blacklist.."
 msgstr "Didn't found the device your are looking for? It may be in Blacklist.."
 
 msgid "Remove from blacklist"
 msgstr "Remove from blacklist"
 
-#, fuzzy
 msgid "Add FCP SAN Adapter"
 msgstr "Add FCP SAN Adapter"
 
@@ -224,9 +262,6 @@ msgstr "No Result Found"
 msgid "Loading...Please wait.."
 msgstr "Loading...Please wait.."
 
-msgid "Enable"
-msgstr "Enable"
-
 msgid "Name"
 msgstr "Name"
 
@@ -248,6 +283,17 @@ msgstr "Enabling...Please wait.."
 msgid "Please select device(s) to enable."
 msgstr "Please select device(s) to enable."
 
+msgid "Deletion of Ethernet interfaces is not supported."
+msgstr ""
+
+msgid ""
+"Please install plugin 'Ginger s390x' to avail 'Delete' functionality for "
+"Ethernet interface."
+msgstr ""
+
+msgid "Failed to verify 'Ginger s390x' plugin installation. Please try again."
+msgstr ""
+
 msgid ""
 "Some devices are selected in the Offline device list.<br>Do you want to "
 "Enable them ?"
@@ -264,13 +310,12 @@ msgstr "No Thanks"
 msgid "Disable LUN Scan"
 msgstr ""
 
-msgid "Luns Scan is enabled successfully"
+msgid ""
+"Luns Scan is enabled successfully. Please use Actions-> Add all/Lun Scan to "
+"add any residual LUNs"
 msgstr ""
 
 msgid "Add all / Luns Scan"
-msgstr ""
-
-msgid "Enable LUN Scan"
 msgstr ""
 
 msgid "Luns Scan is disabled successfully"
@@ -300,7 +345,7 @@ msgstr ""
 msgid "Add Selected"
 msgstr ""
 
-msgid "Luns sucessfully added"
+msgid "Lun sucessfully added"
 msgstr ""
 
 msgid "Error occured while adding Luns"
@@ -312,14 +357,27 @@ msgstr ""
 msgid "Luns add failed"
 msgstr ""
 
-#, fuzzy
+msgid "Remote WWPN"
+msgstr ""
+
+msgid "Successfully added all Luns"
+msgstr ""
+
+msgid "Adding Luns"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
 msgid "Device"
 msgstr "Device"
 
 msgid "CHPIDs"
 msgstr ""
 
-#, fuzzy
 msgid "Enabling Devices..."
 msgstr "Enabling Devices..."
 
@@ -329,11 +387,9 @@ msgstr ""
 msgid "device failed to enable."
 msgstr ""
 
-#, fuzzy
 msgid "Please select any device to enable."
-msgstr "Please select device(s) to enable."
+msgstr "Please select any device to enable."
 
-#, fuzzy
 msgid ""
 "Some devices are selected in the Offline device list.<br/> Do you want to "
 "Enable them ?"
@@ -347,8 +403,55 @@ msgstr ""
 msgid "Enabled CHPID Paths"
 msgstr ""
 
+msgid "Generic"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Model"
+msgstr ""
+
+msgid "Type"
+msgstr "Type"
+
+msgid "State"
+msgstr ""
+
+msgid "Formatting..."
+msgstr ""
+
+msgid "formatted successfully"
+msgstr ""
+
+msgid "Removing..."
+msgstr "Removing.."
+
+msgid "removed successfully"
+msgstr ""
+
+msgid "Lun scan is enabled. Cannot add/remove LUNs manually"
+msgstr "Lun scan is enabled. Cannot add/remote LUNs manually."
+
+msgid "Add FCP Device"
+msgstr "Add FCP Device"
+
+msgid "Add ECKD Device"
+msgstr "Add ECKD Devices"
+
+msgid "Format ECKD"
+msgstr ""
+
+msgid ""
+"Following devices cannot be removed because of the missing device type."
+"Please rectify the issue by manually logging onto the system via console."
+msgstr ""
+
 msgid "Add Network Adapter"
 msgstr "Add Network Adapter"
 
 msgid "Offline Network Devices"
 msgstr "Offline Network Devices"
+
+#~ msgid "Failed to bring device online. Error = %(error)s"
+#~ msgstr "Failed to bring device online. Error = %(error)s"
