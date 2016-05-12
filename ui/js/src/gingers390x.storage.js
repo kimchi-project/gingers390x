@@ -67,6 +67,7 @@
   });
   gingers390x.getLunsScanStatus(function(result) {
     var lunsStatusButtonText = "";
+    gingers390x.lunsScanStatus = result.current;
     if (result.current) {
       lunsStatusButtonText = i18n['GS390XFCLN001E'];
       $('#luns-add-all-button').html('<i class="fa fa-search"></i>' + i18n['GS390XFCLN003E']);
@@ -652,7 +653,7 @@ gingers390x.initFcpTapeGridData = function() {
     var opts = [];
     opts['gridId'] = "fcptapeDevicesGrid";
     gingers390x.getFcpTapeDevices(function(result) {
-      gingers390x.loadBootgridData(opts['gridId'], result);
+      gingers390x.loadBootgridData(opts, result);
       gingers390x.showBootgridData(opts);
       gingers390x.hideBootgridLoading(opts);
     });
