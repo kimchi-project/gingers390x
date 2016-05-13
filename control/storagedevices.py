@@ -20,10 +20,11 @@
 from wok.control.base import Collection, Resource
 from wok.control.utils import model_fn, UrlSubNode
 
+
 STORAGEDEVICE_REQUESTS = {
     'POST': {
-        'online': "Bring storgae i/o device '%(ident)s' online",
-        'offline': "Bring storage i/o device '%(ident)s' offline",
+        'online': "GS390XIOST0001L",
+        'offline': "GS390XIOST0002L",
     }
 }
 

@@ -20,10 +20,11 @@
 from wok.control.base import Collection, Resource
 from wok.control.utils import model_fn, UrlSubNode
 
+
 NWDEVICE_REQUESTS = {
     'POST': {
-        'configure': "Configure network i/o device '%(ident)s'",
-        'unconfigure': "Un-configure network i/o device '%(ident)s'",
+        'configure': "GS390XIONW0001L",
+        'unconfigure': "GS390XIONW0002L",
     }
 }
 

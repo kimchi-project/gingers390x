@@ -68,5 +68,17 @@ messages = {
     "GS390XSTG0018E": _("Unable to remove multipath device, %(err)s"),
     "GS390XSTG00019": _("Failed to enable lunscanning in current zfcp module, %(err)s"),
     "GS390XSTG00021": _("Unable to get sg dev for discovery lun, %(err)s"),
-    "GS390XSTG00022": _("Invalid lun path provided")
+    "GS390XSTG00022": _("Invalid lun path provided"),
+
+    # These messages (ending with L) are for user log purposes
+    "GS390XIOIG0001L": _("Remove i/o devices '%(devices)s' from ignore list"),
+    "GS390XIONW0001L": _("Configure network i/o device '%(ident)s'"),
+    "GS390XIONW0002L": _("Un-configure network i/o device '%(ident)s'"),
+    "GS390XIOST0001L": _("Bring storgae i/o device '%(ident)s' online"),
+    "GS390XIOST0002L": _("Bring storage i/o device '%(ident)s' offline"),
+    "GS390XSTG0001L": _("Enable lun scan"),
+    "GS390XSTG0002L": _("Disable lun scan"),
+    "GS390XSTG0003L": _("Trigger lun scan"),
+    "GS390XSTG0004L": _("Add lun: '%(hbaId)s' : '%(remoteWwpn)s': '%(lunId)s'"),
+    "GS390XSTG0005L": _("Remove lun '%(ident)s'"),
 }

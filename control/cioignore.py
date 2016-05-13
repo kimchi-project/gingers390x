@@ -22,7 +22,7 @@ from wok.control.utils import UrlSubNode
 
 CIOIGNORE_REQUESTS = {
     'POST': {
-        'remove': "Remove i/o devices '%(devices)s' from ignore list",
+        'remove': "GS390XIOIG0001L",
         }
 }
 

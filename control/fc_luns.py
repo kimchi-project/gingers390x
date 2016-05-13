@@ -22,19 +22,19 @@ from wok.control.utils import model_fn, UrlSubNode
 
 LUNSCAN_REQUESTS = {
     'POST': {
-        'enable': "Enable lun scan",
-        'disable': "Disable lun scan",
-        'trigger': "Trigger lun scan",
+        'enable': "GS390XSTG0001L",
+        'disable': "GS390XSTG0002L",
+        'trigger': "GS390XSTG0003L",
     }
 }
 
 FCLUNS_REQUESTS = {
     'POST': {
-        'default': "Add lun: '%(hbaId)s' : '%(remoteWwpn)s': '%(lunId)s'"},
+        'default': "GS390XSTG0004L"},
 }
 
 FCLUN_REQUESTS = {
-    'DELETE': {'default': "Remove lun '%(ident)s'"}
+    'DELETE': {'default': "GS390XSTG0005L"}
 }
 
 
