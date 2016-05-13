@@ -292,7 +292,7 @@ gingers390x.changeActionButtonsState = function() {
     // Showing delete button when s390x is selected
     var selectedIf = ginger.getSelectedRowsData(opts);
     if (selectedIf && selectedIf.length == 1) {
-      if (selectedIf[0]["type"] == 'Ethernet') {
+      if ((selectedIf[0]["type"]).toLowerCase() == 'nic') {
         ginger.changeButtonStatus(["nw-delete-button"], true);
       }
     } else {
@@ -308,7 +308,7 @@ gingers390x.ethernetDeleteHandler = function() {
       opts_nw_if['identifier'] = "device";
       var selectedRows = ginger.getSelectedRowsData(opts_nw_if);
       if (selectedRows && (selectedRows.length == 1)) {
-        if (selectedRows[0]["type"] == 'Ethernet') {
+        if ((selectedRows[0]["type"]).toLowerCase() == 'nic') {
           gingers390x.selectedNWInterface = selectedRows[0]["device"];
           gingers390x.removeEthernetInterface();
         }
