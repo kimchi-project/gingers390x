@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gingers390x 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-11 04:09-0500\n"
+"POT-Creation-Date: 2016-05-19 21:47+0530\n"
 "PO-Revision-Date: 2015-12-24 12:53+0530\n"
 "Last-Translator: Archana <archanasingh@in.ibm.com>\n"
 "Language-Team: English\n"
@@ -182,6 +182,43 @@ msgstr "Unable to get sg dev for discovery lun, %(err)s"
 msgid "Invalid lun path provided"
 msgstr ""
 
+#, python-format
+msgid "Removed I/O devices '%(devices)s' from ignore list"
+msgstr ""
+
+#, python-format
+msgid "Configured network I/O device '%(ident)s'"
+msgstr ""
+
+#, python-format
+msgid "Unconfigured network I/O device '%(ident)s'"
+msgstr ""
+
+#, python-format
+msgid "Brought storage I/O device '%(ident)s' online"
+msgstr ""
+
+#, python-format
+msgid "Brought storage I/O device '%(ident)s' offline"
+msgstr ""
+
+msgid "Enabled LUN scan"
+msgstr ""
+
+msgid "Disabled LUN scan"
+msgstr ""
+
+msgid "Triggered LUN scan"
+msgstr ""
+
+#, python-format
+msgid "Added LUN '%(hbaId)s : %(remoteWwpn)s : %(lunId)s'"
+msgstr ""
+
+#, python-format
+msgid "Removed LUN '%(ident)s'"
+msgstr ""
+
 msgid "Add FCP Storage devices"
 msgstr ""
 
@@ -261,6 +298,9 @@ msgstr "No Result Found"
 
 msgid "Loading...Please wait.."
 msgstr "Loading...Please wait.."
+
+msgid "Showing {{ctx.start}} to {{ctx.end}} of {{ctx.total}} entries"
+msgstr ""
 
 msgid "Name"
 msgstr "Name"

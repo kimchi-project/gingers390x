@@ -67,7 +67,8 @@ gingers390x.initBootgrid = function(opts) {
     rowSelect: true,
     labels: {
       search: i18n['GS390XBG001E'],
-      noResults: i18n['GS390XBG002E']
+      noResults: i18n['GS390XBG002E'],
+      infos: i18n['GS390XBG004E']
     },
     css: {
       iconDown: "fa fa-sort-desc",
