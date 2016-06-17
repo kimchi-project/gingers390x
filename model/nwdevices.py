@@ -23,7 +23,7 @@ import os
 import re
 
 import model_utils as utils
-from wok.exception import InvalidParameter, OperationFailed
+from wok.exception import InvalidParameter, NotFoundError, OperationFailed
 from wok.model.tasks import TaskModel
 from wok.rollbackcontext import RollbackContext
 from wok.utils import add_task, run_command, wok_log
@@ -123,9 +123,7 @@ class NetworkDeviceModel(object):
             device = unconfigured_devices.get(name, None)
         if not device:
             wok_log.error('Given device is not of type OSA. Device: %s', name)
-            raise InvalidParameter("GS390XINVINPUT",
-                                   {'reason': 'Given device is not of type '
-                                              'OSA. Device: %s' % name})
+            raise NotFoundError("GS390XIONW006E", {'device': name})
         wok_log.info('Attributes of network devices %s: %s' % (name, device))
         return device
 

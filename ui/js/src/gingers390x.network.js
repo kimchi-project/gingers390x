@@ -255,6 +255,8 @@ gingers390x.removeEthernetInterface = function() {
               ginger.initNetworkConfigGridData();
             }, function(error) {
               ginger.hideBootgridLoading(ginger.opts_nw_if);
+              //Re-load the network interfaces
+              ginger.initNetworkConfigGridData();
               var message = i18n['GINNET0019M'] + " " + gingers390x.selectedNWInterface + " " + i18n['GINNET0021M'];
               wok.message.error(message + " " + error.responseJSON.reason, '#message-nw-container-area', true);
             }, onTaskAccepted);

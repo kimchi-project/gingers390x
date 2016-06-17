@@ -227,7 +227,7 @@ class NetworkDeviceLookUpUnitTests(unittest.TestCase):
         mock_get_unconfigured_devices.return_value = {'device1': 'dummy_data'}
         mock_get_configured_devices.return_value = {'device2': 'dummy_data'}
         nwmodel = NetworkDeviceModel(kargs=None)
-        self.assertRaises(exception.InvalidParameter, nwmodel.lookup, device)
+        self.assertRaises(exception.NotFoundError, nwmodel.lookup, device)
         mock_validate_device.assert_called_once_with(device)
         mock_get_configured_devices.assert_called_once_with(
             key=UNIQUE_COL_NAME)

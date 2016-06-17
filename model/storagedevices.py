@@ -24,7 +24,7 @@ import os
 import re
 
 import model_utils as utils
-from wok.exception import InvalidParameter, OperationFailed
+from wok.exception import InvalidParameter, NotFoundError, OperationFailed
 from wok.rollbackcontext import RollbackContext
 from wok.utils import run_command, wok_log
 
@@ -164,10 +164,7 @@ class StorageDeviceModel(object):
         else:
             wok_log.error("Given device id is of type dasd-eckd or zfcp. "
                           "Device: %s" % device)
-            raise InvalidParameter("GS390XINVINPUT",
-                                   {'reason': 'given device is not of type '
-                                              'dasd-eckd or zfcp. '
-                                              'Device : %s' % device})
+            raise NotFoundError("GS390XSTG00023", {'device': device})
 
     def lookup(self, device):
         device_info = self.get_storagedevice(device)

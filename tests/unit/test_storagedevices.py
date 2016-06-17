@@ -642,7 +642,7 @@ class GetStoragedeviceUnitTests(unittest.TestCase):
         mock_is_zfcp_device.return_value = False
         mock_validate_device.return_value = device
         storagedevicemodel = StorageDeviceModel()
-        self.assertRaises(exception.InvalidParameter,
+        self.assertRaises(exception.NotFoundError,
                           storagedevicemodel.get_storagedevice,
                           device)
         mock_is_dasdeckd_device.assert_called_once_with(device)

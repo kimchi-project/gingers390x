@@ -44,6 +44,7 @@ messages = {
                         "device %(device)s. Error = %(error)s"),
     "GS390XIONW005E": _("Failed to create ifcfg file %(ifcfg_file_path)s for "
                         "network device %(device)s. Error = %(error)s"),
+    "GS390XIONW006E": _("Network device %(device)s not found"),
 
     "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
     "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
@@ -69,6 +70,7 @@ messages = {
     "GS390XSTG00019": _("Failed to enable lunscanning in current zfcp module, %(err)s"),
     "GS390XSTG00021": _("Unable to get sg dev for discovery lun, %(err)s"),
     "GS390XSTG00022": _("Invalid lun path provided"),
+    "GS390XSTG00023": _("Storage device %(device)s not found"),
 
     # These messages (ending with L) are for user log purposes
     "GS390XIOIG0001L": _("Removed I/O devices '%(devices)s' from ignore list"),
