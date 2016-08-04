@@ -364,7 +364,7 @@ gingers390x.ethernetDeleteHandler = function() {
 //on s390x architecture
 gingers390x.loadNetworkDetails = function() {
     var activeTab = $('li.active', $('#tabPanel'));
-    if (activeTab.text() == 'Network') {
+    if (activeTab.text() == i18n['Network']) {
       if ($.inArray("gingers390x", gingers390x.installedPlugin) != -1 && gingers390x.hostarch == 's390x') {
         gingers390x.addNetworkAdapterButton();
         $('#nwConfigGrid').bootgrid().on("selected.rs.jquery.bootgrid", function(e, rows) {

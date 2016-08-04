@@ -734,7 +734,7 @@ gingers390x.selectionContainNonDasdDevices = function() {
 //on s390x architecture
 gingers390x.loadStorageDetails = function() {
     var activeTab = $('li.active', $('#tabPanel'));
-    if (activeTab.text() == 'Storage') {
+    if (activeTab.text() == i18n['Storage']) {
       gingers390x.loadStorageActionButtons();
       gingers390x.loadFcpTapeDevices();
       gingers390x.createSanAdapterAddButton();

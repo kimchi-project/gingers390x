@@ -43,7 +43,7 @@ gingers390x.createBlPanel = function(opts, actionCallBack) {
   var formHtml = ["<form class='form-inline' role='form' id='form-blacklist-remove'>",
     "<div class='form-group'>",
     "<label class='sr-only' for='devices'> " + inputLabel + " </label>",
-    "<input type='text' id='devices' name='devices' placeholder='" + inputPlaceholder + "' class='form-control'>",
+    '<input type="text" id="devices" name="devices" placeholder="' + inputPlaceholder + '" class="form-control">',
     "<button aria-expanded='false' type='submit' class='btn btn-primary' id='button-blacklist-remove' >",
     "<i class='fa fa-minus-circle'></i> " + actionName + " </button>",
     "</div>",
@@ -101,7 +101,9 @@ gingers390x.removeFromBlackList = function(event) {
 
     gingers390x.removeBlacklistDevice(formData, function(result) {
       onTaskAccepted();
-      var successText = result['message'];
+      var deviceRegex = /"(.+)"/;
+      devid = deviceRegex.exec(result['message'])
+      var successText = i18n['GS390XBL008M'].replace("%s", devid[0]);
       wok.message.success(successText, '#alert-bl-modal-container');
       gingers390x.enableBlActionButton();
       $('#devices').val('');
