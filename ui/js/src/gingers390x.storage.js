@@ -578,6 +578,23 @@ gingers390x.loadStorageActionButtons = function() {
           });
         }, function() {});
       }
+    }, {
+      id: 'storage-device-create-partition-btn',
+      class: 'fa fa-plus-circle',
+      label: i18n['GS390XSD011M'],
+      onClick: function(event) {
+        var opts = [];
+        opts['id'] = 'stg-devs';
+        opts['gridId'] = "stgDevGrid";
+        opts['identifier'] = "name";
+        var selectedRows = ginger.getSelectedRowsData(opts);
+        ginger.partition.PartitionDeviceInfo = selectedRows[0];
+        if (selectedRows && selectedRows.length === 1) {
+            wok.window.open('plugins/ginger/host-storage-addpartitions.html');
+        } else {
+            wok.message.error(i18n['GINPT00014M'], '#alert-modal-nw-container', true);
+        }
+      }
     }];
 
     var addListSettings = {
