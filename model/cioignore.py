@@ -88,10 +88,9 @@ def _remove_devices(cb, devices):
     try:
         wok_log.info('Removing devices %s from ignore list' % devices)
         failed_devices = {}
+        devices = [x.encode('utf-8') if isinstance(x, unicode)
+                   else str(x) for x in devices]
         for device in devices:
-            if isinstance(device, unicode):
-                device = device.encode('utf-8')
-            device = str(device)
             if device and not device.isspace():
                 if '-' in device:
                     # if range, remove space if any before or after '-'
