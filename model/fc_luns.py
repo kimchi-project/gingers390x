@@ -21,13 +21,14 @@
 import threading
 import utils
 
+from wok.asynctask import AsyncTask
 from wok.exception import (InvalidOperation,
                            MissingParameter,
                            NotFoundError,
                            OperationFailed
                            )
 from wok.model.tasks import TaskModel
-from wok.utils import add_task, wok_log
+from wok.utils import wok_log
 
 fc_lock = threading.RLock()
 
@@ -67,8 +68,8 @@ class LUNScanModel(object):
         """
         Trigger LUN scanning
         """
-        taskid = add_task('/plugins/gingers390/lunscan/trigger',
-                          utils.trigger_lun_scan, self.objstore, {})
+        taskid = AsyncTask('/plugins/gingers390/lunscan/trigger',
+                           utils.trigger_lun_scan, {}).id
 
         return self.task.lookup(taskid)
 

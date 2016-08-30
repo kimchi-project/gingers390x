@@ -30,38 +30,41 @@ CIO_IGNORE = "cio_ignore"
 IGNORED_DEVICES = 'ignored_devices'
 
 
+class FakeAsyncTaskObj(object):
+    def __init__(self):
+        self.id = 0
+
+
 class PostOperationUnitTests(unittest.TestCase):
     """
     unit tests for post operations in CIOIgnoreModel using mock module
     """
     @mock.patch('model.cioignore.wok_log', autospec=True)
-    @mock.patch('model.cioignore.add_task', autospec=True)
+    @mock.patch('model.cioignore.AsyncTask', autospec=True)
     @mock.patch('model.cioignore.TaskModel', autospec=True)
-    def test_model_remove_listin(self, mock_task_model, mock_add_task,
+    def test_model_remove_listin(self, mock_task_model, mock_AsyncTask,
                                  mock_wok_log):
         """
         unit test to validate remove() action with success scenario
         mock_task_model: mock of wok.model.tasks imported as TaskModel
                         in model.cioignore
-        mock_add_task: mock of model.utils.add_task() imported
-                       in model.cioignore
+        mock_AsyncTask: mock of wok.asynctask.AsyncTask() imported
         mock_wok_log: mock of wok_log of model.cioignore
         """
         device = ['devce1', 'dé']
-        taskid = 1
-        mock_add_task.return_value = taskid
+        mock_AsyncTask.return_value = FakeAsyncTaskObj()
         mock_task_model.lookup.return_value = "test_task"
         cio_model = CIOIgnoreModel(kargs=None)
         cio_model.remove('', device)
-        self.assertTrue(mock_add_task.called,
-                        msg='Expected call to mock_add_task(). Not Called')
+        self.assertTrue(mock_AsyncTask.called,
+                        msg='Expected call to mock_AsyncTask(). Not Called')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 
     @mock.patch('model.cioignore.wok_log', autospec=True)
-    @mock.patch('model.cioignore.add_task', autospec=True)
+    @mock.patch('model.cioignore.AsyncTask', autospec=True)
     @mock.patch('model.cioignore.TaskModel', autospec=True)
-    def test_model_remove_input_notlist(self, mock_task_model, mock_add_task,
+    def test_model_remove_input_notlist(self, mock_task_model, mock_AsyncTask,
                                         mock_wok_log):
         """
         unit test to validate remove() action with input which is not list
@@ -75,13 +78,13 @@ class PostOperationUnitTests(unittest.TestCase):
         """
         device = 'deviceé1'
         taskid = 1
-        mock_add_task.return_value = taskid
+        mock_AsyncTask.return_value = taskid
         mock_task_model.lookup.return_value = "test_task"
         cio_model = CIOIgnoreModel(kargs=None)
         self.assertRaises(exception.InvalidParameter, cio_model.remove,
                           '', device)
-        self.assertFalse(mock_add_task.called,
-                         msg='Unexpected call to mock_add_task()')
+        self.assertFalse(mock_AsyncTask.called,
+                         msg='Unexpected call to mock_AsyncTask()')
         mock_wok_log.error.assert_called_once_with('Input is not of type '
                                                    'list. Input: %s' % device)
 

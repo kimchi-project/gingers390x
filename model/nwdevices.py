@@ -23,10 +23,11 @@ import os
 import re
 
 import model_utils as utils
+from wok.asynctask import AsyncTask
 from wok.exception import InvalidParameter, NotFoundError, OperationFailed
 from wok.model.tasks import TaskModel
 from wok.rollbackcontext import RollbackContext
-from wok.utils import add_task, run_command, wok_log
+from wok.utils import run_command, wok_log
 
 
 ZNETCONF_CMD = "znetconf"
@@ -143,9 +144,8 @@ class NetworkDeviceModel(object):
         if ENCCW in device:
             # filtering out device id from interface
             device = device.replace(ENCCW, '')
-        taskid = add_task('/plugins/gingers390x/nwdevices/%s/configure'
-                          % interface, _configure_interface,
-                          self.objstore, device)
+        taskid = AsyncTask('/plugins/gingers390x/nwdevices/%s/configure'
+                           % interface, _configure_interface, device).id
         return self.task.lookup(taskid)
 
     def unconfigure(self, interface):
@@ -164,9 +164,8 @@ class NetworkDeviceModel(object):
         if ENCCW in device:
             # filtering out device id from interface
             device = device.replace(ENCCW, '')
-        taskid = add_task('/plugins/gingers390x/nwdevices/%s/unconfigure'
-                          % interface, _unconfigure_interface,
-                          self.objstore, device)
+        taskid = AsyncTask('/plugins/gingers390x/nwdevices/%s/unconfigure'
+                           % interface, _unconfigure_interface, device).id
         return self.task.lookup(taskid)
 
 

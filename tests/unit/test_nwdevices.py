@@ -76,6 +76,11 @@ UNCONF_DEVICE_PATTERN = r'(\d\.\d\.[0-9a-fA-F]{4},' \
                         r'(qeth)\s{0,}$'
 
 
+class FakeAsyncTaskObj(object):
+    def __init__(self):
+        self.id = 0
+
+
 class GetListUnitTests(unittest.TestCase):
     """
     unit tests for get_list() method of NetworkDevicesModel()
@@ -354,50 +359,48 @@ class PostOperationsNetworkDeviceModel(unittest.TestCase):
     unit tests for post operations in NetworkDeviceModel() using mock module
     """
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    @mock.patch('model.nwdevices.add_task', autospec=True)
+    @mock.patch('model.nwdevices.AsyncTask', autospec=True)
     @mock.patch('model.nwdevices.TaskModel', autospec=True)
-    def test_model_configure(self, mock_taskmodel, mock_add_task,
+    def test_model_configure(self, mock_taskmodel, mock_AsyncTask,
                              mock_wok_log):
         """
         unit test to validate configure() action with success scenario
         mock_taskmodel: mock of wok.model.tasks imported as TaskModel
                         in model.nwdevices
-        mock_add_task: mock of model.utils.add_task() imported
+        mock_AsyncTask: mock of wok.asynctask.AsyncTask() imported
                        in model.nwdevices
         mock_wok_log: mock of wok_log of model.nwdevices
         """
         interface = 'enccw_interface'
-        taskid = 1
-        mock_add_task.return_value = taskid
+        mock_AsyncTask.return_value = FakeAsyncTaskObj()
         mock_taskmodel.lookup.return_value = "test_task"
         nwm = NetworkDeviceModel(kargs=None)
         nwm.configure(interface)
-        self.assertTrue(mock_add_task.called,
-                        msg='Expected call to mock_add_task(). Not Called')
+        self.assertTrue(mock_AsyncTask.called,
+                        msg='Expected call to mock_AsyncTask(). Not Called')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    @mock.patch('model.nwdevices.add_task', autospec=True)
+    @mock.patch('model.nwdevices.AsyncTask', autospec=True)
     @mock.patch('model.nwdevices.TaskModel', autospec=True)
-    def test_model_unconfigure(self, mock_taskmodel, mock_add_task,
+    def test_model_unconfigure(self, mock_taskmodel, mock_AsyncTask,
                                mock_wok_log):
         """
         unit test to validate unconfigure() action with success scenario
         mock_taskmodel: mock of wok.model.tasks imported as TaskModel
                         in model.nwdevices
-        mock_add_task: mock of model.utils.add_task() imported
+        mock_AsyncTask: mock of wok.asynctask.AsyncTask() imported
                        in model.nwdevices
         mock_wok_log: mock of wok_log of model.nwdevices
         """
         interface = 'enccw_interface'
-        taskid = 1
-        mock_add_task.return_value = taskid
+        mock_AsyncTask.return_value = FakeAsyncTaskObj()
         mock_taskmodel.lookup.return_value = "test_task"
         nwm = NetworkDeviceModel(kargs=None)
         nwm.unconfigure(interface)
-        self.assertTrue(mock_add_task.called,
-                        msg='Expected call to mock_add_task(). Not Called')
+        self.assertTrue(mock_AsyncTask.called,
+                        msg='Expected call to mock_AsyncTask(). Not Called')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 

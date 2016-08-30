@@ -18,9 +18,10 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+from wok.asynctask import AsyncTask
 from wok.exception import InvalidParameter, OperationFailed
 from wok.model.tasks import TaskModel
-from wok.utils import add_task, run_command, wok_log
+from wok.utils import run_command, wok_log
 
 CIO_IGNORE = "cio_ignore"
 IGNORED_DEVICES = 'ignored_devices'
@@ -67,8 +68,8 @@ class CIOIgnoreModel(object):
                                                                 ' list'})
         wok_log.info('Create task for removing devices \"% s\" from ignore'
                      'list' % devices)
-        taskid = add_task('/plugins/gingers390x/cioignore/remove',
-                          _remove_devices, self.objstore, devices)
+        taskid = AsyncTask('/plugins/gingers390x/cioignore/remove',
+                           _remove_devices, devices).id
         return self.task.lookup(taskid)
 
 
