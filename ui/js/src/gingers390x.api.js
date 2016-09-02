@@ -150,7 +150,7 @@ var gingers390x = {
   },
 listFCPluns: function(suc, err) {
     wok.requestJSON({
-      url: 'plugins/gingers390x/fcluns?type="disk"&configured="false"',
+      url: 'plugins/gingers390x/fcluns?type=disk&configured=false',
       type: 'GET',
       contentType: 'application/json',
       dataType: 'json',
