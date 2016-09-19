@@ -676,60 +676,30 @@ gingers390x.initFcpTapeGridData = function() {
     });
 };
 gingers390x.createSanAdapterAddButton = function() {
-    var actionButtonHtml = '<div class="btn-group">' +
-      '<button class="btn btn-primary" id="add-san-button" aria-expanded="false"><i class="fa fa-plus-circle"></i>' + i18n['GINTITLE0020M'] + '</button>' +
-      '</div>';
-    $(actionButtonHtml).appendTo('#san-adapter-add');
+    $("#refresh-san-button").removeClass("pull-left");
+    var sanAdapterAddButton = '<button class="btn btn-primary" id="add-san-button" aria-expanded="false"><i class="fa fa-plus-circle">&nbsp;</i>' + i18n['GINTITLE0020M'] + '</button>' ;
+    $(".buttons","#san-adapter-content-area").append(sanAdapterAddButton);
+    $("#add-san-button").addClass("pull-left").css('margin-right','5px');
 
     $('#add-san-button').off();
     $('#add-san-button').on('click', function() {
       wok.window.open('plugins/gingers390x/fcpsanadapter.html');
     });
-}
+
+    $('#refresh-san-button').off();
+    $('#refresh-san-button').on('click', function() {
+      $("#adapters-table tbody").html("");
+      $('#adapters-table').DataTable().destroy();
+      ginger.initSanAdaterGridData();
+      setTimeout(gingers390x.createSanAdapterAddButton,500);
+    });
+};
 gingers390x.updateSANAdapterDetails = function() {
-    $('#san-adapter-list').empty();
-    var gridFields = [];
-    var opts = [];
-    opts['containerId'] = 'san-adapter-list';
-    opts['gridId'] = "SanAdaptersGrid";
-
-    gridFields = [{
-      "column-id": 'name',
-      "type": 'string',
-      "identifier": true,
-      "width": "5%",
-      "title": i18n['GINTITLE0001M']
-    }, {
-      "column-id": 'wwpn',
-      "type": 'string',
-      "width": "18%",
-      "title": i18n['GINTITLE0007M']
-    }, {
-      "column-id": 'wwnn',
-      "type": 'string',
-      "width": "18%",
-      "title": i18n['GINTITLE0008M']
-    }, {
-      "column-id": 'state',
-      "type": 'string',
-      "width": "8%",
-      "title": i18n['GINTITLE0009M']
-    }, {
-      "column-id": 'speed',
-      "type": 'string',
-      "width": "8%",
-      "title": i18n['GINTITLE0011M']
-    }, {
-      "column-id": 'symbolic_name',
-      "type": 'string',
-      "width": "38%",
-      "title": i18n['GINTITLE0012M']
-    }];
-
-    opts['headers'] = JSON.stringify(gridFields);
-    gingers390x.initHeader(opts);
-    gingers390x.initBootgrid(opts);
+    //reloading sanadapter datatable.
+    $('#adapters-table tbody').html('');
+    $('#adapters-table').DataTable().destroy();
     ginger.initSanAdaterGridData();
+    setTimeout(gingers390x.createSanAdapterAddButton,500);
 };
 gingers390x.selectionContainNonDasdDevices = function() {
     var opts = [];
@@ -754,8 +724,7 @@ gingers390x.loadStorageDetails = function() {
     if (activeTab.text() == i18n['Storage']) {
       gingers390x.loadStorageActionButtons();
       gingers390x.loadFcpTapeDevices();
-      gingers390x.createSanAdapterAddButton();
-      setTimeout(gingers390x.updateSANAdapterDetails, 3000);
+      setTimeout(gingers390x.updateSANAdapterDetails,1000);
     }
 }
 

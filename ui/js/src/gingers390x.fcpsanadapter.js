@@ -100,7 +100,6 @@ gingers390x.initFcpSanAdapterBootGridData = function(opts) {
     stringify_result = JSON.parse(stringify_result);
 
     gingers390x.loadBootgridData(opts, stringify_result);
-
     if (stringify_result && stringify_result.length > 0) {
       gingers390x.fcpsanadapter.enableActionButton();
     } else {
@@ -180,8 +179,11 @@ gingers390x.enableFcpSanAdapter = function(opts) {
 
 //Function triggers when all devices enable is completed and refresh the parent page
 gingers390x.enableFcpSanAdapterCompleted = function(opts) {
-	gingers390x.initFcpSanAdapterBootGridData(opts);
+  gingers390x.initFcpSanAdapterBootGridData(opts);
+    $("#adapters-table tbody").html("");
+    $('#adapters-table').DataTable().destroy();
     ginger.initSanAdaterGridData();
+    setTimeout(gingers390x.createSanAdapterAddButton,500);
 }
 
 
