@@ -485,7 +485,7 @@ gingers390x.loadStorageActionButtons = function() {
       onClick: function(event) {
         var opts = [];
         opts['gridId'] = "stgDevGrid";
-        opts['identifier'] = "id";
+        opts['identifier'] = "name";
         var settings = {
           content: i18n['GINSD00001'],
           confirm: i18n['GGBAPI6002M'],
