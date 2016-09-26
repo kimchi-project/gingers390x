@@ -166,7 +166,14 @@ gingers390x.enableNetworks = function(opts) {
 //Function triggers when all devices enable is completed and refresh the parent page
 gingers390x.enableNetworksCompleted = function(opts) {
 	gingers390x.initNetworkBootGridData(opts);
-    ginger.initNetworkConfigGridData();
+    ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
+    setTimeout(function(){
+      gingers390x.networkRefreshHandler();
+    },3000);
+    $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
+      if(!($('#nw-add-adapter-button',$(this)).length))
+        gingers390x.addNetworkAdapterButton();
+    });
 }
 
 gingers390x.finishAction = function(opts) {
@@ -221,11 +228,13 @@ gingers390x.addNetworkAdapterButton = function() {
       i18n['GINNET0008M'],
       '</a></li>'
     ].join('');
-    var btnNode = $(btnHTML).appendTo($('.dropdown-menu', $('#nw-configuration-add')));
+    var btnNode = $(btnHTML).appendTo($('.dropdown-menu', $('.nw-configuration-add')));
+    $('button', $('.nw-configuration-add')).css('width','152px');
+
     $('#nw-add-adapter-button').on('click', function() {
       wok.window.open('plugins/gingers390x/network.html');
     });
-    $('#nw-configuration-add').show();
+    $('.nw-configuration-add').show();
 }
 
 gingers390x.removeEthernetInterface = function() {
@@ -359,14 +368,35 @@ gingers390x.ethernetDeleteHandler = function() {
       }
     });
 };
-
+gingers390x.networkRefreshHandler =  function(){
+  $('#nw-config-refresh-btn').off();
+  $('#nw-config-refresh-btn').on('click',function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
+      setTimeout(function(){
+        gingers390x.networkRefreshHandler();
+      },4000);
+      $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
+          if(!($('#nw-add-adapter-button',$(this)).length))
+           gingers390x.addNetworkAdapterButton();
+      });
+  });
+};
 //loading network functionality for Gingers390x plugins
 //on s390x architecture
 gingers390x.loadNetworkDetails = function() {
     var activeTab = $('li.active', $('#tabPanel'));
     if (activeTab.text() == i18n['Network']) {
       if ($.inArray("gingers390x", gingers390x.installedPlugin) != -1 && gingers390x.hostarch == 's390x') {
-        gingers390x.addNetworkAdapterButton();
+        //Adding SAN Adapter add button
+        $('.nw-configuration-add').on('shown.bs.dropdown',function(){
+            if(!($('#nw-add-adapter-button',$(this)).length))
+             gingers390x.addNetworkAdapterButton();
+        });
+        // Refresh Button
+        gingers390x.networkRefreshHandler();
+
         $('#nwConfigGrid').bootgrid().on("selected.rs.jquery.bootgrid", function(e, rows) {
           gingers390x.changeActionButtonsState();
         }).on("deselected.rs.jquery.bootgrid", function(e, rows) {
@@ -384,6 +414,6 @@ ginger.getHostDetails(function(result) {
     gingers390x.hostarch = result["architecture"];
     ginger.getPlugins(function(result) {
       gingers390x.installedPlugin = result;
-      setTimeout(gingers390x.loadNetworkDetails,4000);
+      setTimeout(gingers390x.loadNetworkDetails,1200);
     });
 });
