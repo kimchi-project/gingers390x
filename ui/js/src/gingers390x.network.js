@@ -167,8 +167,10 @@ gingers390x.enableNetworks = function(opts) {
 gingers390x.enableNetworksCompleted = function(opts) {
 	gingers390x.initNetworkBootGridData(opts);
     ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
+    ginger.listNetworkConfig.rows_indexes = new Array();
     setTimeout(function(){
       gingers390x.networkRefreshHandler();
+      gingers390x.networkConfigRowSelection();
     },3000);
     $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
       if(!($('#nw-add-adapter-button',$(this)).length))
@@ -248,10 +250,10 @@ gingers390x.removeEthernetInterface = function() {
           };
           // get confirmation from user
           wok.confirm(settings, function() {
+            var trackDeletedDevices = gingers390x.selectedNWrows;
             // remove ethernet device if user confirms
             $.each(gingers390x.selectedNWInterface, function(key, value) {
-            if ((value.type).toLowerCase() == 'nic') {
-            ginger.showBootgridLoading(ginger.opts_nw_if);
+            if ((value[3]).toLowerCase() == 'nic') {
             var taskAccepted = false;
             var onTaskAccepted = function() {
               if (taskAccepted) {
@@ -259,19 +261,31 @@ gingers390x.removeEthernetInterface = function() {
               }
               taskAccepted = true;
             };
-            gingers390x.deleteEthernetInterface(value.device, function(result) {
+            var index = gingers390x.selectedNWrows.indexOf(value[2]);
+            trackDeletedDevices.splice(index,1);
+
+            gingers390x.deleteEthernetInterface(value[2], function(result) {
               onTaskAccepted();
-              var message = i18n['GINNET0019M'] + " " + value.device.toString() + " " + i18n['GINNET0020M'];
-              wok.message.success(message, '#message-nw-container-area');
-              //Re-load the network interfaces after delete action
-              ginger.initNetworkConfigGridData();
+              var message = i18n['GINNET0019M'] + " " + value[2].toString() + " " + i18n['GINNET0020M'];
+              wok.message.success(message, '#message-network-configuration-container-area');
+
+              if (key == (gingers390x.selectedNWInterface.length-1) && trackDeletedDevices.length == 0){
+                  ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
+                  ginger.listNetworkConfig.rows_indexes = new Array();
+                  setTimeout(function(){
+                    gingers390x.networkRefreshHandler();
+                    gingers390x.networkConfigRowSelection();
+                  },3000);
+                  $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
+                    if(!($('#nw-add-adapter-button',$(this)).length))
+                      gingers390x.addNetworkAdapterButton();
+                  });
+                }
             }, function(error) {
-              ginger.hideBootgridLoading(ginger.opts_nw_if);
-              var message = i18n['GINNET0019M'] + " " + value.device.toString() + " " + i18n['GINNET0021M'];
-              wok.message.error(message + " " + error.responseJSON.reason, '#message-nw-container-area', true);
+              var message = i18n['GINNET0019M'] + " " + value[2].toString() + " " + i18n['GINNET0021M'];
+              wok.message.error(message + " " + error.responseJSON.reason, '#message-network-configuration-container-area', true);
           }, onTaskAccepted);
-        } else if ((value.type).toLowerCase() != 'nic' && gingers390x.selectedNWtype == 1) {
-          ginger.showBootgridLoading(ginger.opts_nw_if);
+        } else if ((value[3]).toLowerCase() != 'nic') {
           var taskAccepted = false;
           var onTaskAccepted = function() {
               if (taskAccepted) {
@@ -279,21 +293,33 @@ gingers390x.removeEthernetInterface = function() {
               }
               taskAccepted = true;
           };
-          ginger.deleteInterface(value.device, function(result) {
+          var index = gingers390x.selectedNWrows.indexOf(value[2]);
+          trackDeletedDevices.splice(index,1);
+          ginger.deleteInterface(value[2], function(result) {
               onTaskAccepted();
-              var message = i18n['GINNET0019M'] + " " + value.device.toString() + " " + i18n['GINNET0020M'];
-              wok.message.success(message, '#message-nw-container-area');
-              //Re-load the network interfaces
-              ginger.initNetworkConfigGridData();
+              var message = i18n['GINNET0019M'] + " " + value[2].toString() + " " + i18n['GINNET0020M'];
+              wok.message.success(message, '#message-network-configuration-container-area');
+
+              if (key == (gingers390x.selectedNWInterface.length-1) && trackDeletedDevices.length == 0){
+                  ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
+                  ginger.listNetworkConfig.rows_indexes = new Array();
+                  setTimeout(function(){
+                    gingers390x.networkRefreshHandler();
+                    gingers390x.networkConfigRowSelection();
+                  },3000);
+                  $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
+                    if(!($('#nw-add-adapter-button',$(this)).length))
+                      gingers390x.addNetworkAdapterButton();
+                  });
+                }
               }, function(error) {
-                   ginger.hideBootgridLoading(ginger.opts_nw_if);
-                   var message = i18n['GINNET0019M'] + " " + value.device.toString() + " " + i18n['GINNET0021M'];
-                   wok.message.error(message + " " + error.responseJSON.reason, '#message-nw-container-area', true);
+                   var message = i18n['GINNET0019M'] + " " + value[2].toString() + " " + i18n['GINNET0021M'];
+                   wok.message.error(message + " " + error.responseJSON.reason, '#message-network-configuration-container-area', true);
                 }, onTaskAccepted);
              }
            });
           }, function() {
-            ginger.hideBootgridLoading(ginger.opts_nw_if);
+            //ginger.hideBootgridLoading(ginger.opts_nw_if);
           });
 
         } else {
@@ -307,7 +333,7 @@ gingers390x.removeEthernetInterface = function() {
       }, function(error) {
         // display error message asking user to try delete again since it
         // failed check gingers390x plugin
-        wok.message.error(i18n['GS390XNW0011E'], '#message-nw-container-area', true);
+        wok.message.error(i18n['GS390XNW0011E'], '#message-network-configuration-container-area', true);
       });
     } else {
       // if not s390x architecture, display error message that deletion of ethernet
@@ -341,31 +367,33 @@ gingers390x.changeActionButtonsState = function() {
 };
 
 gingers390x.ethernetDeleteHandler = function() {
-    $('#nw-delete-button').on('click', function() {
-      var opts_nw_if = {};
-      opts_nw_if['id'] = 'nw-configuration';
-      opts_nw_if['gridId'] = "nwConfigGrid";
-      opts_nw_if['identifier'] = "device";
+    $('#network-configuration-content-area').off('click','.nw-delete');
+    $('#network-configuration-content-area').on('click','.nw-delete',function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $('#network-configuration-content-area > .wok-mask').removeClass('hidden');
       gingers390x.selectedNWrows = [];
       gingers390x.selectedNWtype = 0;
       gingers390x.selectedNWInterface = [];
-      var selectedRows = ginger.getSelectedRowsData(opts_nw_if);
+      var selectedRows = ginger.listNetworkConfig.rows_indexes;
+      var networkConfigTable =  $('#network-configuration').DataTable();
+      var selectedRows = ginger.listNetworkConfig.rows_indexes;
+
       if (selectedRows && (selectedRows.length == 1)) {
-        if ((selectedRows[0]["type"]).toLowerCase() == 'nic') {
-          gingers390x.selectedNWInterface.push(selectedRows[0]);
-          gingers390x.selectedNWrows = selectedRows[0]["device"];
-          gingers390x.removeEthernetInterface();
+        var selectedRowDetails  = networkConfigTable.row(selectedRows[0]).data();
+        var networkType = selectedRowDetails[3];
+        if (networkType.toLowerCase() == 'nic') {
+          gingers390x.selectedNWInterface.push(selectedRowDetails);
+          gingers390x.selectedNWrows.push(selectedRowDetails[2]);
         }
       } else if (selectedRows && (selectedRows.length > 1)) {
           for (var i = 0; i < selectedRows.length; i++) {
-              gingers390x.selectedNWInterface.push(selectedRows[i]);
-              if ((selectedRows[i]["type"]).toLowerCase() != 'nic') {
-                  gingers390x.selectedNWtype = 1;
-              }
-              gingers390x.selectedNWrows.push(selectedRows[i].device + '\n');
+              var selectedRowDetails  = networkConfigTable.row(selectedRows[i]).data();
+              gingers390x.selectedNWInterface.push(selectedRowDetails);
+              gingers390x.selectedNWrows.push(selectedRowDetails[2]);
           }
-          gingers390x.removeEthernetInterface();
       }
+      gingers390x.removeEthernetInterface();
     });
 };
 gingers390x.networkRefreshHandler =  function(){
@@ -374,9 +402,12 @@ gingers390x.networkRefreshHandler =  function(){
       e.preventDefault();
       e.stopPropagation();
       ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
+      ginger.listNetworkConfig.rows_indexes = new Array();
       setTimeout(function(){
         gingers390x.networkRefreshHandler();
-      },4000);
+        gingers390x.networkConfigRowSelection();
+      },2000);
+
       $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
           if(!($('#nw-add-adapter-button',$(this)).length))
            gingers390x.addNetworkAdapterButton();
@@ -394,26 +425,54 @@ gingers390x.loadNetworkDetails = function() {
             if(!($('#nw-add-adapter-button',$(this)).length))
              gingers390x.addNetworkAdapterButton();
         });
-        // Refresh Button
+        // Refresh Button handler
         gingers390x.networkRefreshHandler();
 
-        $('#nwConfigGrid').bootgrid().on("selected.rs.jquery.bootgrid", function(e, rows) {
-          gingers390x.changeActionButtonsState();
-        }).on("deselected.rs.jquery.bootgrid", function(e, rows) {
-          gingers390x.changeActionButtonsState();
-        }).on("loaded.rs.jquery.bootgrid", function(e, rows) {
-          gingers390x.changeActionButtonsState();
-        });
+        //Network Config datatable selection handler
+        gingers390x.networkConfigRowSelection();
+
+        //ethernet deletion handler
         gingers390x.ethernetDeleteHandler();
 
       }
     }
+};
+gingers390x.networkConfigRowSelection = function(){
+  $('#network-configuration tbody').on('click', 'input[type="checkbox"]', function(e) {
+    ginger.nwConfiguration.enableDelete();
+    var rows_indexes = ginger.listNetworkConfig.rows_indexes;
+
+    var $row = $(this).closest('tr');
+
+    // Get row ID
+    var rowId = $('#network-configuration').DataTable().row($row).index();
+
+    // Determine whether row ID is in the list of selected row IDs
+    var index = $.inArray(rowId, rows_indexes);
+
+    // If checkbox is checked and row ID is not in list of selected row IDs
+    if (this.checked && index === -1) {
+        rows_indexes.push(rowId);
+
+        // Otherwise, if checkbox is not checked and row ID is in list of selected row IDs
+    } else if (!this.checked && index !== -1) {
+        rows_indexes.splice(index, 1);
+    }
+
+    if (this.checked) {
+        $row.addClass('active');
+    } else {
+        $row.removeClass('active');
+    }
+    ginger.listNetworkConfig.rows_indexes = rows_indexes;
+    e.stopPropagation();
+  });
 };
 
 ginger.getHostDetails(function(result) {
     gingers390x.hostarch = result["architecture"];
     ginger.getPlugins(function(result) {
       gingers390x.installedPlugin = result;
-      setTimeout(gingers390x.loadNetworkDetails,1200);
+      setTimeout(gingers390x.loadNetworkDetails,2000);
     });
 });
