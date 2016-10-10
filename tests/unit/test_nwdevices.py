@@ -1267,8 +1267,9 @@ class FormatZnetconfUnitTests(unittest.TestCase):
         formated_devices = _format_znetconf(device)
         self.assertEqual(formated_devices, {})
 
+    @mock.patch('model.nwdevices._get_osaport', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    def test_format_znetconf_keyerror(self, mock_wok_log):
+    def test_format_znetconf_keyerror(self, mock_wok_log, mock_get_osaport):
         """
         unit test to validate _format_znetconf() when input dictionary
         doesn't have required keys
@@ -1281,7 +1282,8 @@ class FormatZnetconfUnitTests(unittest.TestCase):
         self.assertRaises(KeyError, _format_znetconf, device)
         mock_wok_log.error.assert_called_with(log_msg)
 
-    def test_format_with_state_name(self):
+    @mock.patch('model.nwdevices._get_osaport', autospec=True)
+    def test_format_with_state_name(self, mock_get_osaport):
         """
         unit test to validate _format_znetconf() having all keys
         should return formatted output
@@ -1299,12 +1301,16 @@ class FormatZnetconfUnitTests(unittest.TestCase):
                         'chpid': 'dummy_chipid',
                         'driver': 'dummy_driver',
                         'type': 'dummy_type',
-                        'state': 'dummy_state'}
-
+                        'state': 'dummy_state',
+                        'osa_portno': 1}
+        mock_get_osaport.return_value = 1
         actual_out = _format_znetconf(device)
         self.assertEqual(actual_out, expected_out)
+        self.assertTrue(mock_get_osaport.called, msg='Expected call to '
+                        'mock_wok_log.info(). Not called')
 
-    def test_format_without_state_name(self):
+    @mock.patch('model.nwdevices._get_osaport', autospec=True)
+    def test_format_without_state_name(self, mock_get_osaport):
         """
         unit test to validate _format_znetconf() having all
         keys except ZNETCONF_DEV_NAME and ZNETCONF_STATE
@@ -1322,10 +1328,13 @@ class FormatZnetconfUnitTests(unittest.TestCase):
                         'chpid': 'dummy_chipid',
                         'driver': 'dummy_driver',
                         'type': 'dummy_type',
-                        'state': 'Unconfigured'}
+                        'state': 'Unconfigured',
+                        'osa_portno': 'n/a'}
 
         actual_out = _format_znetconf(device)
         self.assertEqual(actual_out, expected_out)
+        self.assertFalse(mock_get_osaport.called, msg='Unxpected call to '
+                         'mock_get_osaport')
 
 
 class ValidateDeviceUnitTests(unittest.TestCase):

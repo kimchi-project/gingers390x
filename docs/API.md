@@ -148,6 +148,7 @@ Contains information about black listed i/o devices.
     * type:  Device type and model of the interface.
     * card_tpe: Specifies type of the network adapter
     * chpid: CHPID of the interface
+    * osa_portno: OSA port used by the OSA Express Network card
 
 * **POST**: *See Network I/O device Actions*
 

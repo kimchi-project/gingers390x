@@ -63,6 +63,8 @@ CONF_HDR_PATTERN = r'('+re.escape(ZNETCONF_DEV_IDS) + r')\s+' \
                    r'('+re.escape(ZNETCONF_DEV_NAME) + r')\s+' \
                    r'('+re.escape(ZNETCONF_STATE) + r')\s+$'
 
+SYSFS_TRIPLET_PATH = '/sys/bus/ccwgroup/drivers/qeth/'
+
 
 class NetworkDevicesModel(object):
     def __init__(self, **kargs):
@@ -274,6 +276,7 @@ def _format_znetconf(device):
              ZNETCONF_CHPID - "chpid", ZNETCONF_DRV - "driver",
              ZNETCONF_TYPE - "type", ZNETCONF_DEV_NAME - "name",
              ZNETCONF_CHPID - "chipid"
+             osa_portno: OSA port used by the OSA express network card
              ZNETCONF_STATE if not present then its set as Un-configured.
              As for configured device, state can be both Online and Offline
              And for un configured, state is not returned in znetconf -u
@@ -291,6 +294,11 @@ def _format_znetconf(device):
             device['driver'] = device.pop(ZNETCONF_DRV)
             device['type'] = device.pop(ZNETCONF_TYPE)
             device['name'] = device.pop(ZNETCONF_DEV_NAME, device_ids[0])
+            if device['state'] == 'Unconfigured':
+                # for un-configured device portno is not applicable
+                device['osa_portno'] = 'n/a'
+            else:
+                device['osa_portno'] = _get_osaport(device_ids[0])
         except KeyError as e:
             wok_log.error('Issue while formatting znetconf dictionary output')
             raise e
@@ -559,3 +567,26 @@ def _is_interface_online(interface):
                 online_file.close()
     wok_log.info('network device %s is not configured' % interface)
     return False
+
+
+def _get_osaport(device_id):
+    """
+    method to get port number of triplet configured
+
+    Args:
+        device_id: first bus id of the triplet
+
+    Returns: osa port used by OSA Express card
+
+    """
+    device_id = device_id.strip() if ENCCW not in device_id else \
+        device_id.strip(ENCCW).strip()
+    portno_file = os.path.join(SYSFS_TRIPLET_PATH + device_id + '/portno')
+    if os.path.isfile(portno_file):
+        try:
+            with open(portno_file, 'r') as port_file:
+                return int(port_file.read().strip())
+        except Exception as e:
+            wok_log.error('Failed to read osa port number for devie "%s". '
+                          'Error: "%s"' % (device_id, e.message))
+    return 'n/a'
