@@ -375,7 +375,7 @@ class PostOperationsNetworkDeviceModel(unittest.TestCase):
         mock_AsyncTask.return_value = FakeAsyncTaskObj()
         mock_taskmodel.lookup.return_value = "test_task"
         nwm = NetworkDeviceModel(kargs=None)
-        nwm.configure(interface)
+        nwm.configure(interface, 0)  # dummy osa port
         self.assertTrue(mock_AsyncTask.called,
                         msg='Expected call to mock_AsyncTask(). Not Called')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
@@ -448,6 +448,27 @@ class BringOnlineUnitTests(unittest.TestCase):
                                               ' device %s. Error: dummy '
                                               'error' % device)
 
+    @mock.patch('model.nwdevices.wok_log', autospec=True)
+    @mock.patch('model.nwdevices.run_command', autospec=True)
+    def test_bring_online_with_port(self, mock_run_command, mock_wok_log):
+        """
+        unit test to validate _bring_online(), success
+        scenario(run_command return code is 0)
+        mock_run_command: mock of wok.utils.run_command
+                         imported in model.nwdevices
+        mock_wok_log: mock of wok_log in model.nwdevices
+        on success _bring_online() method doesn't return anything
+        """
+        mock_run_command.return_value = ["", "", 0]
+        device = "dummy_device"
+        osa_portno = 0
+        command = ['znetconf', '-a', device, '-o', 'portno=%s' % osa_portno]
+        port = _bring_online(device, osa_portno)
+        self.assertEqual(port, osa_portno)
+        mock_run_command.assert_called_once_with(command)
+        self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
+                        'mock_wok_log.info(). Not called')
+
 
 class BringOfflineUnitTests(unittest.TestCase):
     """
@@ -517,11 +538,12 @@ class PersistInterfaceUnitTests(unittest.TestCase):
                             _create_ifcfg_file() method
         """
         device = 'dummy_device'
+        osa_portno = 0
         ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', device)
         mock_os.path.isfile.return_value = True
-        _persist_interface(device)
+        _persist_interface(device, osa_portno)
         mock_os.path.isfile.assert_called_once_with(ifcfg_file_path)
-        mock_write_ifcfg_params.assert_called_once_with(device)
+        mock_write_ifcfg_params.assert_called_once_with(device, osa_portno)
         self.assertFalse(mock_create_ifcfg_file.called, msg='Unexpected '
                          'call to mock_create_ifcfg_file()')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
@@ -547,11 +569,12 @@ class PersistInterfaceUnitTests(unittest.TestCase):
                             _create_ifcfg_file() method
         """
         device = 'dummy_device'
+        osa_portno = 0
         ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', device)
         mock_os.path.isfile.return_value = False
-        _persist_interface(device)
+        _persist_interface(device, osa_portno)
         mock_os.path.isfile.assert_called_once_with(ifcfg_file_path)
-        mock_write_ifcfg_params.assert_called_once_with(device)
+        mock_write_ifcfg_params.assert_called_once_with(device, osa_portno)
         mock_create_ifcfg_file.assert_called_once_with(device)
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
@@ -629,11 +652,12 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
     """
     unit tests for _write_ifcfg_params() method using  mock module
     """
+    @mock.patch('model.nwdevices._form_cfg_options_attr', autospec=True)
     @mock.patch('model.nwdevices._get_configured_devices', autospec=True)
     @mock.patch('model.nwdevices.augeas', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
     def test_wirte_success(self, mock_wok_log, mock_augeas,
-                           mock_get_configured_devices):
+                           mock_get_configured_devices, mock_form_cfg_options):
         """
         unit test to validate _write_ifcfg_params() method success scenario
         (ie., augeas will not throw any exception)
@@ -645,33 +669,39 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
                             return anything
         """
         device = '0.0.0101'
+        osa_portno = 0
         device_name = 'enccw' + device
         ifcfg_file_pattern = ifcfg_path.replace('<deviceid>', device) + '/'
         mock_get_configured_devices.return_value = \
             {device_name: {'name': device_name, 'device_ids': ['dummy_ids']}}
         # returning attributes which are used by _write_ifcfg_params()
 
-        _write_ifcfg_params(device)
+        mock_form_cfg_options.return_value = 'dummy_opts'
+
+        _write_ifcfg_params(device, osa_portno)
         parser_mock = mock_augeas.Augeas('/')
         calls = [(ifcfg_file_pattern + 'DEVICE', device_name,),
                  (ifcfg_file_pattern + 'TYPE', 'Ethernet',),
                  (ifcfg_file_pattern + 'ONBOOT', 'yes',),
                  (ifcfg_file_pattern + 'NETTYPE', 'qeth',),
-                 (ifcfg_file_pattern + 'SUBCHANNELS', 'dummy_ids',)]
-        for i in range(0, 4):
+                 (ifcfg_file_pattern + 'SUBCHANNELS', 'dummy_ids',),
+                 (ifcfg_file_pattern + 'OPTIONS', 'dummy_opts',)]
+        for i in range(0, 5):
             x, y = parser_mock.set.call_args_list[i]
             assert x == calls[i]
-        assert parser_mock.set.call_count == 5
+        assert parser_mock.set.call_count == 6
         parser_mock.load.assert_called_once_with()
         parser_mock.save.assert_called_once_with()
+        parser_mock.get.assert_called_once_with(ifcfg_file_pattern + 'OPTIONS')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 
     @mock.patch('model.nwdevices._get_configured_devices', autospec=True)
     @mock.patch('model.nwdevices.augeas', autospec=True)
+    @mock.patch('model.nwdevices._form_cfg_options_attr', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    def test_wirte_exception(self, mock_wok_log, mock_augeas,
-                             mock_get_configured_devices):
+    def test_wirte_exception(self, mock_wok_log, mock_form_cfg_options,
+                             mock_augeas, mock_get_configured_devices):
         """
         unit test to validate _write_ifcfg_params() method when augeas
         raises exception
@@ -683,6 +713,7 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
                             OperationFailed exception
         """
         device = '0.0.0101'
+        osa_portno = 0
         device_name = 'enccw' + device
         mock_get_configured_devices.return_value = \
             {device_name: {'name': device_name, 'device_ids': ['dummy_ids']}}
@@ -691,12 +722,16 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
         parser_mock.load.side_effect = Exception('dummy_error')
 
         self.assertRaises(exception.OperationFailed,
-                          _write_ifcfg_params, device)
+                          _write_ifcfg_params, device, osa_portno)
         parser_mock.load.assert_called_once_with()
         self.assertFalse(parser_mock.set.called, msg='Unexpected call to '
                                                      'parser_mock.set()')
         self.assertFalse(parser_mock.save.called, msg='Unexpected call to '
                                                       'parser_mock.save()')
+        self.assertFalse(parser_mock.get.called, msg='Unexpected call to '
+                                                     'parser_mock.get()')
+        self.assertFalse(mock_form_cfg_options.called,
+                         msg='Unexpected call to mock_form_cfg_options()')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
         mock_wok_log.error.assert_called_once_with('Failed to write device '
@@ -706,9 +741,10 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
 
     @mock.patch('model.nwdevices._get_configured_devices', autospec=True)
     @mock.patch('model.nwdevices.augeas', autospec=True)
+    @mock.patch('model.nwdevices._form_cfg_options_attr', autospec=True)
     @mock.patch('model.nwdevices.wok_log', autospec=True)
-    def test_wirte_keyerror(self, mock_wok_log, mock_augeas,
-                            mock_get_configured_devices):
+    def test_wirte_keyerror(self, mock_wok_log, mock_form_cfg_options,
+                            mock_augeas, mock_get_configured_devices):
         """
         unit test to validate _write_ifcfg_params() method when key error
         is raised with dictionary mapping with _get_configured_devices
@@ -720,16 +756,21 @@ class WriteIfcfgParamsUnitTests(unittest.TestCase):
                             KeyError exception
         """
         device = '0.0.0101'
+        osa_portno = 0
         parser_mock = mock_augeas.Augeas('/')
         mock_get_configured_devices.return_value = {'dummy': 'dict'}
 
-        self.assertRaises(KeyError, _write_ifcfg_params, device)
+        self.assertRaises(KeyError, _write_ifcfg_params, device, osa_portno)
         self.assertFalse(parser_mock.load.called, msg='Unexpected call to '
                                                       'parser_mock.load()')
         self.assertFalse(parser_mock.set.called, msg='Unexpected call to '
                                                      'parser_mock.set()')
         self.assertFalse(parser_mock.save.called, msg='Unexpected call to '
                                                       'parser_mock.save()')
+        self.assertFalse(parser_mock.get.called, msg='Unexpected call to '
+                                                     'parser_mock.get()')
+        self.assertFalse(mock_form_cfg_options.called,
+                         msg='Unexpected call to mock_form_cfg_options()')
         self.assertTrue(mock_wok_log.info.called, msg='Expected call to '
                         'mock_wok_log.info(). Not called')
 
@@ -936,16 +977,20 @@ class ConfigureInterfaceUnitTests(unittest.TestCase):
                                RollbackContext in model.nwdevices
         """
         interface = 'test_interface'
+        osa_portno = 'dummy_port'
+        params = {'osa_portno': osa_portno,
+                  'interface': interface}
 
         def cb(msg, status=None):
             pass
 
         mock_is_interface_online.return_value = False
-        _configure_interface(cb, interface)
+        mock_bring_online.return_value = osa_portno
+        _configure_interface(cb, params)
         mock_is_interface_online.assert_called_once_with(interface)
-        mock_bring_online.assert_called_once_with(interface)
+        mock_bring_online.assert_called_once_with(interface, osa_portno)
         mock_create_ifcfg_file.assert_called_once_with(interface)
-        mock_persist_interface.assert_called_once_with(interface)
+        mock_persist_interface.assert_called_once_with(interface, osa_portno)
 
     @mock.patch('model.nwdevices.RollbackContext', autospec=True)
     @mock.patch('model.nwdevices._persist_interface', autospec=True)
@@ -971,17 +1016,21 @@ class ConfigureInterfaceUnitTests(unittest.TestCase):
         mock_bring_offline: mock of _bring_offline() of model.nwdevices
         """
         interface = 'test_interface'
+        osa_portno = 'dummy_port'
+        params = {'osa_portno': osa_portno,
+                  'interface': interface}
 
         def cb(msg, status=None):
             pass
 
         mock_persist_interface.side_effect = Exception('dummy_error')
         mock_is_interface_online.return_value = False
-        _configure_interface(cb, interface)
+        mock_bring_online.return_value = None
+        _configure_interface(cb, params)
         mock_is_interface_online.assert_called_once_with(interface)
         mock_create_ifcfg_file.assert_called_once_with(interface)
-        mock_bring_online.assert_called_once_with(interface)
-        mock_persist_interface.assert_called_once_with(interface)
+        mock_bring_online.assert_called_once_with(interface, osa_portno)
+        mock_persist_interface.assert_called_once_with(interface, None)
 
 
 class UnconfigureInterfaceUnitTests(unittest.TestCase):

@@ -4,5 +4,32 @@
     "description": "Json schema for Gigner S390x API",
     "type": "object",
     "properties": {
+        "networkdevice_update": {
+            "type": "object",
+            "properties": {
+                "osa_portno": {
+                    "description": "Set osa port for configured OSA Express network card",
+                    "type": "integer",
+                    "maximum": 1,
+                    "minimum": 0,
+                    "required": true,
+                    "error": "GS390XIONW009E"
+                }
+            },
+            "additionalProperties": false
+        },
+        "networkdevice_configure": {
+            "type": "object",
+            "properties": {
+                "osa_portno": {
+                    "description": "Set osa port for configured OSA Express network card",
+                    "type": "integer",
+                    "maximum": 1,
+                    "minimum": 0,
+                    "error": "GS390XIONW009E"
+                }
+            },
+            "additionalProperties": false
+        }
     }
 }

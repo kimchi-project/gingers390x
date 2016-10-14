@@ -150,12 +150,17 @@ Contains information about black listed i/o devices.
     * chpid: CHPID of the interface
     * osa_portno: OSA port used by the OSA Express Network card
 
+* **PUT**: update parameters for network i/o device.
+    * osa_portno: port to be assigned for the configured OSA Express network card
+
 * **POST**: *See Network I/O device Actions*
 
 **Actions (POST):**
 
 * configure: Configure network device in background and return
              a task resource * See Resource: Task *
+     * osa_portno: port to be assigned for the adapter. Port 0 is used by default
+                   if requested port is not available on the OSA Express Network card
 * unconfigure: Un-configure network device in background and return
                a task resource * See Resource: Task *
 

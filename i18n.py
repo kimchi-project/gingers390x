@@ -45,6 +45,10 @@ messages = {
     "GS390XIONW005E": _("Failed to create ifcfg file %(ifcfg_file_path)s for "
                         "network device %(device)s. Error = %(error)s"),
     "GS390XIONW006E": _("Network device %(device)s not found"),
+    "GS390XIONW007E": _("Updating osa port number is valid only for configured OSA Express network card"),
+    "GS390XIONW008E": _("Failed to configure osa port for OSA Express network card '%(device)s. Error: %(error)s' "),
+    "GS390XIONW009E": _("Invalid OSA port number. OSA port number should be integer - either 0 or 1 "),
+    "GS390XIONW010E": _("OSA port '%(osa_portno)s' is not available for OSA Express card '%(interface)s'"),
 
     "GS390XIOIG001E": _("Failed to retrieve devices in ignored list = %(error)s"),
     "GS390XIOIG002E": _("Failed to remove devices from ignore list. "
@@ -74,8 +78,11 @@ messages = {
 
     # These messages (ending with L) are for user log purposes
     "GS390XIOIG0001L": _("Remove i/o devices '%(devices)s' from ignore list"),
-    "GS390XIONW0001L": _("Configure network i/o device '%(ident)s'"),
+
+    "GS390XIONW0001L": _("Configure network i/o device '%(ident)s' with osa port '%(osa_portno)s'"),
     "GS390XIONW0002L": _("Un-configure network i/o device '%(ident)s'"),
+    "GS390XIONW0003L": _("Update osa port '%(osa_portno)s' for network i/o device '%(ident)s'"),
+
     "GS390XIOST0001L": _("Bring storage i/o device '%(ident)s' online"),
     "GS390XIOST0002L": _("Bring storage i/o device '%(ident)s' offline"),
     "GS390XSTG0001L": _("Enable lun scan"),
