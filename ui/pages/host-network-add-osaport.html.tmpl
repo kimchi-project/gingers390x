@@ -1,0 +1,74 @@
+#*
+ * Project Ginger
+ *
+ * Copyright IBM Corp, 2016
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+#unicode UTF-8
+#import gettext
+#from wok.cachebust import href
+#silent t = gettext.translation($lang.domain, $lang.localedir, languages=$lang.lang, fallback=True)
+#silent _ = t.gettext
+#silent _t = t.gettext
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <div id="osa-window-modal" class="gingers390x">
+        <div id="osa-port-add" class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="osa-port-add-button-close" data-dismiss="modal" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">$_("OSA Port Configuration")</h4>
+            </div>
+            <hr style="display:block;
+            margin-left:20px;
+            margin-right:20px ;
+            border-color:#008abf ;
+            border-width:1px;">
+            <span id="osaport-add-message" style="display:none;"></span>
+            <div class="modal-body" id="osaport-add">
+                <div id="alert-osaport-add-modal"></div>
+                <form id="form-osaport-add" class="tab-pane form-horizontal">
+                    <div class="form-group">
+                        <div class="form-group" style="width:auto;height:auto;border:1px dotted black;">
+                            <div class="form-group" style="padding-top:10px;">
+                                <span style="font-size:20px;font-family:arial;padding-left:20px;"><b>OSA Port Settings</b></span>
+                            </div>
+                            <div class="form-group" id="osaport-value">
+                                <label for="add-osaportvalue-textbox" class="col-md-5 col-lg-5" style="padding-left:20px;">$_("Port Number")</label>
+                                <select id="add-osaportType" class="selectpicker col-md-2 col-lg-2" style="margin-top:45px;">
+                                    <option value="0">$_("0")</option>
+                                    <option value="1">$_("1")</option>
+                                </select>
+                            </div>
+                        </div>
+                </form>
+                </div>
+                <p class="help-block">
+                    <i class="fa fa-info-circle"></i>$_("Note* Some of the OSA Cards comes with two ports and triplet can be configured on one of them. Please choose the relevant port based on the OSA card configurations.")</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="osaport-add-submit" class="btn btn-default">$_("Apply")</button>
+                <button type="button" id="osaport-add-cancel" class="btn btn-default" data-dismiss="modal">$_("Cancel")</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        gingers390x.initNetworkAddOsaPort();
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+#*
+ * Project Ginger
+ *
+ * Copyright IBM Corp, 2016
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+#unicode UTF-8
+#import gettext
+#from wok.cachebust import href
+#silent t = gettext.translation($lang.domain, $lang.localedir, languages=$lang.lang, fallback=True)
+#silent _ = t.gettext
+#silent _t = t.gettext
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <div class="modal-content" id="osa-port">
+        <div class="modal-header">
+            <button type="button" id="osa-port-button-close" data-dismiss="modal" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">$_("OSA Port Configuration")</h4>
+        </div>
+        <hr>
+        <div class="modal-body" id="osaport">
+            <div id="alert-osaport-modal"></div>
+            <form id="form-osaport" class="tab-pane form-horizontal">
+                <span id="osaport-message" style="display:none;"></span>
+                <div class="form-group">
+                    <div class="form-group" style="width:auto;height:auto;border:1px dotted black;">
+                        <div class="form-group" style="padding-top:10px;">
+                            <span style="font-size:20px;font-family:arial;padding-left:20px;"><b>Current OSA Port Configuration</b></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-5 col-lg-5" style="padding-left:20px;">$_("Port Number")</label>
+                            <label id="osa-port-status-textbox" class="col-md-7 col-lg-7" disabled></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group" style="width:auto;height:auto;border:1px dotted black;">
+                        <div class="form-group" style="padding-top:10px;">
+                            <span style="font-size:20px;font-family:arial;padding-left:20px;"><b>OSA Port Settings</b></span>
+                        </div>
+                        <div class="form-group" id="osaport-value">
+                            <label for="osaportvalue-textbox" class="col-md-5 col-lg-5" style="padding-left:20px;">$_("Port Number")</label>
+                            <select id="osaportType" class="selectpicker col-md-2 col-lg-2" style="margin-top:45px;">
+                                <option value="0">$_("0")</option>
+                                <option value="1">$_("1")</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="wok-list-loader-container wok-list-loading" id="OSAport-update-loading" style="display:none; z-index: 1;">
+                        <div class="wok-list-loading-icon"></div>
+                        <div class="wok-list-loading-text">Please wait...</div>
+                    </div>
+            </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="osaport-submit" disabled class="btn btn-default">$_("Apply")</button>
+            <button type="button" id="osaport-cancel" data-dismiss="modal" class="btn btn-default">$_("Cancel")</button>
+        </div>
+    </div>
+    <script>
+        gingers390x.initOSAport();
+    </script>
+</body>
+</html>
