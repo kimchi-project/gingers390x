@@ -22,6 +22,7 @@ from wok.control.utils import model_fn, UrlSubNode
 
 
 NWDEVICE_REQUESTS = {
+    'PUT': {'default': "GS390XIONW0003L"},
     'POST': {
         'configure': "GS390XIONW0001L",
         'unconfigure': "GS390XIONW0002L",
@@ -59,11 +60,15 @@ class NetworkDevice(Resource):
     def __init__(self, model, ident):
         super(NetworkDevice, self).__init__(model, ident)
         self.role_key = "administration"
-        self.admin_methods = ['GET', 'POST']
+        self.admin_methods = ['GET', 'POST', 'PUT']
         self.uri_fmt = '/nwdevices/%s'
-        self.configure = self.generate_action_handler_task('configure')
+        self.configure = self.generate_action_handler_task(
+            'configure', ['osa_portno'])
         self.unconfigure = self.generate_action_handler_task('unconfigure')
+
+        # set user log messages and make sure all parameters are present
         self.log_map = NWDEVICE_REQUESTS
+        self.log_args.update({'osa_portno': ''})
 
     @property
     def data(self):

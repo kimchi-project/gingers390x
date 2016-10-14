@@ -24,7 +24,8 @@ import re
 
 import model_utils as utils
 from wok.asynctask import AsyncTask
-from wok.exception import InvalidParameter, NotFoundError, OperationFailed
+from wok.exception import InvalidParameter, InvalidOperation
+from wok.exception import NotFoundError, OperationFailed
 from wok.model.tasks import TaskModel
 from wok.rollbackcontext import RollbackContext
 from wok.utils import run_command, wok_log
@@ -46,6 +47,7 @@ NETTYPE = 'NETTYPE'
 TYPE = 'TYPE'
 ETHERNET = 'Ethernet'
 ENCCW = 'enccw'
+OPTIONS = 'OPTIONS'
 
 ifcfg_path = 'etc/sysconfig/network-scripts/ifcfg-enccw<deviceid>'
 
@@ -130,7 +132,7 @@ class NetworkDeviceModel(object):
         wok_log.info('Attributes of network devices %s: %s' % (name, device))
         return device
 
-    def configure(self, interface):
+    def configure(self, interface, osa_portno):
         """
         method to configure network device - bring the network
         device online and persist it
@@ -146,8 +148,10 @@ class NetworkDeviceModel(object):
         if ENCCW in device:
             # filtering out device id from interface
             device = device.replace(ENCCW, '')
+        params = {'osa_portno': osa_portno,
+                  'interface': device}
         taskid = AsyncTask('/plugins/gingers390x/nwdevices/%s/configure'
-                           % interface, _configure_interface, device).id
+                           % interface, _configure_interface, params).id
         return self.task.lookup(taskid)
 
     def unconfigure(self, interface):
@@ -169,6 +173,22 @@ class NetworkDeviceModel(object):
         taskid = AsyncTask('/plugins/gingers390x/nwdevices/%s/unconfigure'
                            % interface, _unconfigure_interface, device).id
         return self.task.lookup(taskid)
+
+    def update(self, interface, params):
+        """
+        method to un-configure network device - remove or bring the network
+        device offline and unpersist it
+        :param interface: name of the network interface
+        :return: returns task json
+        """
+        wok_log.info('In NetworkDeviceModel.update(%s, %s) method'
+                     % (interface, params))
+        if not _get_configured_devices(key=UNIQUE_COL_NAME).get(interface):
+            raise InvalidOperation('GS390XIONW007E')
+        _update_osaport(interface, params)
+        wok_log.info('End of NetworkDeviceModel.update(%s, %s) method'
+                     % (interface, params))
+        return interface
 
 
 def _get_configured_devices(key=None):
@@ -305,7 +325,7 @@ def _format_znetconf(device):
     return device
 
 
-def _configure_interface(cb, interface):
+def _configure_interface(cb, params):
     """
     method to configure and persist network device.
     Rollback is performed if it fails to persist.
@@ -313,14 +333,16 @@ def _configure_interface(cb, interface):
     :param interface: network device id
     :return: None
     """
+    osa_portno = params.get('osa_portno')
+    interface = params.get('interface')
     cb('')  # reset messages
     try:
         with RollbackContext() as rollback:
             if not _is_interface_online(interface):
-                _bring_online(interface)
+                osa_portno = _bring_online(interface, osa_portno)
                 rollback.prependDefer(_bring_offline, interface)
                 _create_ifcfg_file(interface)
-            _persist_interface(interface)
+            _persist_interface(interface, osa_portno)
             rollback.commitAll()
         cb('Successfully configured network device %s' % interface, True)
     except Exception as e:
@@ -407,25 +429,35 @@ def _create_ifcfg_file(interface):
                                'error': e.message})
 
 
-def _bring_online(interface):
+def _bring_online(interface, osa_portno=None):
     """
     method to configure network device
 
     :param interface: network device id
     :return: None
     """
-    wok_log.info('Configuring network device %s' % interface)
-    command = [ZNETCONF_CMD, '-a', interface]
+    wok_log.info('Configuring network device %s with port number %s'
+                 % (interface, osa_portno))
+    # form command as per osa_port
+    command = [ZNETCONF_CMD, '-a', interface, '-o', 'portno=%s' % osa_portno]\
+        if isinstance(osa_portno, int) else [ZNETCONF_CMD, '-a', interface]
     out, err, rc = run_command(command)
+    # znetconf command gives non zero rc if the osa port is not available
+    # for the adapter, but configures the triplet with default port(port 0)
     if rc:
-        err = ','.join(line.strip() for line in err.splitlines())
-        wok_log.error('failed to configure network device %s. '
-                      'Error: %s' % (interface, err))
-        raise OperationFailed('GS390XIONW001E', {'device': interface,
-                                                 'error': err})
-    else:
-        wok_log.info("Configured network device %s "
-                     "successfully" % interface)
+        if 'Failed to configure portno' in err:
+            # if failed to configure port, port 0 is used by default
+            osa_portno = '0'
+        else:
+            # raise exception for errors excluding port configuration
+            err = ','.join(line.strip() for line in err.splitlines())
+            wok_log.error('failed to configure network device %s. '
+                          'Error: %s' % (interface, err))
+            raise OperationFailed('GS390XIONW001E', {'device': interface,
+                                                     'error': err})
+    wok_log.info("Configured network device %s "
+                 "successfully" % interface)
+    return osa_portno
 
 
 def _bring_offline(interface):
@@ -447,7 +479,7 @@ def _bring_offline(interface):
     wok_log.info('successfully removed network device %s' % interface)
 
 
-def _persist_interface(interface):
+def _persist_interface(interface, osa_portno):
     """
     method to persist network device in by creating
     ifcfg file in /etc/sysconfig/network-scripts/ directory
@@ -461,10 +493,10 @@ def _persist_interface(interface):
     if isinstance(ifcfg_file_path, unicode):
         ifcfg_file_path = ifcfg_file_path.encode('utf-8')
     if os.path.isfile(ifcfg_file_path):
-        _write_ifcfg_params(interface)
+        _write_ifcfg_params(interface, osa_portno)
     else:
         _create_ifcfg_file(interface)
-        _write_ifcfg_params(interface)
+        _write_ifcfg_params(interface, osa_portno)
     wok_log.info('successfully persisted network device %s '
                  'in %s file' % (interface, ifcfg_file_path))
 
@@ -496,7 +528,7 @@ def _unpersist_interface(interface):
                  'network device %s' % (ifcfg_file_path, interface))
 
 
-def _write_ifcfg_params(interface):
+def _write_ifcfg_params(interface, osa_portno):
     """
     method to write mandatory attributes to ifcfg file
     of corresponding network device using augeas module
@@ -525,6 +557,10 @@ def _write_ifcfg_params(interface):
         for key, value in cfgmap.iteritems():
             path = ifcfg_file_pattern+key
             parser.set(path, value)
+        # add OPTIONS attribute with layer2 and osa port number
+        optns = _form_cfg_options_attr(
+            osa_portno, parser.get(ifcfg_file_pattern+OPTIONS))
+        parser.set(ifcfg_file_pattern+OPTIONS, optns)
         parser.save()
     except Exception as e:
         wok_log.error('Failed to write device attributes to ifcfg file '
@@ -580,7 +616,7 @@ def _get_osaport(device_id):
 
     """
     device_id = device_id.strip() if ENCCW not in device_id else \
-        device_id.strip(ENCCW).strip()
+        device_id.replace(ENCCW, '').strip()
     portno_file = os.path.join(SYSFS_TRIPLET_PATH + device_id + '/portno')
     if os.path.isfile(portno_file):
         try:
@@ -590,3 +626,166 @@ def _get_osaport(device_id):
             wok_log.error('Failed to read osa port number for devie "%s". '
                           'Error: "%s"' % (device_id, e.message))
     return 'n/a'
+
+
+def _form_cfg_options_attr(portno, options):
+    """
+    method to form OPTIONS attribute of ifcfg file
+
+    Example: OPTIONS="layer2=1 portno=0 buffer_count=128"
+
+    valid OPTIONS attribute includes options like
+    layer2, portno, buffercount etc
+    this method focus on replacing only portno with given port
+    """
+    wok_log.info('In _form_cfg_options_attr(%s, %s) method'
+                 % (portno, options))
+    # use 0 port by default if portno is not provided
+    portno = portno if isinstance(portno, int) else 0
+    if options and not options.isspace():
+        if re.match(r'^[\"\'][^\"\']*[\"\']$', options):
+            # valid OPTIONS value will be enclosed by
+            # either single or double quotes
+            if re.search(r'portno=\d', options):
+                return re.sub(r'portno=\d', 'portno=%s' % portno, options)
+            else:
+                return options.rstrip(options[-1]) \
+                          + 'portno=%s' % portno + options[0]
+    wok_log.info('End of _form_cfg_options_attr(%s, %s) method'
+                 % (portno, options))
+    return '"layer2=1 portno=%s"' % portno
+
+
+def _update_osaport(interface, params):
+    """
+    method to configure osa port and write in configuration file
+    Args:
+        interface: interface name of the configured triplet
+        params: params having osa_portno to update
+
+    Returns:
+
+    """
+    wok_log.info('In _update_osaport(%s, %s) method'
+                 % (interface, params))
+    device_id = interface.strip() if ENCCW not in interface else \
+        interface.replace(ENCCW, '').strip()  # get bus id
+    osa_portno = params.get('osa_portno')
+    if not isinstance(osa_portno, int):
+        raise InvalidParameter('GS390XIONW009E')
+    # check if the given osa port is same as configured osa port
+    if osa_portno != _get_osaport(device_id):
+        _configure_osa_portno(device_id, osa_portno)
+    _write_osaport_to_cfgfile(device_id, osa_portno)
+    wok_log.info('End of _update_osaport(%s, %s) method'
+                 % (interface, params))
+
+
+def _configure_osa_portno(device_id, osa_portno):
+    """
+    method to configure osa port for OSA Express card
+    this method writes given osa port number in portno
+    file of SYSFS_TRIPLET_PATH
+    Args:
+        device_id: first bus id of configuder triplet
+        osa_portno: osa port number
+    """
+    wok_log.info('In _configure_osa_portno(%s, %s) method'
+                 % (device_id, osa_portno))
+    device_id = device_id.strip() if ENCCW not in device_id else \
+        device_id.replace(ENCCW, '').strip()
+    online_path = os.path.join(SYSFS_TRIPLET_PATH + device_id + '/online')
+    portno_path = os.path.join(SYSFS_TRIPLET_PATH + device_id + '/portno')
+    bring_online = False
+    try:
+        # avoid writing '0' into online file for a interface which is
+        # already offline. Else it will throw write error
+        if _is_interface_online(device_id):
+            with open(online_path, 'w') as online_file:
+                # bring interface offline
+                online_file.write('0')
+            wok_log.info('brought device "%s" offline' % device_id)
+            bring_online = True
+        try:
+            with open(portno_path, 'w') as portno_file:
+                # configure osa port in portno file
+                portno_file.write(str(osa_portno))
+            wok_log.info('configure osa port "%s" for device "%s"' %
+                         (osa_portno, device_id))
+        except IOError as e:
+            # if its write error then corresponding port is
+            # not available
+            if '[Errno 22] Invalid argument' in e.__str__():
+                wok_log.error(
+                    'Port number "%s" may not be availble since write '
+                    'on file "%s" failed.' % (osa_portno, portno_path))
+            raise OperationFailed('GS390XIONW010E',
+                                  {'interface': 'enccw' + device_id,
+                                   'osa_portno': osa_portno})
+        with open(online_path, 'w') as online_file:
+            # bring interface online
+            online_file.write('1')
+        wok_log.info('brought device "%s" online' % device_id)
+        bring_online = False
+    except OperationFailed:
+        raise
+    except Exception as e:
+        wok_log.error('Failed to configure osa port number for device "%s". '
+                      'Error: "%s"' % (device_id, e.__str__()))
+        raise OperationFailed('GS390XIONW008E',
+                              {'device': 'enccw' + device_id,
+                               'error': e.__str__()})
+    finally:
+        if bring_online:
+            # rollback if the interface was brought offline
+            with open(online_path, 'w') as online_file:
+                online_file.write('1')
+        wok_log.info('End of _configure_osa_portno(%s, %s) method'
+                     % (device_id, osa_portno))
+
+
+def _write_osaport_to_cfgfile(device_id, osa_portno):
+    """
+    write osa port number into ifcfg file for the corresponding interface
+    this method creates ifcfg file with defualt params if file doesn't exist
+    Args:
+        device_id: first bus id of the network triplet
+        osa_portno: OSA port number
+    """
+    wok_log.info('In _write_osaport_to_cfgfile() method. Updating osa port'
+                 ' number "%s" for device "%s"' % (osa_portno, device_id))
+    ifcfg_file_path = '/' + ifcfg_path.replace('<deviceid>', device_id)
+    if not os.path.isfile(ifcfg_file_path):
+        wok_log.info('ifcfg file is not there for interface "%s". creating'
+                     ' ifcfg file with default values and osa port numer "%s'
+                     % (device_id, osa_portno))
+        # if the ifcfg file doesn't exist, follow persist interface to create
+        # ifcfg file and write persistence params
+        return _persist_interface(device_id, osa_portno)
+
+    ifcfg_file_pattern = ifcfg_path.replace('<deviceid>', device_id) + '/'
+    wok_log.info('Update osa port number "%s" in file "%s" usaing augeas'
+                 % (osa_portno, ifcfg_file_path))
+    try:
+        parser = augeas.Augeas('/')
+        parser.load()
+        wok_log.info('Get current osa port number "%s" from file "%s"'
+                     % (osa_portno, ifcfg_file_path))
+        optns = _form_cfg_options_attr(
+            osa_portno, parser.get(ifcfg_file_pattern+OPTIONS))
+        parser.set(ifcfg_file_pattern+OPTIONS, optns)
+        parser.save()
+        wok_log.info('Updated osa port number "%s" in file "%s"'
+                     % (osa_portno, ifcfg_file_path))
+    except Exception as e:
+        wok_log.error('Failed to write osa port number to ifcfg file '
+                      'using augeas tool. Error: %s' % e.message)
+        raise OperationFailed('GS390XIONW002E',
+                              {'device': device_id,
+                               'ifcfg_file_path': ifcfg_file_path,
+                               'error': e.message})
+    finally:
+        if parser:
+            del parser
+        wok_log.info('End of _write_osaport_to_cfgfile(%s, %s) method'
+                     % (device_id, osa_portno))
