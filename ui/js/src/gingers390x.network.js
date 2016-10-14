@@ -61,7 +61,7 @@ gingers390x.initNetworkBootgrid = function(actionButtonText) {
   gingers390x.hideBootgridData(opts); //This will hide  No reaord found till data is not appended.
 
   //Add on click event
-  $('#network-enable-btn').on('click', function(event) {
+  $('#osaport-add-submit').on('click', function(event) {
     gingers390x.disableActionButton();
     gingers390x.enableNetworks(opts);
     event.preventDefault();
@@ -75,7 +75,20 @@ gingers390x.initNetworkBootgrid = function(actionButtonText) {
     gingers390x.initNetworkBootGridData(opts);
     event.preventDefault();
   });
-
+  $('#network-enable-btn').on('click', function(event) {
+    var selectedRowIds = gingers390x.getSelectedRows(opts);
+    if (selectedRowIds.length > 0) {
+        $('#network-enable-btn').attr('href', 'plugins/gingers390x/host-network-add-osaport.html');
+        $('#network-enable-btn').attr('data-toggle', 'modal');
+        $('#network-enable-btn').attr('data-target', '#network-Addosa-modal');
+        gingers390x.cleanModalDialog();
+    } else {
+        wok.message.error(i18n['GS390XNW008E'], '#alert-modal-nw-container', true);
+        gingers390x.enableActionButton();
+        gingers390x.hideBootgridLoading(opts);
+        gingers390x.showBootgridData(opts);
+    }
+  });
 };
 
 gingers390x.initNetworkBootGridData = function(opts) {
@@ -117,7 +130,9 @@ gingers390x.initNetworkBootGridData = function(opts) {
   });
 };
 
-gingers390x.enableNetworks = function(opts) {
+gingers390x.enableNetworks = function(opts,osaval) {
+  var osaport = {};
+  osaport.osa_portno = parseInt(osaval);
   var selectedRowIds = gingers390x.getSelectedRows(opts);
   if (selectedRowIds.length > 0) {
     opts['loadingMessage'] = i18n['GS390XNW007E'];
@@ -134,7 +149,7 @@ gingers390x.enableNetworks = function(opts) {
 
     var totalRowsSelected = selectedRowIds.length;
     for (var i = 0; i < selectedRowIds.length; i++) {
-      gingers390x.configureNetwork(selectedRowIds[i], true, function(result) {
+      gingers390x.configureNetwork(osaport,selectedRowIds[i], true, function(result) {
         onTaskAccepted();
         var successText = result['message'];
         wok.message.success(successText, '#alert-modal-nw-container');
@@ -175,6 +190,10 @@ gingers390x.enableNetworksCompleted = function(opts) {
     $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
       if(!($('#nw-add-adapter-button',$(this)).length))
         gingers390x.addNetworkAdapterButton();
+    });
+    $('#network-configuration-content-area').on('shown.bs.dropdown', '.nw-configuration-action', function() {
+      if (!($('#nw-osa-port-button', $(this)).length))
+        gingers390x.addOSAportButton();
     });
 }
 
@@ -238,6 +257,33 @@ gingers390x.addNetworkAdapterButton = function() {
     });
     $('.nw-configuration-add').show();
 }
+gingers390x.addOSAportButton = function() {
+    var btnHTML = [
+        '<li role="presentation" class="" >',
+        '<a role="menuitem" tabindex="-1" data-backdrop="static"  data-keyboard="false" data-dismiss="modal" id="nw-osa-port-button"',
+        '>',
+        '<i class="fa fa-pencil"></i>',
+        i18n['GS390XOSA004M'],
+        '</a></li>'
+    ].join('');
+    var btnNode = $(btnHTML).appendTo($('.dropdown-menu', $('.nw-configuration-action')));
+    $('button', $('.nw-configuration-add')).css('width', '152px');
+
+    $('#nw-osa-port-button').on('click', function() {
+        var networkConfigTable = $('#network-configuration').DataTable();
+        var selectedRows = ginger.listNetworkConfig.rows_indexes;
+        if (selectedRows && (selectedRows.length == 1)) {
+            wok.window.open('plugins/gingers390x/network-osa-port.html');
+        } else {
+            var settings = {
+                content: i18n["GS390XOSA005M"],
+                confirm: i18n["GS390XOSA003M"]
+            };
+            wok.confirm(settings, function() {}, function() {});
+        }
+    });
+    $('.nw-configuration-add').show();
+}
 
 gingers390x.removeEthernetInterface = function() {
     // check architecture and gingers390x plugin for ethernet deletion
@@ -280,6 +326,10 @@ gingers390x.removeEthernetInterface = function() {
                     if(!($('#nw-add-adapter-button',$(this)).length))
                       gingers390x.addNetworkAdapterButton();
                   });
+                  $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-action',function(){
+                    if(!($('#nw-osa-port-button',$(this)).length))
+                      gingers390x.addOSAportButton();
+                  });
                 }
             }, function(error) {
               var message = i18n['GINNET0019M'] + " " + value[2].toString() + " " + i18n['GINNET0021M'];
@@ -310,6 +360,10 @@ gingers390x.removeEthernetInterface = function() {
                   $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
                     if(!($('#nw-add-adapter-button',$(this)).length))
                       gingers390x.addNetworkAdapterButton();
+                  });
+                  $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-action',function(){
+                    if(!($('#nw-osa-port-button',$(this)).length))
+                      gingers390x.addOSAportButton();
                   });
                 }
               }, function(error) {
@@ -412,6 +466,10 @@ gingers390x.networkRefreshHandler =  function(){
           if(!($('#nw-add-adapter-button',$(this)).length))
            gingers390x.addNetworkAdapterButton();
       });
+      $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-action',function(){
+        if(!($('#nw-osa-port-button',$(this)).length))
+          gingers390x.addOSAportButton();
+      });
   });
 };
 //loading network functionality for Gingers390x plugins
@@ -424,6 +482,10 @@ gingers390x.loadNetworkDetails = function() {
         $('.nw-configuration-add').on('shown.bs.dropdown',function(){
             if(!($('#nw-add-adapter-button',$(this)).length))
              gingers390x.addNetworkAdapterButton();
+        });
+        $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-action',function(){
+          if(!($('#nw-osa-port-button',$(this)).length))
+            gingers390x.addOSAportButton();
         });
         // Refresh Button handler
         gingers390x.networkRefreshHandler();
@@ -476,3 +538,26 @@ ginger.getHostDetails(function(result) {
       setTimeout(gingers390x.loadNetworkDetails,2000);
     });
 });
+gingers390x.initNetworkAddOsaPort = function() {
+    $('.selectpicker').selectpicker();
+    $('.selectpicker').selectpicker('refresh');
+    var opts = [];
+    opts['containerId'] = 'network-content-container';
+    opts['gridId'] = "network-table-grid";
+    $('#osaport-add-submit').on('click', function(event) {
+        $(this).attr('data-dismiss', 'modal');
+        var osaval = $('#add-osaportType').val();
+        gingers390x.disableActionButton();
+        gingers390x.enableNetworks(opts, osaval);
+        event.preventDefault();
+    });
+}
+gingers390x.cleanModalDialog = function() {
+    $(document).ready(function() {
+        $('body').on('hidden.bs.modal', '.modal', function() {
+            $(this).removeData('bs.modal');
+            $("#" + $(this).attr("id") + " .modal-content").empty();
+            $("#" + $(this).attr("id") + " .modal-content").append("Loading...");
+        });
+    });
+};

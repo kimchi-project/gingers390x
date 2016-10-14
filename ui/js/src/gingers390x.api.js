@@ -130,8 +130,28 @@ var gingers390x = {
       error: err
     });
   },
-
-  configureNetwork: function(device, configure, suc, err, progress) {
+  listNetworksOSA: function(device,suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/nwdevices/'+ device,
+      type: 'GET',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      error: err
+    });
+  },
+  UpdateNetworksOSA: function(portno,device,suc, err) {
+    wok.requestJSON({
+      url: 'plugins/gingers390x/nwdevices/'+ device,
+      type: 'PUT',
+      contentType: 'application/json',
+      dataType: 'json',
+      success: suc,
+      data : JSON.stringify(portno),
+      error: err
+    });
+  },
+  configureNetwork: function(osaport,device, configure, suc, err, progress) {
     var device = encodeURIComponent(device);
     var onResponse = function(data) {
       taskID = data['id'];
@@ -144,6 +164,7 @@ var gingers390x = {
       type: "POST",
       contentType: "application/json",
       dataType: "json",
+      data : JSON.stringify(osaport),
       success: onResponse,
       error: err
     });
