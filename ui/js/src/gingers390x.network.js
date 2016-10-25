@@ -319,7 +319,6 @@ gingers390x.removeEthernetInterface = function() {
                   ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
                   ginger.listNetworkConfig.rows_indexes = new Array();
                   setTimeout(function(){
-                    gingers390x.networkRefreshHandler();
                     gingers390x.networkConfigRowSelection();
                   },3000);
                   $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
@@ -354,7 +353,6 @@ gingers390x.removeEthernetInterface = function() {
                   ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
                   ginger.listNetworkConfig.rows_indexes = new Array();
                   setTimeout(function(){
-                    gingers390x.networkRefreshHandler();
                     gingers390x.networkConfigRowSelection();
                   },3000);
                   $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
@@ -373,7 +371,7 @@ gingers390x.removeEthernetInterface = function() {
              }
            });
           }, function() {
-            //ginger.hideBootgridLoading(ginger.opts_nw_if);
+            $('#network-configuration-content-area > .wok-mask').addClass('hidden');
           });
 
         } else {
@@ -435,12 +433,9 @@ gingers390x.ethernetDeleteHandler = function() {
 
       if (selectedRows && (selectedRows.length == 1)) {
         var selectedRowDetails  = networkConfigTable.row(selectedRows[0]).data();
-        var networkType = selectedRowDetails[3];
-        if (networkType.toLowerCase() == 'nic') {
           gingers390x.selectedNWInterface.push(selectedRowDetails);
           gingers390x.selectedNWrows.push(selectedRowDetails[2]);
-        }
-      } else if (selectedRows && (selectedRows.length > 1)) {
+        } else if (selectedRows && (selectedRows.length > 1)) {
           for (var i = 0; i < selectedRows.length; i++) {
               var selectedRowDetails  = networkConfigTable.row(selectedRows[i]).data();
               gingers390x.selectedNWInterface.push(selectedRowDetails);
@@ -451,14 +446,13 @@ gingers390x.ethernetDeleteHandler = function() {
     });
 };
 gingers390x.networkRefreshHandler =  function(){
-  $('#nw-config-refresh-btn').off();
-  $('#nw-config-refresh-btn').on('click',function(e) {
+  $('#network-configuration-content-area').off('click','#nw-config-refresh-btn');
+  $('#network-configuration-content-area').on('click','#nw-config-refresh-btn',function(e) {
       e.preventDefault();
       e.stopPropagation();
       ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();
       ginger.listNetworkConfig.rows_indexes = new Array();
       setTimeout(function(){
-        gingers390x.networkRefreshHandler();
         gingers390x.networkConfigRowSelection();
       },2000);
 
@@ -479,7 +473,7 @@ gingers390x.loadNetworkDetails = function() {
     if (activeTab.text() == i18n['Network']) {
       if ($.inArray("gingers390x", gingers390x.installedPlugin) != -1 && gingers390x.hostarch == 's390x') {
         //Adding SAN Adapter add button
-        $('.nw-configuration-add').on('shown.bs.dropdown',function(){
+        $('#network-configuration-content-area').on('shown.bs.dropdown','.nw-configuration-add',function(){
             if(!($('#nw-add-adapter-button',$(this)).length))
              gingers390x.addNetworkAdapterButton();
         });
@@ -487,14 +481,22 @@ gingers390x.loadNetworkDetails = function() {
           if(!($('#nw-osa-port-button',$(this)).length))
             gingers390x.addOSAportButton();
         });
-        // Refresh Button handler
-        gingers390x.networkRefreshHandler();
 
-        //Network Config datatable selection handler
-        gingers390x.networkConfigRowSelection();
+        setTimeout(function(){
+          //row selection handler
+          gingers390x.networkConfigRowSelection();
 
-        //ethernet deletion handler
-        gingers390x.ethernetDeleteHandler();
+          // Refresh Button handler
+          gingers390x.networkRefreshHandler();
+
+          //ethernet deletion handler
+          gingers390x.ethernetDeleteHandler();
+        },1000);
+
+        setInterval(function(){
+          if($('.nw-configuration-action .nw-delete').parent().hasClass('disabled'))
+           ginger.nwConfiguration.enableDelete();
+        },2000);
 
       }
     }
@@ -535,8 +537,8 @@ ginger.getHostDetails(function(result) {
     gingers390x.hostarch = result["architecture"];
     ginger.getPlugins(function(result) {
       gingers390x.installedPlugin = result;
-      setTimeout(gingers390x.loadNetworkDetails,2000);
-    });
+      gingers390x.loadNetworkDetails();
+      });
 });
 gingers390x.initNetworkAddOsaPort = function() {
     $('.selectpicker').selectpicker();
