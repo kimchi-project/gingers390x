@@ -176,10 +176,14 @@ class NetworkDeviceModel(object):
 
     def update(self, interface, params):
         """
-        method to un-configure network device - remove or bring the network
-        device offline and unpersist it
-        :param interface: name of the network interface
-        :return: returns task json
+        method to update parameters of network i/o device
+
+        Args:
+            interface: name of the network interface
+            params: dictionary of parameters to update
+
+        Returns: Name of the network interface
+
         """
         wok_log.info('In NetworkDeviceModel.update(%s, %s) method'
                      % (interface, params))
