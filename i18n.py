@@ -81,7 +81,7 @@ messages = {
 
     "GS390XIONW0001L": _("Configure network i/o device '%(ident)s' with osa port '%(osa_portno)s'"),
     "GS390XIONW0002L": _("Un-configure network i/o device '%(ident)s'"),
-    "GS390XIONW0003L": _("Update osa port '%(osa_portno)s' for network i/o device '%(ident)s'"),
+    "GS390XIONW0003L": _("Update action for network i/o device '%(ident)s'"),
 
     "GS390XIOST0001L": _("Bring storage i/o device '%(ident)s' online"),
     "GS390XIOST0002L": _("Bring storage i/o device '%(ident)s' offline"),
