@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gingers390x 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-19 21:47+0530\n"
+"POT-Creation-Date: 2016-11-08 16:32+0530\n"
 "PO-Revision-Date: 2015-12-24 12:53+0530\n"
 "Last-Translator: Archana <archanasingh@in.ibm.com>\n"
 "Language-Team: English\n"
@@ -90,6 +90,31 @@ msgid ""
 msgstr ""
 "Failed to create ifcfg file %(ifcfg_file_path)s for network device "
 "%(device)s. Error = %(error)s"
+
+#, python-format
+msgid "Network device %(device)s not found"
+msgstr ""
+
+msgid ""
+"Updating osa port number is valid only for configured OSA Express network "
+"card"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to configure osa port for OSA Express network card '%(device)s. "
+"Error: %(error)s' "
+msgstr ""
+
+msgid ""
+"Invalid OSA port number. OSA port number should be integer - either 0 or 1 "
+msgstr ""
+
+#, python-format
+msgid ""
+"OSA port '%(osa_portno)s' is not available for OSA Express card "
+"'%(interface)s'"
+msgstr ""
 
 #, python-format
 msgid "Failed to retrieve devices in ignored list = %(error)s"
@@ -183,40 +208,48 @@ msgid "Invalid lun path provided"
 msgstr ""
 
 #, python-format
-msgid "Removed I/O devices '%(devices)s' from ignore list"
+msgid "Storage device %(device)s not found"
 msgstr ""
 
 #, python-format
-msgid "Configured network I/O device '%(ident)s'"
+msgid "Remove i/o devices '%(devices)s' from ignore list"
 msgstr ""
 
 #, python-format
-msgid "Unconfigured network I/O device '%(ident)s'"
+msgid "Configure network i/o device '%(ident)s' with osa port '%(osa_portno)s'"
 msgstr ""
 
 #, python-format
-msgid "Brought storage I/O device '%(ident)s' online"
+msgid "Un-configure network i/o device '%(ident)s'"
 msgstr ""
 
 #, python-format
-msgid "Brought storage I/O device '%(ident)s' offline"
-msgstr ""
-
-msgid "Enabled LUN scan"
-msgstr ""
-
-msgid "Disabled LUN scan"
-msgstr ""
-
-msgid "Triggered LUN scan"
+msgid "Update osa port '%(osa_portno)s' for network i/o device '%(ident)s'"
 msgstr ""
 
 #, python-format
-msgid "Added LUN '%(hbaId)s : %(remoteWwpn)s : %(lunId)s'"
+msgid "Bring storage i/o device '%(ident)s' online"
 msgstr ""
 
 #, python-format
-msgid "Removed LUN '%(ident)s'"
+msgid "Bring storage i/o device '%(ident)s' offline"
+msgstr ""
+
+msgid "Enable lun scan"
+msgstr ""
+
+msgid "Disable lun scan"
+msgstr ""
+
+msgid "Trigger lun scan"
+msgstr ""
+
+#, python-format
+msgid "Add lun '%(hbaId)s' : '%(remoteWwpn)s': '%(lunId)s'"
+msgstr ""
+
+#, python-format
+msgid "Remove lun '%(ident)s'"
 msgstr ""
 
 msgid "Add FCP Storage devices"
@@ -263,6 +296,33 @@ msgstr "Add FCP SAN Adapter"
 msgid "Offline SAN Adapter/FCP HBA"
 msgstr ""
 
+msgid "OSA Port Configuration"
+msgstr ""
+
+msgid "OSA Port Settings"
+msgstr ""
+
+msgid "Port Number"
+msgstr ""
+
+msgid "0"
+msgstr ""
+
+msgid "1"
+msgstr ""
+
+msgid ""
+"Note* Some of the OSA Cards comes with two ports and triplet can be "
+"configured on one of them. Please choose the relevant port based on the OSA "
+"card configurations."
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
 msgid "Remove From Blacklist"
 msgstr "Remove From Blacklist"
 
@@ -289,6 +349,10 @@ msgstr "Removing..Please wait.."
 
 msgid "Please enter device id to remove from blacklist"
 msgstr "Please enter device id to remove from blacklist"
+
+#, python-format
+msgid "Successfully removed devices %s from ignore list"
+msgstr ""
 
 msgid "Filter"
 msgstr "Filter"
@@ -487,11 +551,37 @@ msgid ""
 "Please rectify the issue by manually logging onto the system via console."
 msgstr ""
 
+msgid "Create Partition"
+msgstr ""
+
+msgid ""
+"Do you want to change the OSA port configuration of the interface %1 to %2."
+"<br> Please confirm !!!"
+msgstr ""
+
+msgid "Successfully updated OSA port configuration of the interface "
+msgstr ""
+
+msgid "Ok"
+msgstr ""
+
+msgid "Set OSA Port"
+msgstr ""
+
+msgid "Please select one device to configure OSA port"
+msgstr ""
+
 msgid "Add Network Adapter"
 msgstr "Add Network Adapter"
 
 msgid "Offline Network Devices"
 msgstr "Offline Network Devices"
+
+msgid "Current OSA Port Configuration"
+msgstr ""
+
+msgid "Please wait..."
+msgstr ""
 
 #~ msgid "Failed to bring device online. Error = %(error)s"
 #~ msgstr "Failed to bring device online. Error = %(error)s"
