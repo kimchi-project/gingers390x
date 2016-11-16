@@ -343,12 +343,17 @@ def _configure_interface(cb, params):
     try:
         with RollbackContext() as rollback:
             if not _is_interface_online(interface):
-                osa_portno = _bring_online(interface, osa_portno)
+                configured_port = _bring_online(interface, osa_portno)
                 rollback.prependDefer(_bring_offline, interface)
                 _create_ifcfg_file(interface)
-            _persist_interface(interface, osa_portno)
+            _persist_interface(interface, configured_port)
             rollback.commitAll()
-        cb('Successfully configured network device %s' % interface, True)
+        if osa_portno and osa_portno != configured_port:
+            cb('Successfully configured network device "%s" on OSA port 0 '
+               'since port "%s" was not available.' % (interface, osa_portno),
+               True)
+        else:
+            cb('Successfully configured network device %s' % interface, True)
     except Exception as e:
         cb(e.message, False)
 
