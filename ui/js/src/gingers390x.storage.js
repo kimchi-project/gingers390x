@@ -590,7 +590,11 @@ gingers390x.loadStorageActionButtons = function() {
         var selectedRows = ginger.getSelectedRowsData(opts);
         ginger.partition.PartitionDeviceInfo = selectedRows[0];
         if (selectedRows && selectedRows.length === 1) {
+          if(ginger.partition.PartitionDeviceInfo['status']!='n/f'){
             wok.window.open('plugins/ginger/host-storage-addpartitions.html');
+          }else {
+            wok.message.warn(i18n['GINPT00017M'], '#alert-modal-nw-container', true);
+          }
         } else {
             wok.message.error(i18n['GINPT00014M'], '#alert-modal-nw-container', true);
         }
