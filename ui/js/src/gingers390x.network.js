@@ -250,7 +250,7 @@ gingers390x.addNetworkAdapterButton = function() {
       '</a></li>'
     ].join('');
     var btnNode = $(btnHTML).appendTo($('.dropdown-menu', $('.nw-configuration-add')));
-    $('button', $('.nw-configuration-add')).css('width','152px');
+    $('button', $('.nw-configuration-add')).css('width','auto');
 
     $('#nw-add-adapter-button').on('click', function() {
       wok.window.open('plugins/gingers390x/network.html');
@@ -267,7 +267,7 @@ gingers390x.addOSAportButton = function() {
         '</a></li>'
     ].join('');
     var btnNode = $(btnHTML).appendTo($('.dropdown-menu', $('.nw-configuration-action')));
-    $('button', $('.nw-configuration-add')).css('width', '152px');
+    $('button', $('.nw-configuration-add')).css('width', 'auto');
 
     $('#nw-osa-port-button').on('click', function() {
         var networkConfigTable = $('#network-configuration').DataTable();
