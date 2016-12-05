@@ -614,6 +614,8 @@ gingers390x.loadStorageActionButtons = function() {
     };
 
     gingers390x.createActionList(addListSettings);
+    $("#storage-device-create-partition-btn").off();
+    $("#file-systems-actions").empty();
     gingers390x.createActionList(actionListSettings);
 
 };
@@ -683,7 +685,7 @@ gingers390x.createSanAdapterAddButton = function() {
     $("#refresh-san-button").removeClass("pull-left");
     var sanAdapterAddButton = '<button class="btn btn-primary" id="add-san-button" aria-expanded="false"><i class="fa fa-plus-circle">&nbsp;</i>' + i18n['GINTITLE0020M'] + '</button>' ;
     $(".buttons","#san-adapter-content-area").append(sanAdapterAddButton);
-    $("#add-san-button").addClass("pull-left").css('margin-right','5px');
+    $("#add-san-button").addClass("pull-left");
 
     $('#add-san-button').off();
     $('#add-san-button').on('click', function() {
