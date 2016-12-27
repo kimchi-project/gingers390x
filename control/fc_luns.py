@@ -49,8 +49,8 @@ class LUNScan(Resource):
         self.admin_methods = ['GET', 'POST']
         self.role_key = "administration"
         self.uri_fmt = "/lunscan/%s"
-        self.enable = self.generate_action_handler_task('enable')
-        self.disable = self.generate_action_handler_task('disable')
+        self.enable = self.generate_action_handler('enable')
+        self.disable = self.generate_action_handler('disable')
         self.trigger = self.generate_action_handler_task('trigger')
         self.log_map = LUNSCAN_REQUESTS
 

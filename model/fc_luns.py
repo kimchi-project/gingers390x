@@ -55,14 +55,12 @@ class LUNScanModel(object):
         Enable LUN scanning
         """
         utils.enable_lun_scan("1")
-        return utils.is_lun_scan_enabled()
 
     def disable(self, name):
         """
         Disable LUN scanning
         """
         utils.enable_lun_scan("0")
-        return utils.is_lun_scan_enabled()
 
     def trigger(self, name):
         """
