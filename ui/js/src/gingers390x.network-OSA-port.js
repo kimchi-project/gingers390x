@@ -20,8 +20,13 @@ gingers390x.initOSAport = function() {
     $('.selectpicker').selectpicker('refresh');
     $('#osaport-submit').off();
     $('#osaport-submit').prop("disabled", true);
+    OSAportvalue = $('.selectpicker').val();
     $('.selectpicker').on('change', function() {
-        $('#osaport-submit').prop("disabled", false);
+      if($(this).val() == OSAportvalue){
+        $('#osaport-submit').prop("disabled", true);
+      }else{
+         $('#osaport-submit').prop("disabled", false);
+      }
     });
     var networkConfigTable = $('#network-configuration').DataTable();
     var selectedRows = ginger.listNetworkConfig.rows_indexes;
@@ -33,6 +38,7 @@ gingers390x.initOSAport = function() {
             var current_osaport = result['osa_portno'];
             $('#osa-port-status-textbox').text(current_osaport);
             $('#osaportType').selectpicker("val", current_osaport);
+            OSAportvalue = current_osaport;
         }, function() {});
     }
     $('#osaport-submit').on('click', function() {
@@ -60,7 +66,6 @@ gingers390x.initOSAport = function() {
     });
     $('#osaport-cancel').on('click', function() {
         wok.window.close();
-        gingers390x.refreshNetworkPage();
     });
     gingers390x.refreshNetworkPage = function() {
         ginger.listNetworkConfig.refreshNetworkConfigurationDatatable();

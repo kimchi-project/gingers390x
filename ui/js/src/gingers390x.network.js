@@ -135,6 +135,9 @@ gingers390x.enableNetworks = function(opts,osaval) {
   osaport.osa_portno = parseInt(osaval);
   var selectedRowIds = gingers390x.getSelectedRows(opts);
   if (selectedRowIds.length > 0) {
+    gingers390x.clearBootgridData(opts);
+    gingers390x.clearFilterData();
+    gingers390x.hideBootgridData(opts);
     opts['loadingMessage'] = i18n['GS390XNW007E'];
     gingers390x.showBootgridLoading(opts);
 
