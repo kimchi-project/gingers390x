@@ -198,6 +198,7 @@ gingers390x.enableNetworksCompleted = function(opts) {
       if (!($('#nw-osa-port-button', $(this)).length))
         gingers390x.addOSAportButton();
     });
+    $('#s390x-network-finish').prop("disabled", false);
 }
 
 gingers390x.finishAction = function(opts) {
@@ -550,6 +551,7 @@ gingers390x.initNetworkAddOsaPort = function() {
     opts['containerId'] = 'network-content-container';
     opts['gridId'] = "network-table-grid";
     $('#osaport-add-submit').on('click', function(event) {
+        $('#s390x-network-finish').prop("disabled", true);
         $(this).attr('data-dismiss', 'modal');
         var osaval = $('#add-osaportType').val();
         gingers390x.disableActionButton();
