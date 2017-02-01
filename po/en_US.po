@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gingers390x 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-08 16:32+0530\n"
+"POT-Creation-Date: 2017-01-31 21:48+0530\n"
 "PO-Revision-Date: 2015-12-24 12:53+0530\n"
 "Last-Translator: Archana <archanasingh@in.ibm.com>\n"
 "Language-Team: English\n"
@@ -53,7 +53,7 @@ msgstr "Failed to bring device %(device)s offline. Error = %(error)s"
 
 #, python-format
 msgid "Failed to add zfcp device in zfcp.conf file. Device = %(device)s"
-msgstr "Failed to add zfcp device in dasd.conf file. Device = %(device)s"
+msgstr "Failed to add zfcp device in zfcp.conf file. Device = %(device)s"
 
 #, python-format
 msgid "Failed to remove device from zfcp.conf file. Device = %(device)s"
@@ -161,7 +161,7 @@ msgid "Failed to LUN info, %(path)s"
 msgstr "Failed to LUN info, %(path)s"
 
 msgid "LUN scan is enabled. Cannot add/remove LUNs manually."
-msgstr "Lun scan is enabled. Cannot add/remove LUNs manually."
+msgstr "LUN scan is enabled. Cannot add/remove LUNs manually."
 
 msgid "hbaId is required for adding a LUN"
 msgstr "hbaId is required for adding a LUN"
@@ -224,7 +224,7 @@ msgid "Un-configure network i/o device '%(ident)s'"
 msgstr ""
 
 #, python-format
-msgid "Update osa port '%(osa_portno)s' for network i/o device '%(ident)s'"
+msgid "Update action for network i/o device '%(ident)s'"
 msgstr ""
 
 #, python-format
@@ -285,7 +285,7 @@ msgid "Enable"
 msgstr "Enable"
 
 msgid "Didn't find the device your are looking for? It may be in Blacklist.."
-msgstr "Didn't found the device your are looking for? It may be in Blacklist.."
+msgstr "Didn't find the device your are looking for? It may be in Blacklist.."
 
 msgid "Remove from blacklist"
 msgstr "Remove from blacklist"
@@ -312,7 +312,7 @@ msgid "1"
 msgstr ""
 
 msgid ""
-"Note* Some of the OSA Cards comes with two ports and triplet can be "
+" Note* Some of the OSA Cards comes with two ports and triplet can be "
 "configured on one of them. Please choose the relevant port based on the OSA "
 "card configurations."
 msgstr ""
@@ -535,13 +535,13 @@ msgid "removed successfully"
 msgstr ""
 
 msgid "Lun scan is enabled. Cannot add/remove LUNs manually"
-msgstr "Lun scan is enabled. Cannot add/remote LUNs manually."
+msgstr "Lun scan is enabled. Cannot add/remove LUNs manually"
 
 msgid "Add FCP Device"
 msgstr "Add FCP Device"
 
 msgid "Add ECKD Device"
-msgstr "Add ECKD Devices"
+msgstr "Add ECKD Device"
 
 msgid "Format ECKD"
 msgstr ""
@@ -556,7 +556,7 @@ msgstr ""
 
 msgid ""
 "Do you want to change the OSA port configuration of the interface %1 to %2."
-"<br> Please confirm !!!"
+"<br> This may affect network connectivity. Please confirm !!!"
 msgstr ""
 
 msgid "Successfully updated OSA port configuration of the interface "
