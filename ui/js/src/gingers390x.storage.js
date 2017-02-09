@@ -502,6 +502,7 @@ gingers390x.loadStorageActionButtons = function() {
             var selectedRowDetails = JSON.stringify(ginger.selectedrows);
             var fcpDeviceNo = 0;
             var removalErrorMessage = '';
+            var UnsupportedDiskTypes = [];
             opts['loadingMessage'] = i18n['GS390XSD003M'];
             ginger.showBootgridLoading(opts);
             ginger.hideBootgridData(opts);
@@ -564,6 +565,7 @@ gingers390x.loadStorageActionButtons = function() {
                 }
               }else{
                  removalErrorMessage = removalErrorMessage + deviceId+"<br>";
+                 UnsupportedDiskTypes.push(diskType);
                  rowNums = rowNums - 1;
 
                  if (rowNums == 0) {
@@ -572,8 +574,12 @@ gingers390x.loadStorageActionButtons = function() {
               }
             });
 
+            var UniqueUnsupportedDiskTypes = UnsupportedDiskTypes.filter(function(itm, i, a) {
+                return i == a.indexOf(itm);
+            });
+
         if(removalErrorMessage!="")
-         wok.message.error(i18n['GS390XSD0010M']+'<br>'+removalErrorMessage, '#alert-modal-nw-container', true);
+         wok.message.error(i18n['GS390XSD0010M'].replace("%1",UniqueUnsupportedDiskTypes.join(", "))+'<br>'+removalErrorMessage, '#alert-modal-nw-container', true);
 
           });
         }, function() {});
